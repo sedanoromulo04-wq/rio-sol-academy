@@ -3,7 +3,9 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
+import { Input } from '@/components/ui/input'
 import { Play, Award, Zap, BrainCircuit, Leaf, Settings2, Target, Bot } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 const CircularProgress = ({ value, label }: { value: number; label: string }) => {
   const radius = 24
