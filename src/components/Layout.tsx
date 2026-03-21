@@ -1,4 +1,5 @@
-import { Outlet, Link, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Outlet, Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Sidebar,
   SidebarContent,
@@ -14,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { useToast } from '@/hooks/use-toast'
 import {
   BookOpen,
   Brain,
@@ -36,6 +38,26 @@ const navItems = [
 
 export default function Layout() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const { toast } = useToast()
+
+  const [localSearch, setLocalSearch] = useState(searchParams.get('q') || '')
+
+  useEffect(() => {
+    setLocalSearch(searchParams.get('q') || '')
+  }, [searchParams])
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    setLocalSearch(val)
+    if (val.trim() === '') {
+      if (location.pathname === '/trilhas') setSearchParams({})
+    } else {
+      if (location.pathname !== '/trilhas') navigate(`/trilhas?q=${encodeURIComponent(val)}`)
+      else setSearchParams({ q: val })
+    }
+  }
 
   return (
     <SidebarProvider>
@@ -81,18 +103,35 @@ export default function Layout() {
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter className="p-6 pb-8 space-y-6">
-            <Button className="w-full bg-[#061B3B] hover:bg-[#0a2955] text-white justify-start px-5 py-6 rounded-xl font-bold shadow-md">
-              <Zap className="mr-3 h-5 w-5" fill="currentColor" /> RIO SOL AI Brain
+            <Button
+              asChild
+              className="w-full bg-[#061B3B] hover:bg-[#0a2955] text-white justify-start px-5 py-6 rounded-xl font-bold shadow-md"
+            >
+              <Link to="/simulador">
+                <Zap className="mr-3 h-5 w-5" fill="currentColor" /> RIO SOL AI Brain
+              </Link>
             </Button>
             <div className="space-y-1">
               <Button
                 variant="ghost"
+                onClick={() =>
+                  toast({
+                    title: 'Settings',
+                    description: 'Preferences are currently synced via system defaults.',
+                  })
+                }
                 className="w-full justify-start text-slate-500 hover:text-[#061B3B] hover:bg-white/50 font-semibold h-10 px-4"
               >
                 <Settings className="mr-3 h-5 w-5" /> Settings
               </Button>
               <Button
                 variant="ghost"
+                onClick={() =>
+                  toast({
+                    title: 'Support',
+                    description: 'Contact your manager or helpdesk for direct assistance.',
+                  })
+                }
                 className="w-full justify-start text-slate-500 hover:text-[#061B3B] hover:bg-white/50 font-semibold h-10 px-4"
               >
                 <HelpCircle className="mr-3 h-5 w-5" /> Support
@@ -109,24 +148,33 @@ export default function Layout() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
                   placeholder="Search Knowledge Brain..."
+                  value={localSearch}
+                  onChange={handleSearch}
                   className="pl-11 bg-white border-none shadow-sm rounded-xl h-12 w-full text-slate-600 font-medium placeholder:text-slate-400 placeholder:font-normal focus-visible:ring-1 focus-visible:ring-slate-200"
                 />
               </div>
             </div>
             <div className="flex items-center gap-6 shrink-0">
-              <button className="text-slate-400 hover:text-[#061B3B] transition-colors">
+              <Link to="/ranking" className="text-slate-400 hover:text-[#061B3B] transition-colors">
                 <Medal className="h-6 w-6" />
-              </button>
-              <button className="text-slate-400 hover:text-[#061B3B] transition-colors relative">
+              </Link>
+              <button
+                onClick={() =>
+                  toast({ title: 'Notifications', description: 'You have 1 unread update.' })
+                }
+                className="text-slate-400 hover:text-[#061B3B] transition-colors relative"
+              >
                 <Bell className="h-6 w-6" />
                 <span className="absolute top-0 right-0 h-2.5 w-2.5 bg-[#D97706] rounded-full border-2 border-[#F4F6F8]"></span>
               </button>
-              <Avatar className="h-11 w-11 border-2 border-white shadow-md">
-                <AvatarImage src="https://img.usecurling.com/ppl/thumbnail?gender=male&seed=3" />
-                <AvatarFallback className="bg-slate-200 text-[#061B3B] font-bold">
-                  SA
-                </AvatarFallback>
-              </Avatar>
+              <Link to="/perfil" className="shrink-0 transition-transform hover:scale-105">
+                <Avatar className="h-11 w-11 border-2 border-white shadow-md hover:border-[#061B3B] transition-colors">
+                  <AvatarImage src="https://img.usecurling.com/ppl/thumbnail?gender=male&seed=3" />
+                  <AvatarFallback className="bg-slate-200 text-[#061B3B] font-bold">
+                    SA
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
             </div>
           </header>
           <div className="flex-1 px-6 lg:px-12 pb-12 overflow-y-auto">

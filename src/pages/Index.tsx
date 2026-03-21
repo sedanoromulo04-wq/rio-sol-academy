@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Button } from '@/components/ui/button'
@@ -18,6 +18,8 @@ const recentBadges = [
 ]
 
 export default function Index() {
+  const navigate = useNavigate()
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-fade-in-up">
       {/* Hero Welcome */}
@@ -26,7 +28,10 @@ export default function Index() {
           <Award className="w-64 h-64 text-primary" />
         </div>
         <div className="relative z-10 max-w-2xl">
-          <Badge className="mb-4 bg-primary/20 text-primary hover:bg-primary/30 border-none">
+          <Badge
+            className="mb-4 bg-primary/20 text-primary hover:bg-primary/30 border-none cursor-pointer"
+            onClick={() => navigate('/perfil')}
+          >
             Nível 12 • Consultor Pleno
           </Badge>
           <h1 className="text-3xl sm:text-5xl font-display font-bold text-white mb-4">
@@ -57,7 +62,10 @@ export default function Index() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-col sm:flex-row gap-6 items-center">
-              <div className="relative w-full sm:w-48 aspect-video rounded-lg overflow-hidden group-hover:shadow-lg transition-all">
+              <Link
+                to="/trilhas/tecnico/lesson/3"
+                className="relative w-full sm:w-48 aspect-video rounded-lg overflow-hidden group-hover:shadow-lg transition-all block shrink-0"
+              >
                 <img
                   src="https://img.usecurling.com/p/400/225?q=solar%20panels&color=blue"
                   alt="Thumbnail"
@@ -66,7 +74,7 @@ export default function Index() {
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center group-hover:bg-black/20 transition-all">
                   <Play className="w-10 h-10 text-white opacity-90" fill="currentColor" />
                 </div>
-              </div>
+              </Link>
               <div className="flex-1 space-y-4">
                 <div>
                   <h3 className="font-semibold text-lg">Módulo 3: Objeções de Preço</h3>
@@ -75,7 +83,7 @@ export default function Index() {
                   </p>
                 </div>
                 <Button asChild className="w-full sm:w-auto font-medium">
-                  <Link to="/trilhas">Continuar Aula</Link>
+                  <Link to="/trilhas/tecnico/lesson/3">Continuar Aula</Link>
                 </Button>
               </div>
             </div>
@@ -123,6 +131,7 @@ export default function Index() {
           {recentBadges.map((badge) => (
             <Card
               key={badge.id}
+              onClick={() => navigate('/perfil')}
               className="glass-panel border-white/5 hover:scale-[1.02] transition-transform cursor-pointer"
             >
               <CardContent className="p-6 flex items-center gap-4">
