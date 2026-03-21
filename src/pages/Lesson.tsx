@@ -40,7 +40,7 @@ export default function Lesson() {
         </div>
       </div>
 
-      <div className="aspect-video bg-black rounded-xl overflow-hidden relative border border-white/10 shadow-elevation group flex items-center justify-center">
+      <div className="aspect-video bg-black rounded-xl overflow-hidden relative border border-white/10 shadow-lg group flex items-center justify-center">
         <img
           src="https://img.usecurling.com/p/1280/720?q=solar%20panel%20presentation&color=blue"
           alt="Video cover"

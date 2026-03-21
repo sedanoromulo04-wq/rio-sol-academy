@@ -79,7 +79,7 @@
 
 @layer utilities {
   .glass-panel {
-    @apply bg-card/60 backdrop-blur-md border border-white/5 shadow-elevation;
+    @apply bg-card/60 backdrop-blur-md border border-white/5 shadow-lg;
   }
 
   @keyframes fade-in-up {
