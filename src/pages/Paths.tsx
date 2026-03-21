@@ -13,54 +13,54 @@ const basicTracks = [
   {
     id: 'cultura',
     category: 'Cultura',
-    title: 'Solar\nPhilosophy &\nEthics',
-    searchTitle: 'Solar Philosophy & Ethics',
+    title: 'Filosofia\n& Ética\nSolar',
+    searchTitle: 'Filosofia & Ética Solar',
     modules: 12,
     progress: 85,
     duration: '6h 30m',
-    level: 'Advanced',
+    level: 'Avançado',
     icon: Sparkles,
     link: '/trilhas/cultura/lesson/1',
-    btnText: 'Continue Track',
+    btnText: 'Continuar Trilha',
   },
   {
     id: 'tecnico',
     category: 'Técnico',
-    title: 'Photovoltaic\nCore\nEngineering',
-    searchTitle: 'Photovoltaic Core Engineering',
+    title: 'Engenharia\nFotovoltaica\nEssencial',
+    searchTitle: 'Engenharia Fotovoltaica Essencial',
     modules: 24,
     progress: 32,
     duration: '18h 45m',
-    level: 'Expert',
+    level: 'Especialista',
     icon: Cpu,
     link: '/trilhas/tecnico/lesson/1',
-    btnText: 'Continue Track',
+    btnText: 'Continuar Trilha',
   },
   {
     id: 'psicologia',
     category: 'Psicologia',
-    title: 'The\nArchitecture\nof Persuasion',
-    searchTitle: 'The Architecture of Persuasion',
+    title: 'A\nArquitetura\nda Persuasão',
+    searchTitle: 'A Arquitetura da Persuasão',
     modules: 8,
     progress: 0,
     duration: '4h 20m',
-    level: 'Intermediate',
+    level: 'Intermediário',
     icon: UserCircle,
     link: '/trilhas/psicologia/lesson/1',
-    btnText: 'Start Track',
+    btnText: 'Iniciar Trilha',
   },
 ]
 
-const filters = ['All Trails', 'Cultura', 'Técnico', 'Psicologia', 'Prática']
+const filters = ['Todas as Trilhas', 'Cultura', 'Técnico', 'Psicologia', 'Prática']
 
 export default function Paths() {
-  const [activeFilter, setActiveFilter] = useState('All Trails')
+  const [activeFilter, setActiveFilter] = useState('Todas as Trilhas')
   const [searchParams] = useSearchParams()
   const { toast } = useToast()
   const searchQuery = (searchParams.get('q') || '').toLowerCase()
 
   const isMatch = (category: string, title: string) => {
-    if (activeFilter !== 'All Trails' && category !== activeFilter) return false
+    if (activeFilter !== 'Todas as Trilhas' && category !== activeFilter) return false
     if (
       searchQuery &&
       !title.toLowerCase().includes(searchQuery) &&
@@ -75,15 +75,15 @@ export default function Paths() {
       <div>
         <div className="flex items-center gap-3 mb-4">
           <Badge className="bg-[#EAB308] text-[#422006] hover:bg-[#EAB308] rounded-sm text-[10px] font-black px-2.5 py-0.5 tracking-wider border-none uppercase">
-            Library System
+            Sistema de Biblioteca
           </Badge>
           <h1 className="text-4xl md:text-[56px] font-black text-[#061B3B] tracking-tight font-display">
-            Knowledge Brain
+            Cérebro de Conhecimento
           </h1>
         </div>
         <p className="text-slate-500 text-lg max-w-3xl leading-relaxed">
-          Access the foundational logic of the RIO SOL ecosystem. Deep-dive into architectural
-          trails designed for professional evolution.
+          Acesse a lógica fundamental do ecossistema RIO SOL. Aprofunde-se em trilhas desenhadas
+          para evolução profissional.
         </p>
       </div>
 
@@ -106,7 +106,7 @@ export default function Paths() {
           ))}
         </div>
         <div className="text-xs font-bold text-slate-500 uppercase tracking-widest shrink-0">
-          Sort By: <span className="text-[#061B3B] ml-2">Most Recent</span>
+          Ordenar por: <span className="text-[#061B3B] ml-2">Mais Recentes</span>
         </div>
       </div>
 
@@ -133,9 +133,9 @@ export default function Paths() {
                   <div className="mt-auto">
                     <Separator className="mb-6 bg-slate-100 h-0.5" />
                     <div className="flex justify-between text-[11px] font-bold text-slate-400 mb-3 uppercase tracking-wider">
-                      <span>{track.modules} Modules</span>
+                      <span>{track.modules} Módulos</span>
                       <span className={track.progress > 0 ? 'text-[#9B751D]' : 'text-slate-400'}>
-                        {track.progress}% Complete
+                        {track.progress}% Concluído
                       </span>
                     </div>
                     <Progress
@@ -159,7 +159,7 @@ export default function Paths() {
             ),
         )}
 
-        {isMatch('Prática', 'Field Deployment Mastery') && (
+        {isMatch('Prática', 'Maestria em Implantação de Campo') && (
           <Card className="rounded-3xl border-none shadow-sm shadow-slate-200/50 lg:col-span-2 overflow-hidden flex flex-col md:flex-row p-2.5 bg-white">
             <div className="p-8 flex-1 flex flex-col justify-between">
               <div>
@@ -172,26 +172,26 @@ export default function Paths() {
                   </span>
                 </div>
                 <h3 className="text-3xl md:text-4xl font-bold text-[#061B3B] mb-4 font-display">
-                  Field
+                  Maestria
                   <br />
-                  Deployment
+                  em Implantação
                   <br />
-                  Mastery
+                  de Campo
                 </h3>
                 <p className="text-slate-500 text-[15px] leading-relaxed mb-8 max-w-sm font-medium">
-                  Advanced simulation modules for real-world hardware integration and solar grid
-                  synchronization.
+                  Módulos de simulação avançados para integração de hardware no mundo real e
+                  sincronização de grid solar.
                 </p>
               </div>
               <div>
                 <Separator className="mb-6 bg-slate-100 h-0.5" />
                 <div className="flex justify-between text-[11px] font-bold text-slate-400 mb-3 uppercase tracking-wider">
-                  <span>32 Modules</span>
-                  <span className="text-[#9B751D]">55% Complete</span>
+                  <span>32 Módulos</span>
+                  <span className="text-[#9B751D]">55% Concluído</span>
                 </div>
                 <Progress value={55} className="h-1.5 mb-6 bg-slate-100 [&>div]:bg-[#D97706]" />
                 <Button asChild className="w-full bg-[#061B3B] hover:bg-[#0a2955] text-white">
-                  <Link to="/simulador">Start Simulation</Link>
+                  <Link to="/simulador">Iniciar Simulação</Link>
                 </Button>
               </div>
             </div>
@@ -213,32 +213,32 @@ export default function Paths() {
           </Card>
         )}
 
-        {isMatch('Upcoming', 'Quantum Grid Networks') && (
+        {isMatch('Em Breve', 'Redes de Grid Quântico') && (
           <Card className="rounded-3xl border-none shadow-xl shadow-[#061B3B]/10 bg-[#061B3B] text-white p-8 flex flex-col justify-between">
             <div>
               <span className="bg-white/10 text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider mb-8 inline-block">
-                Upcoming
+                Em Breve
               </span>
               <h3 className="text-3xl md:text-4xl font-bold mb-4 font-display leading-[1.1]">
-                Quantum Grid
+                Redes de
                 <br />
-                Networks
+                Grid Quântico
               </h3>
               <p className="text-slate-300/80 text-[15px] leading-relaxed mb-8 font-medium pr-4">
-                The future of energy distribution is decentralized. Learn the protocols of the next
-                generation.
+                O futuro da distribuição de energia é descentralizado. Aprenda os protocolos da
+                próxima geração.
               </p>
             </div>
             <Button
               onClick={() =>
                 toast({
-                  title: 'Notification Set',
-                  description: 'You will be notified when this track becomes available.',
+                  title: 'Notificação Configurada',
+                  description: 'Você será notificado quando esta trilha estiver disponível.',
                 })
               }
               className="w-full bg-[#9B751D] hover:bg-[#7c5d17] text-white font-bold h-14 rounded-xl text-xs tracking-widest uppercase shadow-md shadow-black/20 transition-all"
             >
-              Notify Me
+              Notifique-me
             </Button>
           </Card>
         )}

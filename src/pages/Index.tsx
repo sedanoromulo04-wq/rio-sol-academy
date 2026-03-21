@@ -43,40 +43,40 @@ const CircularProgress = ({ value, label }: { value: number; label: string }) =>
 const trails = [
   {
     title: 'Cultura',
-    desc: 'Solar Ethos & Engineering Values',
-    modules: '8/10 Modules',
+    desc: 'Ethos Solar & Valores de Engenharia',
+    modules: '8/10 Módulos',
     progress: 75,
     tag: '',
   },
   {
     title: 'Técnico',
-    desc: 'Advanced Photovoltaic Systems',
-    modules: '15/36 Modules',
+    desc: 'Sistemas Fotovoltaicos Avançados',
+    modules: '15/36 Módulos',
     progress: 42,
     tag: '',
   },
   {
     title: 'Psicologia',
-    desc: 'High-Stress Leadership Protocols',
-    modules: 'Master Level',
+    desc: 'Protocolos de Liderança sob Alto Estresse',
+    modules: 'Nível Mestre',
     progress: 90,
     tag: 'bg-slate-100 text-slate-600',
   },
   {
     title: 'Prática',
-    desc: 'On-site Field Implementation',
-    modules: 'New Unlock',
+    desc: 'Implementação de Campo On-site',
+    modules: 'Novo Desbloqueio',
     progress: 12,
     tag: 'bg-blue-50 text-blue-600',
   },
 ]
 
 const achievements = [
-  { icon: Award, label: 'GOLD ARCHITECT', bg: 'bg-[#EAB308]', color: 'text-white' },
-  { icon: Zap, label: 'ECO SILVER', bg: 'bg-slate-700', color: 'text-white' },
-  { icon: Settings2, label: 'BRONZE MASTER', bg: 'bg-slate-300', color: 'text-slate-500' },
-  { icon: Leaf, label: 'SOLAR RACER', bg: 'bg-[#061B3B]', color: 'text-[#EAB308]' },
-  { icon: BrainCircuit, label: 'AI NEURAL LINK', bg: 'bg-[#061B3B]', color: 'text-cyan-400' },
+  { icon: Award, label: 'ARQUITETO OURO', bg: 'bg-[#EAB308]', color: 'text-white' },
+  { icon: Zap, label: 'PRATA ECO', bg: 'bg-slate-700', color: 'text-white' },
+  { icon: Settings2, label: 'MESTRE BRONZE', bg: 'bg-slate-300', color: 'text-slate-500' },
+  { icon: Leaf, label: 'CORREDOR SOLAR', bg: 'bg-[#061B3B]', color: 'text-[#EAB308]' },
+  { icon: BrainCircuit, label: 'LINK NEURAL IA', bg: 'bg-[#061B3B]', color: 'text-cyan-400' },
 ]
 
 export default function Index() {
@@ -89,13 +89,13 @@ export default function Index() {
             RIO SOL ACADEMY
           </h1>
           <p className="text-sm font-bold text-[#061B3B] tracking-widest uppercase">
-            Operations Command
+            Comando de Operações
           </p>
         </div>
         <div className="flex items-center gap-8 bg-white p-3 rounded-2xl shadow-sm border border-slate-100">
           <div className="w-48 space-y-1.5">
             <div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-              <span>Zenith Level Progress</span>
+              <span>Progresso Nível Zenith</span>
               <span className="text-[#EAB308]">84%</span>
             </div>
             <Progress value={84} className="h-1.5 bg-slate-100 [&>div]:bg-[#EAB308]" />
@@ -103,8 +103,8 @@ export default function Index() {
           <div className="hidden md:block w-px h-8 bg-slate-100"></div>
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <p className="text-sm font-bold text-[#061B3B]">Solar Architect Zenith</p>
-              <p className="text-xs text-slate-500">Rank #12 Worldwide</p>
+              <p className="text-sm font-bold text-[#061B3B]">Arquiteto Solar Zenith</p>
+              <p className="text-xs text-slate-500">Posição #12 Global</p>
             </div>
           </div>
         </div>
@@ -123,28 +123,28 @@ export default function Index() {
             <div className="absolute inset-0 bg-gradient-to-r from-[#061B3B]/95 via-[#061B3B]/80 to-transparent" />
             <div className="relative z-10 p-10 flex flex-col h-full justify-between">
               <Badge className="w-fit bg-[#EAB308] text-[#422006] hover:bg-[#EAB308] font-bold text-[10px] tracking-widest uppercase border-none px-3 py-1">
-                Current Mission: Tier 4
+                Missão Atual: Tier 4
               </Badge>
               <div className="max-w-xl">
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 font-display leading-[1.1]">
-                  Grid Integration
+                  Fase de Maestria
                   <br />
-                  Mastery Phase
+                  em Integração de Grid
                 </h2>
                 <p className="text-slate-300 text-sm md:text-base leading-relaxed">
-                  Execute the advanced synchronization protocols for the Atacama PV Hub. This
-                  simulation requires 99.8% stability maintenance.
+                  Execute os protocolos avançados de sincronização para o Hub PV Atacama. Esta
+                  simulação exige 99,8% de estabilidade.
                 </p>
               </div>
               <div className="flex flex-wrap gap-4 mt-4">
                 <Button className="bg-[#EAB308] hover:bg-[#d97706] text-[#422006] font-bold h-12 px-6 rounded-xl border-none shadow-lg">
-                  Launch Simulation
+                  Iniciar Simulação
                 </Button>
                 <Button
                   variant="outline"
                   className="bg-white/10 text-white border-white/20 hover:bg-white/20 hover:text-white font-medium h-12 px-6 rounded-xl backdrop-blur-sm"
                 >
-                  Mission Brief
+                  Resumo da Missão
                 </Button>
               </div>
             </div>
@@ -154,16 +154,18 @@ export default function Index() {
           <div>
             <div className="flex justify-between items-end mb-6">
               <div>
-                <h3 className="text-2xl font-bold text-[#061B3B] font-display">Knowledge Trails</h3>
+                <h3 className="text-2xl font-bold text-[#061B3B] font-display">
+                  Trilhas de Conhecimento
+                </h3>
                 <p className="text-sm text-slate-500">
-                  Targeted development pathways for your specialization.
+                  Caminhos de desenvolvimento direcionados para sua especialização.
                 </p>
               </div>
               <Link
                 to="/trilhas"
                 className="text-sm font-bold text-[#061B3B] hover:text-[#EAB308] transition-colors"
               >
-                View All Trails
+                Ver Todas as Trilhas
               </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -197,10 +199,10 @@ export default function Index() {
             <CardContent className="p-8">
               <div className="flex justify-between items-center mb-8">
                 <h3 className="text-xl font-bold text-[#061B3B] font-display flex items-center gap-2">
-                  <Target className="w-5 h-5 text-[#EAB308]" /> Achievement Vault
+                  <Target className="w-5 h-5 text-[#EAB308]" /> Cofre de Conquistas
                 </h3>
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
-                  24/50 Unlocked
+                  24/50 Desbloqueadas
                 </span>
               </div>
               <div className="flex flex-wrap gap-6">
@@ -241,24 +243,24 @@ export default function Index() {
                   <h4 className="text-white font-bold tracking-wide">RIO SOL AI</h4>
                   <p className="text-[10px] text-[#EAB308] font-bold tracking-widest uppercase flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#EAB308] animate-pulse"></span>{' '}
-                    Active • Neural Synapse
+                    Ativa • Sinapse Neural
                   </p>
                 </div>
               </div>
 
               <div className="space-y-4 mb-6 flex-1">
                 <div className="bg-white/10 text-slate-200 text-sm p-4 rounded-2xl rounded-tl-sm border border-white/5 leading-relaxed backdrop-blur-sm">
-                  Zenith, I have analyzed your last simulation. Your peak efficiency was at 08:45
-                  UTC. Focus on thermal dissipation for next run.
+                  Zenith, analisei sua última simulação. Sua eficiência máxima foi às 08:45 UTC.
+                  Foco na dissipação térmica para a próxima rodada.
                 </div>
                 <div className="bg-[#EAB308]/10 text-white text-sm p-4 rounded-2xl rounded-tr-sm border border-[#EAB308]/20 leading-relaxed ml-6 text-right">
-                  Understood. Show me the thermal hotspots from that session.
+                  Entendido. Mostre-me os pontos de calor dessa sessão.
                 </div>
               </div>
 
               <div className="relative mt-auto">
                 <Input
-                  placeholder="Ask AI Brain..."
+                  placeholder="Pergunte à IA Brain..."
                   className="bg-white/5 border-white/10 text-white placeholder:text-white/40 rounded-xl h-12 pl-4 pr-12 focus-visible:ring-[#EAB308]"
                 />
                 <Button
@@ -275,9 +277,9 @@ export default function Index() {
           <Card className="border-none shadow-sm rounded-[2rem] bg-white">
             <CardContent className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-bold text-[#061B3B] font-display">Global Rankings</h3>
+                <h3 className="text-lg font-bold text-[#061B3B] font-display">Ranking Global</h3>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  Week 42
+                  Semana 42
                 </span>
               </div>
               <div className="space-y-3">
@@ -285,21 +287,21 @@ export default function Index() {
                   {
                     rank: '01',
                     name: 'Sarah Flux',
-                    role: 'High-Density Specialist',
+                    role: 'Especialista em Alta Densidade',
                     xp: '12.8k XP',
                     active: false,
                   },
                   {
                     rank: '02',
                     name: 'Marcus Watt',
-                    role: 'Grid Manager',
+                    role: 'Gerente de Grid',
                     xp: '11.4k XP',
                     active: false,
                   },
                   {
                     rank: '12',
-                    name: 'You (Zenith)',
-                    role: 'Solar Architect',
+                    name: 'Você (Zenith)',
+                    role: 'Arquiteto Solar',
                     xp: '9.2k XP',
                     active: true,
                   },
@@ -360,7 +362,7 @@ export default function Index() {
                 variant="ghost"
                 className="w-full mt-4 text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-[#061B3B]"
               >
-                Full Rankings
+                Ver Ranking Completo
               </Button>
             </CardContent>
           </Card>

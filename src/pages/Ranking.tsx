@@ -56,14 +56,14 @@ export default function Ranking() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div className="max-w-xl">
           <p className="text-[10px] font-bold text-[#EAB308] tracking-widest uppercase mb-2">
-            Engineering Excellence
+            Excelência em Engenharia
           </p>
           <h1 className="text-5xl font-black text-[#061B3B] font-display tracking-tight mb-4">
-            Global Rankings
+            Ranking Global
           </h1>
           <p className="text-slate-500 text-lg leading-relaxed">
-            Measuring the kinetic energy of our architects across 14 global sectors. Efficiency is
-            the only metric that matters.
+            Medindo a energia cinética de nossos arquitetos em 14 setores globais. Eficiência é a
+            única métrica que importa.
           </p>
         </div>
         <Tabs defaultValue="global" className="w-[300px]">
@@ -84,7 +84,7 @@ export default function Ranking() {
               value="squad"
               className="rounded-xl data-[state=active]:bg-white data-[state=active]:text-[#061B3B] text-slate-300 font-bold"
             >
-              Squad
+              Esquadrão
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -105,11 +105,11 @@ export default function Ranking() {
           </Avatar>
           <h3 className="text-xl font-bold text-[#061B3B] mb-1">Elena Vance</h3>
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-8">
-            Grid Specialist
+            Especialista de Grid
           </p>
           <div className="w-full flex justify-between text-xs font-bold text-[#061B3B] mb-2 px-2">
-            <span>Level 42</span>
-            <span>24,850 XP</span>
+            <span>Nível 42</span>
+            <span>24.850 XP</span>
           </div>
           <Progress value={75} className="h-1.5 w-full bg-slate-200 [&>div]:bg-[#061B3B]" />
         </div>
@@ -128,13 +128,13 @@ export default function Ranking() {
           </div>
           <h3 className="text-3xl font-bold text-white mb-2 font-display">Marcus Thorne</h3>
           <p className="text-xs font-bold text-[#EAB308] uppercase tracking-widest mb-10 text-center leading-relaxed">
-            Principal
+            Arquiteto
             <br />
-            Architect
+            Principal
           </p>
           <div className="w-full flex justify-between text-sm font-bold text-white mb-3 px-2">
-            <span>Level 58</span>
-            <span className="text-[#EAB308]">31,200 XP</span>
+            <span>Nível 58</span>
+            <span className="text-[#EAB308]">31.200 XP</span>
           </div>
           <Progress value={90} className="h-2 w-full bg-white/10 [&>div]:bg-[#EAB308]" />
         </div>
@@ -152,11 +152,11 @@ export default function Ranking() {
           </Avatar>
           <h3 className="text-xl font-bold text-[#061B3B] mb-1">Sasha Chen</h3>
           <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-8">
-            System Analyst
+            Analista de Sistemas
           </p>
           <div className="w-full flex justify-between text-xs font-bold text-[#061B3B] mb-2 px-2">
-            <span>Level 39</span>
-            <span>21,140 XP</span>
+            <span>Nível 39</span>
+            <span>21.140 XP</span>
           </div>
           <Progress value={45} className="h-1.5 w-full bg-slate-200 [&>div]:bg-[#061B3B]" />
         </div>
@@ -165,12 +165,12 @@ export default function Ranking() {
       {/* Main Board */}
       <div>
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold text-[#061B3B] font-display">Main Board</h2>
+          <h2 className="text-3xl font-bold text-[#061B3B] font-display">Quadro Principal</h2>
           <div className="flex gap-4">
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
-                placeholder="Search architect..."
+                placeholder="Buscar arquiteto..."
                 className="pl-10 bg-slate-50 border-none rounded-xl h-12 text-sm"
               />
             </div>
@@ -178,7 +178,7 @@ export default function Ranking() {
               variant="outline"
               className="h-12 px-6 rounded-xl border-slate-200 text-[#061B3B] font-semibold bg-white shadow-sm"
             >
-              <Filter className="w-4 h-4 mr-2" /> Filter
+              <Filter className="w-4 h-4 mr-2" /> Filtrar
             </Button>
           </div>
         </div>
@@ -188,19 +188,19 @@ export default function Ranking() {
             <TableHeader>
               <TableRow className="border-b border-slate-100 hover:bg-transparent">
                 <TableHead className="text-[10px] font-bold text-slate-400 uppercase tracking-widest w-24 pl-8 h-14">
-                  Rank
+                  Posição
                 </TableHead>
                 <TableHead className="text-[10px] font-bold text-slate-400 uppercase tracking-widest h-14">
-                  Architect
+                  Arquiteto
                 </TableHead>
                 <TableHead className="text-[10px] font-bold text-slate-400 uppercase tracking-widest h-14">
                   Status
                 </TableHead>
                 <TableHead className="text-[10px] font-bold text-slate-400 uppercase tracking-widest h-14">
-                  XP Energy
+                  Energia XP
                 </TableHead>
                 <TableHead className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right pr-8 h-14">
-                  Progress
+                  Progresso
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -216,24 +216,24 @@ export default function Ranking() {
                       <AvatarImage src="https://img.usecurling.com/p/100/100?q=landscape&color=blue" />
                     </Avatar>
                     <div>
-                      <p className="font-bold text-[#061B3B] text-base">Zenith (You)</p>
-                      <p className="text-xs text-slate-500">Global Division</p>
+                      <p className="font-bold text-[#061B3B] text-base">Zenith (Você)</p>
+                      <p className="text-xs text-slate-500">Divisão Global</p>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell className="py-5">
                   <Badge className="bg-[#EAB308] hover:bg-[#EAB308] text-[#422006] font-bold uppercase tracking-widest text-[10px] border-none px-3 py-1 shadow-sm">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#422006] mr-1.5 animate-pulse"></span>{' '}
-                    Rising
+                    Subindo
                   </Badge>
                 </TableCell>
                 <TableCell className="py-5">
-                  <span className="font-bold text-lg text-[#061B3B]">12,400</span>
+                  <span className="font-bold text-lg text-[#061B3B]">12.400</span>
                 </TableCell>
                 <TableCell className="pr-8 py-5 text-right w-48">
                   <div className="flex justify-end mb-2">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                      82% to Level 41
+                      82% para Nível 41
                     </span>
                   </div>
                   <Progress value={82} className="h-1.5 bg-slate-200 [&>div]:bg-[#EAB308]" />
@@ -245,8 +245,8 @@ export default function Ranking() {
                 {
                   rank: '04',
                   name: 'Julian Vesper',
-                  div: 'Nordic Division',
-                  xp: '19,800',
+                  div: 'Divisão Nórdica',
+                  xp: '19.800',
                   prog: 45,
                   lvl: 40,
                   img: 'https://img.usecurling.com/ppl/thumbnail?gender=male&seed=44',
@@ -254,8 +254,8 @@ export default function Ranking() {
                 {
                   rank: '05',
                   name: 'Lara Kross',
-                  div: 'Pacific Division',
-                  xp: '18,250',
+                  div: 'Divisão Pacífica',
+                  xp: '18.250',
                   prog: 12,
                   lvl: 39,
                   img: 'https://img.usecurling.com/ppl/thumbnail?gender=female&seed=55',
@@ -284,7 +284,7 @@ export default function Ranking() {
                       variant="outline"
                       className="text-slate-500 border-slate-200 font-bold uppercase tracking-widest text-[10px] px-3 py-1"
                     >
-                      Steady
+                      Estável
                     </Badge>
                   </TableCell>
                   <TableCell className="py-5">
@@ -293,7 +293,7 @@ export default function Ranking() {
                   <TableCell className="pr-8 py-5 text-right w-48">
                     <div className="flex justify-end mb-2">
                       <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                        {row.prog}% to Level {row.lvl}
+                        {row.prog}% para Nível {row.lvl}
                       </span>
                     </div>
                     <Progress
@@ -310,7 +310,7 @@ export default function Ranking() {
               variant="ghost"
               className="text-xs font-bold text-slate-500 uppercase tracking-widest hover:text-[#061B3B] hover:bg-slate-200/50"
             >
-              Load More Records
+              Carregar Mais Registros
             </Button>
           </div>
         </div>
@@ -320,22 +320,24 @@ export default function Ranking() {
       <div>
         <div className="flex justify-between items-end mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-[#061B3B] font-display mb-1">Badge Gallery</h2>
+            <h2 className="text-3xl font-bold text-[#061B3B] font-display mb-1">
+              Galeria de Medalhas
+            </h2>
             <p className="text-slate-500">
-              Artifacts of engineering distinction and theoretical mastery.
+              Artefatos de distinção em engenharia e maestria teórica.
             </p>
           </div>
           <Button variant="link" className="text-[#061B3B] font-bold hidden md:flex">
-            View All Achievements <ChevronRight className="w-4 h-4 ml-1" />
+            Ver Todas as Conquistas <ChevronRight className="w-4 h-4 ml-1" />
           </Button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-          <BadgeItem title="Grid Master" desc="Zero-Loss Efficiency" icon={Zap} />
-          <BadgeItem title="Structuralist" desc="100 Foundation Audits" icon={Award} />
-          <BadgeItem title="Rapid Deployment" desc="Sub-10m Synthesis" icon={Zap} />
-          <BadgeItem title="Solar Zenith" desc="Reached Level 50" icon={Award} />
-          <BadgeItem title="Fusion Pioneer" desc="Classified" icon={Lock} active={false} />
-          <BadgeItem title="Star Forge" desc="Classified" icon={Lock} active={false} />
+          <BadgeItem title="Mestre de Grid" desc="Eficiência Perda Zero" icon={Zap} />
+          <BadgeItem title="Estruturalista" desc="100 Auditorias de Fundação" icon={Award} />
+          <BadgeItem title="Implantação Rápida" desc="Síntese Sub-10m" icon={Zap} />
+          <BadgeItem title="Zenith Solar" desc="Atingiu Nível 50" icon={Award} />
+          <BadgeItem title="Pioneiro da Fusão" desc="Confidencial" icon={Lock} active={false} />
+          <BadgeItem title="Forja Estelar" desc="Confidencial" icon={Lock} active={false} />
         </div>
       </div>
     </div>

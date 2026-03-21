@@ -4,16 +4,17 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
 import { Mic, Send, History, Play, CheckCircle2, Circle, Sparkles, Bot, User } from 'lucide-react'
 
 const persona = {
-  name: 'The Skeptical Farmer',
-  type: 'Persona: High Resistance, High Logic',
+  name: 'O Fazendeiro Cético',
+  type: 'Persona: Alta Resistência, Alta Lógica',
   img: 'https://img.usecurling.com/ppl/large?gender=male&seed=42',
   stats: [
-    { label: 'Patience', val: 24 },
-    { label: 'Technical Literacy', val: 88 },
-    { label: 'Budget Sensitivity', val: 95 },
+    { label: 'Paciência', val: 24 },
+    { label: 'Conhecimento Técnico', val: 88 },
+    { label: 'Sensibilidade ao Orçamento', val: 95 },
   ],
 }
 
@@ -26,10 +27,10 @@ export default function Simulator() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <p className="text-[10px] font-bold text-[#EAB308] tracking-widest uppercase mb-1">
-            Engineering Environment: Simulation Active
+            Ambiente de Engenharia: Simulação Ativa
           </p>
           <h1 className="text-4xl font-black text-[#061B3B] font-display tracking-tight">
-            Roleplay Lab
+            Laboratório de Roleplay
           </h1>
         </div>
         <div className="flex gap-3">
@@ -37,10 +38,10 @@ export default function Simulator() {
             variant="outline"
             className="bg-white border-slate-200 text-[#061B3B] font-semibold h-11 px-6 rounded-xl shadow-sm"
           >
-            <History className="w-4 h-4 mr-2 text-slate-400" /> View History
+            <History className="w-4 h-4 mr-2 text-slate-400" /> Ver Histórico
           </Button>
           <Button className="bg-[#061B3B] hover:bg-[#0a2955] text-white font-semibold h-11 px-6 rounded-xl shadow-md">
-            <Play className="w-4 h-4 mr-2 text-[#EAB308]" fill="currentColor" /> Start Simulation
+            <Play className="w-4 h-4 mr-2 text-[#EAB308]" fill="currentColor" /> Iniciar Simulação
           </Button>
         </div>
       </div>
@@ -58,7 +59,7 @@ export default function Simulator() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               <div className="absolute bottom-4 left-4 right-4">
                 <Badge className="bg-white/20 text-white border-none backdrop-blur-sm font-medium px-2 py-0.5 mb-2">
-                  High Logic
+                  Alta Lógica
                 </Badge>
               </div>
             </div>
@@ -85,25 +86,23 @@ export default function Simulator() {
           <Card className="border-none shadow-md rounded-3xl bg-[#061B3B] text-white shrink-0">
             <CardContent className="p-6">
               <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-6 border-b border-white/10 pb-4">
-                Tactical Objectives
+                Objetivos Táticos
               </h3>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-[#EAB308] shrink-0" />
+                  <span className="text-sm text-slate-300 font-medium">Validar ROI em 5 anos</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Circle className="w-5 h-5 text-slate-500 shrink-0" />
                   <span className="text-sm text-slate-300 font-medium">
-                    Validate ROI over 5 years
+                    Abordar medos de manutenção
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Circle className="w-5 h-5 text-slate-500 shrink-0" />
                   <span className="text-sm text-slate-300 font-medium">
-                    Address maintenance fears
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Circle className="w-5 h-5 text-slate-500 shrink-0" />
-                  <span className="text-sm text-slate-300 font-medium">
-                    Mirror regional dialect
+                    Espelhar dialeto regional
                   </span>
                 </li>
               </ul>
@@ -116,14 +115,14 @@ export default function Simulator() {
           <div className="flex justify-between items-center px-8 py-4 border-b border-slate-100 bg-slate-50/50">
             <div className="flex items-center gap-2 text-xs font-bold text-[#061B3B] uppercase tracking-widest">
               <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-              Live Simulation
+              Simulação ao Vivo
             </div>
             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest flex gap-4">
               <span>
-                Elapsed: <span className="text-[#061B3B]">04:12</span>
+                Decorrido: <span className="text-[#061B3B]">04:12</span>
               </span>
               <span>
-                Tokens: <span className="text-[#061B3B]">1,402</span>
+                Tokens: <span className="text-[#061B3B]">1.402</span>
               </span>
             </div>
           </div>
@@ -138,14 +137,15 @@ export default function Simulator() {
                 <div>
                   <div className="bg-slate-50 p-5 rounded-2xl rounded-tl-none border border-slate-100 text-slate-700 leading-relaxed shadow-sm">
                     <p>
-                      Look, son. I've had three different solar outfits come through here in the
-                      last decade. They all promise the sun and the moon, but when the hail starts
-                      coming down in April, none of 'em can tell me if my panels will still be
-                      generating enough to run the irrigation system. Why are you any different?
+                      Olha, filho. Já tive três empresas de energia solar diferentes passando por
+                      aqui na última década. Todas prometem mundos e fundos, mas quando o granizo
+                      começa a cair em abril, nenhuma delas sabe me dizer se meus painéis ainda
+                      estarão gerando o suficiente para rodar o sistema de irrigação. Por que vocês
+                      são diferentes?
                     </p>
                   </div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 ml-2 block">
-                    The Skeptical Farmer • 2m ago
+                    O Fazendeiro Cético • 2m atrás
                   </span>
                 </div>
               </div>
@@ -158,14 +158,15 @@ export default function Simulator() {
                 <div>
                   <div className="bg-[#061B3B] p-5 rounded-2xl rounded-tr-none text-white leading-relaxed shadow-md">
                     <p>
-                      I completely understand that hesitation. Most companies focus on the "tech"
-                      but forget about the resilience. Our RIO SOL "Iron-Clad" panels are tested
-                      against 2-inch hail impact at 80mph. If they fail, our Zenith insurance covers
-                      the lost production, not just the hardware. Here is the engineering spec...
+                      Eu entendo completamente essa hesitação. A maioria das empresas foca na
+                      'tecnologia', mas esquece da resiliência. Nossos painéis RIO SOL 'Blindados'
+                      são testados contra impacto de granizo de 5 cm a 130 km/h. Se eles falharem,
+                      nosso seguro Zenith cobre a produção perdida, não apenas o hardware. Aqui está
+                      a especificação técnica...
                     </p>
                   </div>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2 mr-2 block text-right">
-                    You • 1m ago
+                    Você • 1m atrás
                   </span>
                 </div>
               </div>
@@ -176,7 +177,7 @@ export default function Simulator() {
             <div className="relative flex items-center">
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#EAB308] rounded-l-xl z-10" />
               <Input
-                placeholder="Type your response to the Farmer..."
+                placeholder="Digite sua mensagem para o Fazendeiro..."
                 className="bg-slate-50 border-slate-200 shadow-inner h-14 pl-6 pr-24 rounded-xl text-base focus-visible:ring-[#061B3B] focus-visible:border-[#061B3B] w-full"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -201,13 +202,13 @@ export default function Simulator() {
           <Card className="border-none shadow-sm rounded-3xl bg-white shrink-0">
             <CardContent className="p-6">
               <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-6">
-                Live Feedback
+                Feedback em Tempo Real
               </h3>
               <div className="space-y-5">
                 {[
-                  { label: 'Persuasion', val: 72, color: 'bg-[#EAB308]' },
-                  { label: 'Framework Adherence', val: 89, color: 'bg-[#061B3B]' },
-                  { label: 'Tone (Empathy)', val: 54, color: 'bg-slate-300' },
+                  { label: 'Persuasão', val: 72, color: 'bg-[#EAB308]' },
+                  { label: 'Aderência ao Framework', val: 89, color: 'bg-[#061B3B]' },
+                  { label: 'Tom (Empatia)', val: 54, color: 'bg-slate-300' },
                 ].map((s) => (
                   <div key={s.label} className="space-y-2">
                     <div className="flex justify-between text-xs font-bold text-[#061B3B]">
@@ -234,18 +235,20 @@ export default function Simulator() {
             <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#061B3B]" />
             <CardContent className="p-6 pl-8">
               <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5 text-[#061B3B]" /> AI Coach Insight
+                <Sparkles className="w-3.5 h-3.5 text-[#061B3B]" /> Insights do Mentor IA
               </h3>
               <p className="text-sm text-[#061B3B] font-medium italic leading-relaxed mb-6">
-                "Excellent pivot to durability. However, your tone shifted too quickly into sales
-                language. The farmer values regional solidarity—try using more 'we' instead of 'I'."
+                "Excelente mudança para a durabilidade. No entanto, seu tom mudou muito rápido para
+                uma linguagem de vendas. O fazendeiro valoriza a solidariedade regional — tente usar
+                mais 'nós' em vez de 'eu'."
               </p>
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                  Try this phrase:
+                  Tente esta frase:
                 </p>
                 <p className="text-sm text-slate-600 font-medium">
-                  "Our folks around here haven't seen a storm yet that's cracked these..."
+                  "Nossa turma por aqui ainda não viu uma tempestade que conseguisse rachar
+                  esses..."
                 </p>
               </div>
             </CardContent>
@@ -254,7 +257,7 @@ export default function Simulator() {
           <div className="grid grid-cols-2 gap-4 shrink-0">
             <Card className="border-none shadow-sm rounded-2xl bg-white text-center py-6">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                Objections
+                Objeções
               </p>
               <p className="text-3xl font-black text-[#061B3B] font-display">
                 3<span className="text-xl text-slate-300">/12</span>
@@ -262,9 +265,9 @@ export default function Simulator() {
             </Card>
             <Card className="border-none shadow-sm rounded-2xl bg-white text-center py-6">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                Clarity
+                Clareza
               </p>
-              <p className="text-2xl font-black text-[#061B3B] font-display mt-1">High</p>
+              <p className="text-2xl font-black text-[#061B3B] font-display mt-1">Alta</p>
             </Card>
           </div>
         </div>

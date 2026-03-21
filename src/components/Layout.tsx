@@ -28,10 +28,10 @@ import {
 } from 'lucide-react'
 
 const navItems = [
-  { title: 'My Journey', path: '/', icon: Map },
-  { title: 'Knowledge Brain', path: '/trilhas', icon: Brain },
-  { title: 'Roleplay Lab', path: '/simulador', icon: MessageSquare },
-  { title: 'Rankings', path: '/ranking', icon: BarChart3 },
+  { title: 'Minha Jornada', path: '/', icon: Map },
+  { title: 'Cérebro de Conhecimento', path: '/trilhas', icon: Brain },
+  { title: 'Laboratório de Roleplay', path: '/simulador', icon: MessageSquare },
+  { title: 'Ranking Global', path: '/ranking', icon: BarChart3 },
 ]
 
 export default function Layout() {
@@ -52,9 +52,9 @@ export default function Layout() {
                 <AvatarFallback className="bg-[#061B3B] text-white rounded-xl">SA</AvatarFallback>
               </Avatar>
               <div>
-                <h3 className="font-bold text-sm text-[#061B3B] leading-tight">Solar Architect</h3>
+                <h3 className="font-bold text-sm text-[#061B3B] leading-tight">Arquiteto Solar</h3>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-                  Zenith Level
+                  Nível Zenith
                 </p>
               </div>
             </div>
@@ -98,7 +98,7 @@ export default function Layout() {
               className="w-full bg-[#061B3B] hover:bg-[#0a2955] text-white justify-start px-5 py-6 rounded-xl font-bold shadow-md"
             >
               <Link to="/simulador">
-                <Zap className="mr-3 h-5 w-5 text-[#EAB308]" fill="currentColor" /> RIO SOL AI Brain
+                <Zap className="mr-3 h-5 w-5 text-[#EAB308]" fill="currentColor" /> RIO SOL IA Brain
               </Link>
             </Button>
             <div className="space-y-1">
@@ -106,13 +106,13 @@ export default function Layout() {
                 variant="ghost"
                 className="w-full justify-start text-slate-500 hover:text-[#061B3B] hover:bg-slate-50 font-semibold h-10 px-4 rounded-lg"
               >
-                <Settings className="mr-3 h-5 w-5" /> Settings
+                <Settings className="mr-3 h-5 w-5" /> Configurações
               </Button>
               <Button
                 variant="ghost"
                 className="w-full justify-start text-slate-500 hover:text-[#061B3B] hover:bg-slate-50 font-semibold h-10 px-4 rounded-lg"
               >
-                <HelpCircle className="mr-3 h-5 w-5" /> Support
+                <HelpCircle className="mr-3 h-5 w-5" /> Suporte
               </Button>
             </div>
           </SidebarFooter>
@@ -124,7 +124,7 @@ export default function Layout() {
               <div className="relative hidden md:block w-64 mr-auto">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
-                  placeholder="Search..."
+                  placeholder="Buscar..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="pl-10 bg-white border-slate-200 shadow-sm rounded-full h-10 w-full text-sm font-medium"
