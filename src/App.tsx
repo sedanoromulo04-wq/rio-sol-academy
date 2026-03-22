@@ -11,6 +11,7 @@ import Simulator from './pages/Simulator'
 import Ranking from './pages/Ranking'
 import Profile from './pages/Profile'
 import NotFound from './pages/NotFound'
+import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminTracks from './pages/admin/AdminTracks'
 import AdminTrackEdit from './pages/admin/AdminTrackEdit'
 
@@ -31,7 +32,7 @@ const App = () => (
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Navigate to="/admin/tracks" replace />} />
+          <Route index element={<AdminDashboard />} />
           <Route path="tracks" element={<AdminTracks />} />
           <Route path="tracks/new" element={<AdminTrackEdit />} />
           <Route path="tracks/:id" element={<AdminTrackEdit />} />

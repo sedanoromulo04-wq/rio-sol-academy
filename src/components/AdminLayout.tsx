@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils'
 import { LayoutDashboard, BookOpen, FileVideo, Settings, LogOut, ShieldAlert } from 'lucide-react'
 
 const navItems = [
-  { title: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+  { title: 'Performance Dashboard', path: '/admin', icon: LayoutDashboard },
   { title: 'Gestão de Trilhas', path: '/admin/tracks', icon: BookOpen },
   { title: 'Biblioteca de Mídia', path: '/admin/media', icon: FileVideo },
   { title: 'Configurações', path: '/admin/settings', icon: Settings },
