@@ -102,7 +102,7 @@ export default function Paths() {
             Sistema de Biblioteca
           </Badge>
           <h1 className="text-3xl md:text-4xl font-black text-[#061B3B] tracking-tight font-display">
-            Cérebro de Conhecimento
+            Painel de conteúdos
           </h1>
         </div>
         <p className="text-slate-500 text-sm md:text-base max-w-2xl leading-relaxed">

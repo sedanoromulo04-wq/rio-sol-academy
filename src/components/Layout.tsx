@@ -30,7 +30,7 @@ import {
 
 const navItems = [
   { title: 'Minha Jornada', path: '/', icon: Map },
-  { title: 'Cérebro de Conhecimento', path: '/trilhas', icon: Brain },
+  { title: 'Painel de conteúdos', path: '/trilhas', icon: Brain },
   { title: 'Laboratório de Roleplay', path: '/simulador', icon: MessageSquare },
   { title: 'Ranking Global', path: '/ranking', icon: BarChart3 },
 ]
