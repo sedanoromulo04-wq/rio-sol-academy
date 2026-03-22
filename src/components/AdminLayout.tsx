@@ -28,10 +28,10 @@ import {
 } from 'lucide-react'
 
 const navItems = [
-  { title: 'My Dashboard', path: '/admin', icon: LayoutDashboard },
-  { title: 'Tracks Management', path: '/admin/tracks', icon: BookOpen },
-  { title: 'Performance Analytics', path: '/admin/analytics', icon: BarChart3 },
-  { title: 'Global Rankings', path: '/admin/rankings', icon: Medal },
+  { title: 'Visão Geral', path: '/admin', icon: LayoutDashboard },
+  { title: 'Gestão de Conteúdo', path: '/admin/tracks', icon: BookOpen },
+  { title: 'Relatórios de Vendas', path: '/admin/analytics', icon: BarChart3 },
+  { title: 'Ranking Global', path: '/admin/rankings', icon: Medal },
 ]
 
 export function AdminLayout() {
@@ -56,7 +56,7 @@ export function AdminLayout() {
               <div>
                 <h3 className="font-bold text-sm text-white leading-tight">Sarah Connor</h3>
                 <p className="text-[9px] font-bold text-[#EAB308] uppercase tracking-widest mt-0.5">
-                  Executive Level
+                  Nível Executivo
                 </p>
               </div>
             </div>
@@ -102,7 +102,7 @@ export function AdminLayout() {
               className="w-full bg-[#061B3B] hover:bg-[#0a2955] border border-white/10 text-white justify-start px-4 py-5 rounded-lg font-bold shadow-lg shadow-black/20"
             >
               <Link to="/simulador">
-                <Zap className="mr-2 h-4 w-4 text-[#EAB308]" fill="currentColor" /> RIO SOL AI Admin
+                <Zap className="mr-2 h-4 w-4 text-[#EAB308]" fill="currentColor" /> Admin IA RIO SOL
               </Link>
             </Button>
             <div className="space-y-0.5 pt-2 border-t border-white/5">
@@ -110,13 +110,13 @@ export function AdminLayout() {
                 variant="ghost"
                 className="w-full justify-start text-slate-400 hover:text-white hover:bg-white/5 font-medium h-9 px-3 rounded-md text-sm"
               >
-                <Settings className="mr-2 h-4 w-4" /> Settings
+                <Settings className="mr-2 h-4 w-4" /> Configurações do Sistema
               </Button>
               <Button
                 variant="ghost"
                 className="w-full justify-start text-slate-400 hover:text-white hover:bg-white/5 font-medium h-9 px-3 rounded-md text-sm"
               >
-                <HelpCircle className="mr-2 h-4 w-4" /> Support
+                <HelpCircle className="mr-2 h-4 w-4" /> Suporte
               </Button>
             </div>
           </SidebarFooter>
@@ -130,7 +130,7 @@ export function AdminLayout() {
             <div className="relative hidden md:block w-96">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
-                placeholder="Search users, tracks or reports..."
+                placeholder="Buscar usuários, trilhas ou relatórios..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-slate-400 shadow-inner rounded-full h-10 w-full text-sm focus-visible:ring-[#EAB308] focus-visible:border-[#EAB308]"
