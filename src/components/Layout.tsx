@@ -25,6 +25,7 @@ import {
   Search,
   Medal,
   Bell,
+  ShieldAlert,
 } from 'lucide-react'
 
 const navItems = [
@@ -95,14 +96,26 @@ export default function Layout() {
           </SidebarContent>
 
           <SidebarFooter className="p-5 pb-6 space-y-4">
-            <Button
-              asChild
-              className="w-full bg-[#061B3B] hover:bg-[#0a2955] text-white justify-start px-4 py-5 rounded-lg font-bold shadow-sm"
-            >
-              <Link to="/simulador">
-                <Zap className="mr-2 h-4 w-4 text-[#EAB308]" fill="currentColor" /> RIO SOL IA Brain
-              </Link>
-            </Button>
+            <div className="space-y-1">
+              <Button
+                asChild
+                className="w-full bg-[#061B3B] hover:bg-[#0a2955] text-white justify-start px-4 py-5 rounded-lg font-bold shadow-sm"
+              >
+                <Link to="/simulador">
+                  <Zap className="mr-2 h-4 w-4 text-[#EAB308]" fill="currentColor" /> RIO SOL IA
+                  Brain
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="w-full justify-start text-[#061B3B] font-bold border-[#EAB308] bg-[#EAB308]/10 hover:bg-[#EAB308]/20 mt-2 h-10"
+              >
+                <Link to="/admin">
+                  <ShieldAlert className="mr-2 h-4 w-4 text-[#d97706]" /> Painel Admin (CEO)
+                </Link>
+              </Button>
+            </div>
             <div className="space-y-0.5">
               <Button
                 variant="ghost"
