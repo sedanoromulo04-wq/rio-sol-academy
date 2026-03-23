@@ -64,11 +64,13 @@ export const adminStore = {
         await supabase
           .from('content')
           .upsert(mockContent)
-          .catch(() => {})
+          .catch((e) => {
+            console.warn('Failed to upsert mock content', e)
+          })
       }
       emit()
     } catch (e) {
-      console.warn('Fallback to mock content data')
+      console.warn('Fallback to mock content data', e)
     }
   },
   saveContent: async (item: ContentItem) => {
@@ -81,14 +83,18 @@ export const adminStore = {
     emit()
     try {
       await supabase.from('content').upsert([item])
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to save content', e)
+    }
   },
   deleteContent: async (id: string) => {
     state.content = state.content.filter((c) => c.id !== id)
     emit()
     try {
       await supabase.from('content').delete().eq('id', id)
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to delete content', e)
+    }
   },
 }
 

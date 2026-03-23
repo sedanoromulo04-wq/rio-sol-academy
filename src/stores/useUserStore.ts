@@ -54,7 +54,7 @@ export const userStore = {
       if (a) state.activities = a
       emit()
     } catch (e) {
-      console.warn('Fallback to mock user profile data')
+      console.warn('Fallback to mock user profile data', e)
     }
   },
   logActivity: async (type: string, score: number = 100) => {
@@ -77,7 +77,9 @@ export const userStore = {
     try {
       await supabase.from('activities').insert([act])
       await supabase.from('profiles').upsert([nextProfile])
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to log activity', e)
+    }
   },
 }
 

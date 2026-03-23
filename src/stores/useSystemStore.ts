@@ -31,7 +31,7 @@ export const systemStore = {
         emit()
       }
     } catch (e) {
-      console.warn('Fallback to local system settings due to Supabase connection error.')
+      console.warn('Fallback to local system settings due to Supabase connection error.', e)
     }
   },
   setStreakModeGlobal: async (val: boolean) => {
@@ -41,14 +41,18 @@ export const systemStore = {
       await supabase
         .from('system_settings')
         .upsert({ key: 'streak_enabled', value: val ? 'true' : 'false' })
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to update streak settings', e)
+    }
   },
   setWeeklyFocus: async (val: string) => {
     state = { ...state, weeklyFocus: val }
     emit()
     try {
       await supabase.from('system_settings').upsert({ key: 'weekly_focus', value: val })
-    } catch (e) {}
+    } catch (e) {
+      console.warn('Failed to update weekly focus', e)
+    }
   },
 }
 
