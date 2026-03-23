@@ -11,7 +11,12 @@ import LivreView from '@/components/dashboard/LivreView'
 import StreakView from '@/components/dashboard/StreakView'
 import useSystemStore from '@/stores/useSystemStore'
 import useUserStore from '@/stores/useUserStore'
-import { sendMessageToMentor, Message } from '@/services/ai-mentor'
+import {
+  sendMessageToMentor,
+  loadChatHistory,
+  saveChatMessage,
+  Message,
+} from '@/services/ai-mentor'
 
 export default function Index() {
   const { isStreakModeGlobal, weeklyFocus } = useSystemStore()
@@ -24,19 +29,32 @@ export default function Index() {
   const [inputMsg, setInputMsg] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const hasLoadedHistory = useRef(false)
 
   useEffect(() => {
-    if (profile && messages.length === 0) {
-      setMessages([
-        {
-          role: 'assistant',
-          content: isStreakMode
-            ? `${profile.full_name?.split(' ')[0]}, não se esqueça: você está a poucos passos de garantir sua ofensiva de hoje! Recomendamos iniciar pelo Simulador de Objeções para aquecer.`
-            : `${profile.full_name?.split(' ')[0]}, analisei sua última simulação. Foco na dissipação térmica para a próxima rodada no Modo Livre. Como posso ajudar agora?`,
-        },
-      ])
+    if (!profile || hasLoadedHistory.current) return
+    const fetchHistory = async () => {
+      hasLoadedHistory.current = true
+      try {
+        const history = await loadChatHistory(profile.id, 'mentor-main')
+        if (history.length > 0) {
+          setMessages(history)
+        } else {
+          const initialMsg: Message = {
+            role: 'assistant',
+            content: isStreakModeGlobal
+              ? `${profile.full_name?.split(' ')[0]}, não se esqueça: você está a poucos passos de garantir sua ofensiva de hoje! Recomendamos iniciar pelo Simulador de Objeções para aquecer.`
+              : `${profile.full_name?.split(' ')[0]}, analisei sua última simulação. Foco na dissipação térmica para a próxima rodada no Modo Livre. Como posso ajudar agora?`,
+          }
+          await saveChatMessage(profile.id, 'mentor-main', initialMsg)
+          setMessages([initialMsg])
+        }
+      } catch (err) {
+        console.error('Failed to load chat history', err)
+      }
     }
-  }, [profile, isStreakMode, messages.length])
+    fetchHistory()
+  }, [profile, isStreakModeGlobal])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -48,21 +66,28 @@ export default function Index() {
 
   const handleSendMessage = async () => {
     if (!inputMsg.trim() || isTyping) return
-    const userMsg = inputMsg.trim()
+    const userMsgContent = inputMsg.trim()
     setInputMsg('')
 
-    const newMessages: Message[] = [...messages, { role: 'user', content: userMsg }]
-    setMessages(newMessages)
+    const tempUserMsg: Message = { role: 'user', content: userMsgContent }
+    setMessages((prev) => [...prev, tempUserMsg])
     setIsTyping(true)
 
     try {
+      await saveChatMessage(profile.id, 'mentor-main', tempUserMsg)
+
+      const newMessages = [...messages, tempUserMsg]
       const reply = await sendMessageToMentor(
         newMessages.map((m) => ({ role: m.role, content: m.content })),
       )
-      setMessages([...newMessages, { role: 'assistant', content: reply }])
+
+      const assistantMsg: Message = { role: 'assistant', content: reply }
+      await saveChatMessage(profile.id, 'mentor-main', assistantMsg)
+
+      setMessages((prev) => [...prev, assistantMsg])
     } catch (e) {
-      setMessages([
-        ...newMessages,
+      setMessages((prev) => [
+        ...prev,
         {
           role: 'assistant',
           content:
@@ -87,7 +112,6 @@ export default function Index() {
 
   return (
     <div className="max-w-[1400px] mx-auto animate-fade-in-up space-y-6">
-      {/* Weekly Focus Banner */}
       {weeklyFocus && (
         <div className="bg-[#061B3B] p-5 rounded-2xl shadow-lg border border-[#EAB308]/30 flex flex-col sm:flex-row items-start sm:items-center gap-4 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-[#EAB308]/10 blur-3xl rounded-full pointer-events-none" />
@@ -108,7 +132,6 @@ export default function Index() {
         </div>
       )}
 
-      {/* Dashboard Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-black text-[#061B3B] font-display uppercase tracking-tight">
@@ -120,7 +143,6 @@ export default function Index() {
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
-          {/* Mode Toggle (Only visible if globally enabled) */}
           {isStreakModeGlobal && (
             <div className="flex items-center gap-3 bg-white py-1.5 px-3 rounded-xl shadow-sm border border-slate-200">
               <span
@@ -147,7 +169,6 @@ export default function Index() {
             </div>
           )}
 
-          {/* Zenith Progress */}
           <div className="hidden md:flex items-center gap-6 bg-white py-2 px-4 rounded-xl shadow-sm border border-slate-100">
             <div className="w-32 space-y-1.5">
               <div className="flex justify-between text-[9px] font-bold text-slate-500 uppercase tracking-widest">
@@ -170,12 +191,9 @@ export default function Index() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6">
-        {/* Left Column: Dynamic Mode Content */}
         <div className="space-y-6 min-w-0">{isStreakMode ? <StreakView /> : <LivreView />}</div>
 
-        {/* Right Column: AI Brain & Rankings */}
         <div className="space-y-6">
-          {/* AI Brain Card */}
           <Card className="border-none shadow-sm rounded-3xl bg-[#061B3B] overflow-hidden relative flex flex-col h-[400px]">
             <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
               <BrainCircuit className="w-32 h-32 text-white" />
@@ -236,7 +254,6 @@ export default function Index() {
             </CardContent>
           </Card>
 
-          {/* Rankings Mini */}
           <Card className="border-none shadow-sm rounded-2xl bg-white">
             <CardContent className="p-5">
               <div className="flex justify-between items-center mb-4">
