@@ -10,6 +10,7 @@ import Lesson from './pages/Lesson'
 import Simulator from './pages/Simulator'
 import Ranking from './pages/Ranking'
 import Profile from './pages/Profile'
+import Performance from './pages/Performance'
 import NotFound from './pages/NotFound'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminTracks from './pages/admin/AdminTracks'
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/trilhas" element={<Paths />} />
           <Route path="/trilhas/:id/lesson/:lessonId" element={<Lesson />} />
           <Route path="/simulador" element={<Simulator />} />
+          <Route path="/desempenho" element={<Performance />} />
           <Route path="/ranking" element={<Ranking />} />
           <Route path="/perfil" element={<Profile />} />
         </Route>

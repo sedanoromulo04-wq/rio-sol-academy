@@ -26,12 +26,14 @@ import {
   Medal,
   Bell,
   ShieldAlert,
+  TrendingUp,
 } from 'lucide-react'
 
 const navItems = [
   { title: 'Minha Jornada', path: '/', icon: Map },
   { title: 'Painel de conteúdos', path: '/trilhas', icon: Brain },
   { title: 'Laboratório de Roleplay', path: '/simulador', icon: MessageSquare },
+  { title: 'Meu Desempenho', path: '/desempenho', icon: TrendingUp },
   { title: 'Ranking Global', path: '/ranking', icon: BarChart3 },
 ]
 
