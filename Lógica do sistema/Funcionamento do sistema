@@ -1,0 +1,43 @@
+RIO SOL Academy - Documentação Técnica e Funcional
+Visão Geral do Sistema
+O RIO SOL Academy é uma plataforma de treinamento e capacitação avançada para vendedores do setor de energia solar. O sistema combina educação tradicional com inteligência artificial e gamificação (XP, Níveis, Ranking e Ofensivas).
+
+Arquitetura Técnica
+Frontend: React 19, Vite, TypeScript, Tailwind CSS e Shadcn UI.
+Backend/Banco de Dados: Supabase (PostgreSQL, Auth e Storage).
+Roteamento: React Router DOM.
+Estrutura de Banco de Dados (Supabase)
+profiles: Dados dos usuários, XP total, sequências (streaks) e nível de acesso (admin).
+activities: Histórico de ações (aulas lidas, roleplays concluídos) para cálculo de métricas.
+content: Biblioteca de trilhas e lições (títulos, descrições, links de vídeo e categorias).
+system_settings: Configurações globais como o "Foco da Semana".
+Funcionalidades Principais
+1. Painel Principal (Minha Jornada)
+Acompanhamento de Nível, progresso de XP e orientações da gestão.
+
+2. Trilhas de Aprendizado
+Capacitação teórica dividida em módulos (Cultura, Técnico e Psicologia). O consumo gera XP automaticamente.
+
+3. Laboratório de Roleplay (Simulador IA)
+Simulações de vendas contra personas de IA. Avalia Persuasão, Clareza, Tom de voz e Aderência ao Framework, gerando notas e feedback.
+
+4. Ranking Global
+Leaderboard interativo baseado na "Energia XP" para fomentar competição saudável.
+
+5. Níveis de Progressão
+Iniciante (0-999 XP)
+Consultor Júnior (1.000-2.999 XP)
+Consultor Pleno (3.000-4.999 XP)
+Consultor Sênior (5.000-9.999 XP)
+Arquiteto Solar (10.000+ XP)
+Painel Administrativo (is_admin = true)
+Centro de Comando: KPIs de adoção e edição do "Foco da Semana".
+Gestão de Conteúdo (CMS): Criação e edição de trilhas e materiais.
+Auditoria: Relatórios detalhados de desempenho por vendedor.
+Gestão de Mídias
+O sistema é otimizado para Links Externos (YouTube/Vimeo).
+
+Como Inserir: Upload no YouTube como "Não Listado" -> Copiar URL -> Colar no CMS do Painel Admin.
+Mecânica da Gamificação
+O XP é computado via interações na tabela activities. A soma reflete em tempo real na barra de progresso, mudança de cargo e posição no ranking.
+

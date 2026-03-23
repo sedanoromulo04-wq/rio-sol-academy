@@ -21,18 +21,18 @@ import {
   BookOpen,
   BarChart3,
   Medal,
-  Zap,
   Settings,
-  HelpCircle,
   Search,
   Bell,
   Award,
   LogOut,
   ArrowLeft,
+  Bot,
 } from 'lucide-react'
 
 const navItems = [
   { title: 'Visão Geral', path: '/admin', icon: LayoutDashboard },
+  { title: 'NotebookLM', path: '/admin/notebooklm', icon: Bot },
   { title: 'Gestão de Conteúdo', path: '/admin/tracks', icon: BookOpen },
   { title: 'Relatórios de Vendas', path: '/admin/analytics', icon: BarChart3 },
   { title: 'Ranking Global', path: '/admin/rankings', icon: Medal },
@@ -135,7 +135,6 @@ export function AdminLayout() {
         </Sidebar>
 
         <main className="flex-1 flex flex-col min-w-0 bg-gradient-to-br from-[#061b3b] via-[#020b18] to-[#01060e] relative overflow-hidden">
-          {/* Glowing orb background effect */}
           <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none"></div>
 
           <header className="flex h-20 items-center justify-between px-6 lg:px-8 gap-6 sticky top-0 z-30 bg-[#020b18]/60 backdrop-blur-xl border-b border-white/5">
@@ -144,7 +143,7 @@ export function AdminLayout() {
               <Input
                 placeholder="Buscar usuários, trilhas ou relatórios..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(event) => setSearch(event.target.value)}
                 className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-slate-400 shadow-inner rounded-full h-10 w-full text-sm focus-visible:ring-[#EAB308] focus-visible:border-[#EAB308]"
               />
             </div>

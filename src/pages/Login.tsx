@@ -13,7 +13,20 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  if (loading) return null
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#061B3B] flex items-center justify-center p-4">
+        <Card className="w-full max-w-md bg-white border-none shadow-2xl rounded-3xl overflow-hidden">
+          <CardHeader className="text-center py-8">
+            <CardTitle className="text-2xl font-bold text-[#061B3B]">
+              Verificando acesso
+            </CardTitle>
+            <CardDescription>Preparando sua sessão na RIO SOL Academy...</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    )
+  }
   if (user) return <Navigate to="/" replace />
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -76,9 +89,8 @@ export default function Login() {
           </form>
 
           <div className="mt-8 text-center text-sm text-slate-500 bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <p className="font-bold mb-1">Credenciais de teste Admin:</p>
-            <p className="select-all">lucas.salles@riosolenergias.com.br</p>
-            <p className="select-all">securepassword123</p>
+            <p className="font-bold mb-1">Ambiente protegido</p>
+            <p>Use suas credenciais corporativas para acessar a plataforma.</p>
           </div>
         </CardContent>
       </Card>

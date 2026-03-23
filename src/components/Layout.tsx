@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
 import useUserStore from '@/stores/useUserStore'
+import useSystemStore from '@/stores/useSystemStore'
 import {
   Sidebar,
   SidebarContent,
@@ -23,16 +24,16 @@ import {
   BarChart3,
   Zap,
   Settings,
-  HelpCircle,
   Search,
   Medal,
   Bell,
   ShieldAlert,
   TrendingUp,
   LogOut,
+  Bot,
 } from 'lucide-react'
 
-const navItems = [
+const baseNavItems = [
   { title: 'Minha Jornada', path: '/', icon: Map },
   { title: 'Painel de conteúdos', path: '/trilhas', icon: Brain },
   { title: 'Laboratório de Roleplay', path: '/simulador', icon: MessageSquare },
@@ -45,6 +46,15 @@ export default function Layout() {
   const [search, setSearch] = useState('')
   const { signOut } = useAuth()
   const { profile } = useUserStore()
+  const { notebookLM } = useSystemStore()
+
+  const showNotebookLM =
+    notebookLM.enabled &&
+    (notebookLM.userCanCreatePodcast || notebookLM.silos.some((silo) => silo.isVisible))
+
+  const navItems = showNotebookLM
+    ? [...baseNavItems, { title: 'NotebookLM', path: '/notebooklm', icon: Bot }]
+    : baseNavItems
 
   return (
     <SidebarProvider>
@@ -155,7 +165,7 @@ export default function Layout() {
                 <Input
                   placeholder="Buscar..."
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(event) => setSearch(event.target.value)}
                   className="pl-9 bg-white border-slate-200 shadow-sm rounded-full h-9 w-full text-sm"
                 />
               </div>

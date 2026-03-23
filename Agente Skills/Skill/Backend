@@ -1,0 +1,77 @@
+# Backend Skill — RIO SOL Academy
+
+## Stack
+- **Banco de Dados**: Supabase (PostgreSQL gerenciado)
+- **Auth**: Supabase Auth (email/password)
+- **URL**: `https://ufzzvdvhijvlmnemygoj.supabase.co`
+
+## Estrutura do Banco de Dados
+
+### Tabela `profiles`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| id | UUID (PK → auth.users) | ID do usuário |
+| email | TEXT | E-mail |
+| full_name | TEXT | Nome completo |
+| xp_total | INTEGER | XP acumulado |
+| current_streak | INTEGER | Sequência atual |
+| last_activity_date | TIMESTAMPTZ | Última atividade |
+| is_admin | BOOLEAN | Flag de admin |
+| created_at | TIMESTAMPTZ | Data de criação |
+
+### Tabela `activities`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| id | UUID (PK) | ID da atividade |
+| user_id | UUID (FK → profiles) | Usuário |
+| activity_type | TEXT | Tipo (aula, roleplay, etc.) |
+| score | INTEGER | XP ganho |
+| created_at | TIMESTAMPTZ | Data |
+
+### Tabela `content`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| id | UUID (PK) | ID do conteúdo |
+| title | TEXT | Título da trilha |
+| description | TEXT | Descrição |
+| video_url | TEXT | Link do vídeo |
+| thumbnail_url | TEXT | Thumbnail |
+| category | TEXT | Cultura/Técnico/Psicologia |
+| created_at | TIMESTAMPTZ | Data de criação |
+
+### Tabela `system_settings`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| key | TEXT (PK) | Chave da config |
+| value | TEXT | Valor |
+
+## Políticas RLS
+- **profiles**: Leitura do próprio perfil + admins leem todos + update no próprio
+- **activities**: Leitura das próprias + admins leem todas + inserção das próprias
+- **content**: Leitura pública (autenticado) + CRUD para admins
+- **system_settings**: Leitura pública + CRUD para admins
+
+## Trigger Automático
+- `on_auth_user_created`: Quando um novo usuário se registra via Supabase Auth, o trigger `handle_new_user()` cria automaticamente um registro em `profiles`.
+
+## Credenciais Admin de Teste
+- **E-mail**: `lucas.salles@riosolenergias.com.br`
+- **Senha**: `securepassword123`
+
+## Configuração do Frontend
+O arquivo `.env` na raiz do projeto deve conter:
+```
+VITE_SUPABASE_URL=https://ufzzvdvhijvlmnemygoj.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=<anon_key_do_supabase>
+```
+
+## Como Executar a Migração
+1. Abrir o SQL Editor no Supabase Dashboard
+2. Colar o conteúdo de `supabase/migrations/20260323134043_initial_schema.sql`
+3. Executar
+4. Verificar que as 4 tabelas foram criadas em Database → Tables
+
+## Stores do Frontend que Consomem o Banco
+- `useUserStore.ts` → `profiles`, `activities`
+- `useAdminStore.ts` → `content`, `profiles`, `activities`
+- `useSystemStore.ts` → `system_settings`

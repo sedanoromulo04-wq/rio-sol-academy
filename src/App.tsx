@@ -6,6 +6,8 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { systemStore } from '@/stores/useSystemStore'
 import { adminStore } from '@/stores/useAdminStore'
 import { userStore } from '@/stores/useUserStore'
+import useSystemStore from '@/stores/useSystemStore'
+import useUserStore from '@/stores/useUserStore'
 import { AuthProvider, useAuth } from '@/hooks/use-auth'
 
 import Layout from './components/Layout'
@@ -17,8 +19,10 @@ import Simulator from './pages/Simulator'
 import Ranking from './pages/Ranking'
 import Profile from './pages/Profile'
 import Performance from './pages/Performance'
+import NotebookLM from './pages/NotebookLM'
 import NotFound from './pages/NotFound'
 import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminNotebookLM from './pages/admin/AdminNotebookLM'
 import AdminTracks from './pages/admin/AdminTracks'
 import AdminTrackEdit from './pages/admin/AdminTrackEdit'
 import AdminUserDetail from './pages/admin/AdminUserDetail'
@@ -33,6 +37,33 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
       </div>
     )
   if (!user) return <Navigate to="/login" replace />
+  return children
+}
+
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth()
+  const { profile } = useUserStore()
+
+  if (loading || (user && !profile)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#020b18] text-white">
+        Carregando permissões...
+      </div>
+    )
+  }
+
+  if (!user) return <Navigate to="/login" replace />
+  if (!profile?.is_admin) return <Navigate to="/" replace />
+  return children
+}
+
+const NotebookLMRoute = ({ children }: { children: React.ReactNode }) => {
+  const { notebookLM } = useSystemStore()
+  const hasPublishedExperience =
+    notebookLM.enabled &&
+    (notebookLM.userCanCreatePodcast || notebookLM.silos.some((silo) => silo.isVisible))
+
+  if (!hasPublishedExperience) return <Navigate to="/" replace />
   return children
 }
 
@@ -64,17 +95,26 @@ const AppRoutes = () => {
         <Route path="/desempenho" element={<Performance />} />
         <Route path="/ranking" element={<Ranking />} />
         <Route path="/perfil" element={<Profile />} />
+        <Route
+          path="/notebooklm"
+          element={
+            <NotebookLMRoute>
+              <NotebookLM />
+            </NotebookLMRoute>
+          }
+        />
       </Route>
 
       <Route
         path="/admin"
         element={
-          <ProtectedRoute>
+          <AdminRoute>
             <AdminLayout />
-          </ProtectedRoute>
+          </AdminRoute>
         }
       >
         <Route index element={<AdminDashboard />} />
+        <Route path="notebooklm" element={<AdminNotebookLM />} />
         <Route path="tracks" element={<AdminTracks />} />
         <Route path="tracks/new" element={<AdminTrackEdit />} />
         <Route path="tracks/:id" element={<AdminTrackEdit />} />

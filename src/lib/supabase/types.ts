@@ -9,11 +9,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          current_streak: number | null
+          email: string
+          full_name: string
+          id: string
+          is_admin: boolean | null
+          last_activity_date: string | null
+          xp_total: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          current_streak?: number | null
+          email?: string
+          full_name?: string
+          id: string
+          is_admin?: boolean | null
+          last_activity_date?: string | null
+          xp_total?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          current_streak?: number | null
+          email?: string
+          full_name?: string
+          id?: string
+          is_admin?: boolean | null
+          last_activity_date?: string | null
+          xp_total?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activities: {
         Row: {
           activity_type: string
           created_at: string | null
           id: string
+          metadata: Json | null
           score: number | null
           user_id: string
         }
@@ -21,6 +66,7 @@ export type Database = {
           activity_type: string
           created_at?: string | null
           id?: string
+          metadata?: Json | null
           score?: number | null
           user_id: string
         }
@@ -28,6 +74,7 @@ export type Database = {
           activity_type?: string
           created_at?: string | null
           id?: string
+          metadata?: Json | null
           score?: number | null
           user_id?: string
         }
@@ -68,39 +115,6 @@ export type Database = {
           thumbnail_url?: string | null
           title?: string
           video_url?: string | null
-        }
-        Relationships: []
-      }
-      profiles: {
-        Row: {
-          created_at: string | null
-          current_streak: number | null
-          email: string
-          full_name: string
-          id: string
-          is_admin: boolean | null
-          last_activity_date: string | null
-          xp_total: number | null
-        }
-        Insert: {
-          created_at?: string | null
-          current_streak?: number | null
-          email?: string
-          full_name?: string
-          id: string
-          is_admin?: boolean | null
-          last_activity_date?: string | null
-          xp_total?: number | null
-        }
-        Update: {
-          created_at?: string | null
-          current_streak?: number | null
-          email?: string
-          full_name?: string
-          id?: string
-          is_admin?: boolean | null
-          last_activity_date?: string | null
-          xp_total?: number | null
         }
         Relationships: []
       }

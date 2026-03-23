@@ -1,0 +1,33 @@
+# Atualizações Backend — RIO SOL Academy
+
+## 2026-03-23 | Configuração Inicial do Supabase
+
+### ✅ Concluído
+- **`.env`** criado com `VITE_SUPABASE_URL` configurada (falta anon key)
+- **`types.ts`** atualizado com tipagem completa das 4 tabelas, além de `avatar_url` em profiles e `metadata` JSON em activities
+- **Migração SQL** reescrita com melhorias:
+  - Adição da coluna `metadata JSONB` em activities para armazenar notas e context de aulas
+  - Adição da coluna `avatar_url TEXT` em profiles para preencher ranking
+  - Função `handle_new_user()` adaptada para salvar a URL da foto automaticamente
+  - Índices de performance (`idx_activities_user_id`, `idx_activities_created_at`, `idx_content_category`, `idx_profiles_xp_total`)
+  - Aliases nas subqueries RLS para evitar ambiguidade
+  - `WITH CHECK` nas policies de INSERT/UPDATE
+  - Thumbnails com URLs reais do Unsplash
+  - Trigger `handle_new_user()` para auto-criação de perfil
+  - Dados seed: 3 trilhas + 2 configurações + 1 usuário admin
+- **Documentação Backend** atualizada em `Agente Skills/Skill/Backend`
+
+### ⏳ Pendente — Ação do Usuário
+1. **Anon Key**: Inserir a anon key no `.env` → campo `VITE_SUPABASE_PUBLISHABLE_KEY`
+   - Encontrar em: Supabase Dashboard → Settings → API → `anon` `public`
+2. **Executar Migração**: Copiar SQL de `supabase/migrations/20260323134043_initial_schema.sql` e executar no SQL Editor do Supabase Dashboard
+   - URL: https://supabase.com/dashboard/project/ufzzvdvhijvlmnemygoj/sql/new
+
+### Arquivos Modificados
+| Arquivo | Ação |
+|---------|------|
+| `.env` | CRIADO — Credenciais Supabase |
+| `src/lib/supabase/types.ts` | ATUALIZADO — Tipagem completa |
+| `supabase/migrations/20260323134043_initial_schema.sql` | ATUALIZADO — Schema + RLS + Seeds |
+| `Agente Skills/Skill/Backend` | ATUALIZADO — Documentação |
+| `Andamento do projeto/Atualizações Backend` | ATUALIZADO — Este arquivo |
