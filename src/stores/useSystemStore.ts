@@ -1,16 +1,14 @@
 import { useSyncExternalStore } from 'react'
+import { supabase } from '@/lib/supabase'
 
 type SystemState = {
   isStreakModeGlobal: boolean
   weeklyFocus: string
-  globalAlert: string
 }
 
 let state: SystemState = {
   isStreakModeGlobal: true,
-  weeklyFocus:
-    'Nesta semana, o foco principal é a resiliência em objeções financeiras e a correta apresentação do Payback de longo prazo.',
-  globalAlert: '',
+  weeklyFocus: 'Foco em resiliência e objeções financeiras. Apresentar o Payback corretamente.',
 }
 
 const listeners = new Set<() => void>()
@@ -22,17 +20,35 @@ export const systemStore = {
     listeners.add(listener)
     return () => listeners.delete(listener)
   },
-  setStreakModeGlobal: (val: boolean) => {
+  init: async () => {
+    try {
+      const { data } = await supabase.from('system_settings').select('*')
+      if (data && data.length > 0) {
+        const streak = data.find((d) => d.key === 'streak_enabled')
+        const focus = data.find((d) => d.key === 'weekly_focus')
+        if (streak) state.isStreakModeGlobal = streak.value === 'true'
+        if (focus) state.weeklyFocus = focus.value
+        emit()
+      }
+    } catch (e) {
+      console.warn('Fallback to local system settings due to Supabase connection error.')
+    }
+  },
+  setStreakModeGlobal: async (val: boolean) => {
     state = { ...state, isStreakModeGlobal: val }
     emit()
+    try {
+      await supabase
+        .from('system_settings')
+        .upsert({ key: 'streak_enabled', value: val ? 'true' : 'false' })
+    } catch (e) {}
   },
-  setWeeklyFocus: (val: string) => {
+  setWeeklyFocus: async (val: string) => {
     state = { ...state, weeklyFocus: val }
     emit()
-  },
-  setGlobalAlert: (val: string) => {
-    state = { ...state, globalAlert: val }
-    emit()
+    try {
+      await supabase.from('system_settings').upsert({ key: 'weekly_focus', value: val })
+    } catch (e) {}
   },
 }
 

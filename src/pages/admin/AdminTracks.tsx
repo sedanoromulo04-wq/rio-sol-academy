@@ -26,17 +26,19 @@ import { useToast } from '@/hooks/use-toast'
 import { Search, Plus, Edit, Trash2 } from 'lucide-react'
 
 export default function AdminTracks() {
-  const { tracks, deleteTrack } = useAdminStore()
+  const { content, deleteContent } = useAdminStore()
   const { toast } = useToast()
   const [search, setSearch] = useState('')
   const [deleteId, setDeleteId] = useState<string | null>(null)
 
-  const filteredTracks = tracks.filter((t) => t.title.toLowerCase().includes(search.toLowerCase()))
+  const filteredContent = content.filter((t) =>
+    t.title.toLowerCase().includes(search.toLowerCase()),
+  )
 
   const handleDelete = () => {
     if (deleteId) {
-      deleteTrack(deleteId)
-      toast({ title: 'Sucesso', description: 'Trilha excluída com sucesso.' })
+      deleteContent(deleteId)
+      toast({ title: 'Sucesso', description: 'Conteúdo excluído com sucesso.' })
       setDeleteId(null)
     }
   }
@@ -45,12 +47,12 @@ export default function AdminTracks() {
     <div className="max-w-6xl mx-auto space-y-8 animate-fade-in-up">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-black text-white font-display">Gestão de Trilhas</h1>
-          <p className="text-slate-400 mt-1">Crie e edite os caminhos de conhecimento da equipe.</p>
+          <h1 className="text-3xl font-black text-white font-display">Gestão de Conteúdo (CMS)</h1>
+          <p className="text-slate-400 mt-1">Crie e edite os materiais da biblioteca do RIO SOL.</p>
         </div>
         <Button asChild className="bg-[#EAB308] hover:bg-[#d97706] text-[#422006] font-bold">
           <Link to="/admin/tracks/new">
-            <Plus className="mr-2 h-4 w-4" /> Nova Trilha
+            <Plus className="mr-2 h-4 w-4" /> Novo Conteúdo
           </Link>
         </Button>
       </div>
@@ -60,7 +62,7 @@ export default function AdminTracks() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
             <Input
-              placeholder="Buscar trilha..."
+              placeholder="Buscar título..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-9 bg-[#1F2937] border-white/5 text-white placeholder:text-slate-500 rounded-xl"
@@ -72,37 +74,36 @@ export default function AdminTracks() {
           <Table>
             <TableHeader className="bg-[#1F2937]">
               <TableRow className="border-white/5 hover:bg-transparent">
-                <TableHead className="text-slate-400 font-bold h-12">Nome da Trilha</TableHead>
-                <TableHead className="text-slate-400 font-bold">Módulos</TableHead>
-                <TableHead className="text-slate-400 font-bold">Status</TableHead>
+                <TableHead className="text-slate-400 font-bold h-12">Título do Conteúdo</TableHead>
+                <TableHead className="text-slate-400 font-bold">Categoria</TableHead>
                 <TableHead className="text-slate-400 font-bold text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredTracks.length === 0 ? (
+              {filteredContent.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8 text-slate-500">
-                    Nenhuma trilha encontrada.
+                  <TableCell colSpan={3} className="text-center py-8 text-slate-500">
+                    Nenhum conteúdo encontrado.
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredTracks.map((track) => (
+                filteredContent.map((item) => (
                   <TableRow
-                    key={track.id}
+                    key={item.id}
                     className="border-white/5 hover:bg-white/5 transition-colors"
                   >
-                    <TableCell className="font-medium text-white py-4">{track.title}</TableCell>
-                    <TableCell className="text-slate-400">{track.modules.length}</TableCell>
+                    <TableCell className="font-medium text-white py-4">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={item.thumbnail_url}
+                          className="w-10 h-10 rounded-md object-cover"
+                        />
+                        {item.title}
+                      </div>
+                    </TableCell>
                     <TableCell>
-                      <Badge
-                        variant={track.status === 'active' ? 'default' : 'secondary'}
-                        className={
-                          track.status === 'active'
-                            ? 'bg-green-500/20 text-green-400 hover:bg-green-500/20'
-                            : 'bg-slate-700 text-slate-300 hover:bg-slate-700'
-                        }
-                      >
-                        {track.status === 'active' ? 'Ativo' : 'Rascunho'}
+                      <Badge className="bg-slate-800 text-slate-300 hover:bg-slate-700">
+                        {item.category}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -113,14 +114,14 @@ export default function AdminTracks() {
                           size="icon"
                           className="h-8 w-8 text-slate-400 hover:text-white hover:bg-white/10"
                         >
-                          <Link to={`/admin/tracks/${track.id}`}>
+                          <Link to={`/admin/tracks/${item.id}`}>
                             <Edit className="h-4 w-4" />
                           </Link>
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => setDeleteId(track.id)}
+                          onClick={() => setDeleteId(item.id)}
                           className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-400/10"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -138,9 +139,9 @@ export default function AdminTracks() {
       <AlertDialog open={!!deleteId} onOpenChange={(o) => !o && setDeleteId(null)}>
         <AlertDialogContent className="bg-[#111827] border-white/10 text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir Trilha?</AlertDialogTitle>
+            <AlertDialogTitle>Excluir Conteúdo?</AlertDialogTitle>
             <AlertDialogDescription className="text-slate-400">
-              Esta ação não pode ser desfeita. Todos os módulos e aulas associados serão removidos.
+              Esta ação não pode ser desfeita. O material será removido da biblioteca.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -151,7 +152,7 @@ export default function AdminTracks() {
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
-              Excluir Trilha
+              Excluir
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

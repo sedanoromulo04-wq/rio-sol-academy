@@ -6,8 +6,11 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Flame, AlertTriangle, Snowflake, Check, PlaySquare, BookOpen, Swords } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import useUserStore from '@/stores/useUserStore'
 
 export default function StreakView() {
+  const { profile, logActivity } = useUserStore()
+
   const [missions, setMissions] = useState([
     {
       id: 1,
@@ -17,6 +20,7 @@ export default function StreakView() {
       icon: PlaySquare,
       completed: true,
       xp: 50,
+      activityType: 'lesson',
     },
     {
       id: 2,
@@ -26,6 +30,7 @@ export default function StreakView() {
       icon: BookOpen,
       completed: false,
       xp: 50,
+      activityType: 'reading',
     },
     {
       id: 3,
@@ -35,11 +40,16 @@ export default function StreakView() {
       icon: Swords,
       completed: false,
       xp: 100,
+      activityType: 'roleplay',
     },
   ])
 
   const toggleMission = (id: number) => {
-    setMissions(missions.map((m) => (m.id === id ? { ...m, completed: !m.completed } : m)))
+    const mission = missions.find((m) => m.id === id)
+    if (!mission || mission.completed) return
+
+    setMissions(missions.map((m) => (m.id === id ? { ...m, completed: true } : m)))
+    logActivity(mission.activityType, mission.xp)
   }
 
   const completedCount = missions.filter((m) => m.completed).length
@@ -47,7 +57,6 @@ export default function StreakView() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Streak Dashboard Card */}
       <div className="relative rounded-3xl overflow-hidden shadow-sm border border-slate-200 group bg-[#061B3B]">
         <div className="absolute inset-0 bg-[url('https://img.usecurling.com/p/1200/600?q=solar%20flare&color=orange')] opacity-20 object-cover mix-blend-overlay" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#061B3B] via-[#061B3B]/90 to-transparent" />
@@ -70,7 +79,7 @@ export default function StreakView() {
             </div>
             <div>
               <h2 className="text-4xl md:text-5xl font-black text-white font-display tracking-tight leading-none">
-                12 Dias
+                {profile?.current_streak || 0} Dias
               </h2>
               <p className="text-[#EAB308] font-bold text-xs md:text-sm uppercase tracking-widest mt-2">
                 Ofensiva RIO SOL
@@ -89,14 +98,13 @@ export default function StreakView() {
             />
             {progressPercent === 100 && (
               <p className="text-[10px] font-bold text-green-400 uppercase tracking-widest mt-2 animate-fade-in-up">
-                Você ganhou +200 XP e manteve sua ofensiva!
+                Você ganhou XP e manteve sua ofensiva!
               </p>
             )}
           </div>
         </div>
       </div>
 
-      {/* Daily Missions Checklist */}
       <div className="space-y-4">
         <div className="flex justify-between items-end mb-4">
           <div>

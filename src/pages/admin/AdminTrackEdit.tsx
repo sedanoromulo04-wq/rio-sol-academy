@@ -1,43 +1,44 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import useAdminStore from '@/stores/useAdminStore'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
-import { ArrowLeft, Save } from 'lucide-react'
-import { TrackDetailsForm } from '@/components/admin/TrackDetailsForm'
-import { TrackContentManager } from '@/components/admin/TrackContentManager'
+import { ArrowLeft, Save, Video, Image as ImageIcon } from 'lucide-react'
 
 export default function AdminTrackEdit() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { tracks, addTrack, updateTrack, addModule, updateModule, deleteModule } = useAdminStore()
+  const { content, saveContent } = useAdminStore()
   const { toast } = useToast()
 
   const isNew = !id || id === 'new'
-  const track = isNew ? null : tracks.find((t) => t.id === id)
+  const item = isNew ? null : content.find((c) => c.id === id)
 
-  // Redirect if not found
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    video_url: '',
+    thumbnail_url: '',
+    category: 'Técnico',
+  })
+
   useEffect(() => {
-    if (!isNew && !track) navigate('/admin/tracks')
-  }, [isNew, track, navigate])
+    if (item) setFormData({ ...item })
+  }, [item])
 
-  const handleSaveDetails = (data: any) => {
-    if (isNew) {
-      const newId = `t-${Date.now()}`
-      addTrack({ id: newId, ...data, modules: [] })
-      toast({ title: 'Sucesso', description: 'Trilha criada com sucesso!' })
-      navigate(`/admin/tracks/${newId}`)
-    } else if (track) {
-      updateTrack(track.id, data)
-      toast({ title: 'Sucesso', description: 'Detalhes atualizados com sucesso!' })
-    }
+  const handleSave = () => {
+    if (!formData.title.trim())
+      return toast({ variant: 'destructive', title: 'Erro', description: 'Título é obrigatório.' })
+    saveContent({ id: item?.id || crypto.randomUUID(), ...formData })
+    toast({ title: 'Sucesso', description: 'Conteúdo salvo com sucesso!' })
+    navigate('/admin/tracks')
   }
 
-  if (!isNew && !track) return null
-
   return (
-    <div className="max-w-5xl mx-auto space-y-6 animate-fade-in-up pb-20">
+    <div className="max-w-4xl mx-auto space-y-6 animate-fade-in-up pb-20">
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"
@@ -49,48 +50,80 @@ export default function AdminTrackEdit() {
             <ArrowLeft className="w-5 h-5" />
           </Link>
         </Button>
-        <div>
-          <h1 className="text-2xl md:text-3xl font-black text-white font-display">
-            {isNew ? 'Criar Nova Trilha' : `Editando: ${track.title}`}
-          </h1>
-        </div>
+        <h1 className="text-2xl md:text-3xl font-black text-white font-display">
+          {isNew ? 'Criar Novo Conteúdo' : `Editando: ${formData.title}`}
+        </h1>
       </div>
 
-      <div className="bg-[#111827] border border-white/10 rounded-2xl p-2 shadow-xl">
-        <Tabs defaultValue="details" className="w-full">
-          <div className="px-4 pt-4 border-b border-white/10">
-            <TabsList className="bg-transparent space-x-6">
-              <TabsTrigger
-                value="details"
-                className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#EAB308] data-[state=active]:text-[#EAB308] text-slate-400 rounded-none pb-3 px-1"
-              >
-                Detalhes da Trilha
-              </TabsTrigger>
-              <TabsTrigger
-                value="content"
-                disabled={isNew}
-                className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#EAB308] data-[state=active]:text-[#EAB308] text-slate-400 rounded-none pb-3 px-1 disabled:opacity-30"
-              >
-                Conteúdo & Módulos
-              </TabsTrigger>
-            </TabsList>
+      <div className="bg-[#111827] border border-white/10 rounded-2xl p-6 shadow-xl space-y-6">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label className="text-slate-300">Título</Label>
+            <Input
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="Ex: Introdução à Energia Solar"
+              className="bg-[#1F2937] border-white/10 text-white"
+            />
           </div>
 
-          <TabsContent value="details" className="p-6">
-            <TrackDetailsForm initialData={track || undefined} onSubmit={handleSaveDetails} />
-          </TabsContent>
+          <div className="space-y-2">
+            <Label className="text-slate-300">Descrição</Label>
+            <Textarea
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="bg-[#1F2937] border-white/10 text-white min-h-[120px]"
+            />
+          </div>
 
-          <TabsContent value="content" className="p-6">
-            {track && (
-              <TrackContentManager
-                track={track}
-                onAddModule={(m) => addModule(track.id, m)}
-                onUpdateModule={(mId, data) => updateModule(track.id, mId, data)}
-                onDeleteModule={(mId) => deleteModule(track.id, mId)}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label className="text-slate-300 flex items-center gap-2">
+                <Video className="w-4 h-4" /> URL do Vídeo
+              </Label>
+              <Input
+                value={formData.video_url}
+                onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+                placeholder="https://youtube.com/..."
+                className="bg-[#1F2937] border-white/10 text-white"
               />
-            )}
-          </TabsContent>
-        </Tabs>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-slate-300 flex items-center gap-2">
+                <ImageIcon className="w-4 h-4" /> URL da Capa (Thumbnail)
+              </Label>
+              <Input
+                value={formData.thumbnail_url}
+                onChange={(e) => setFormData({ ...formData, thumbnail_url: e.target.value })}
+                placeholder="https://..."
+                className="bg-[#1F2937] border-white/10 text-white"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2 md:w-1/2">
+            <Label className="text-slate-300">Categoria</Label>
+            <select
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              className="w-full h-10 bg-[#1F2937] border border-white/10 rounded-md text-sm px-3 text-white outline-none"
+            >
+              <option value="Cultura">Cultura</option>
+              <option value="Técnico">Técnico</option>
+              <option value="Psicologia">Psicologia</option>
+              <option value="Prática">Prática</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="pt-6 border-t border-white/10 flex justify-end">
+          <Button
+            onClick={handleSave}
+            className="bg-[#EAB308] hover:bg-[#d97706] text-[#061b3b] font-bold px-8"
+          >
+            <Save className="w-4 h-4 mr-2" /> Salvar Conteúdo
+          </Button>
+        </div>
       </div>
     </div>
   )
