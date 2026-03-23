@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -14,6 +14,7 @@ import NotFound from './pages/NotFound'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminTracks from './pages/admin/AdminTracks'
 import AdminTrackEdit from './pages/admin/AdminTrackEdit'
+import AdminUserDetail from './pages/admin/AdminUserDetail'
 
 const App = () => (
   <BrowserRouter future={{ v7_startTransition: false, v7_relativeSplatPath: false }}>
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="tracks" element={<AdminTracks />} />
           <Route path="tracks/new" element={<AdminTrackEdit />} />
           <Route path="tracks/:id" element={<AdminTrackEdit />} />
+          <Route path="users/:id" element={<AdminUserDetail />} />
           {/* Fallback for other admin links to avoid 404s while navigating the mock layout */}
           <Route
             path="*"

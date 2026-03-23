@@ -4,17 +4,43 @@ import { Progress } from '@/components/ui/progress'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Play, BrainCircuit, Bot } from 'lucide-react'
+import { Play, BrainCircuit, Bot, Target } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 import LivreView from '@/components/dashboard/LivreView'
 import StreakView from '@/components/dashboard/StreakView'
+import useSystemStore from '@/stores/useSystemStore'
 
 export default function Index() {
-  const [isStreakMode, setIsStreakMode] = useState(true)
+  const { isStreakModeGlobal, weeklyFocus } = useSystemStore()
+  const [localStreakMode, setLocalStreakMode] = useState(true)
+
+  // Only use streak mode if global is enabled AND user wants it locally
+  const isStreakMode = isStreakModeGlobal && localStreakMode
 
   return (
     <div className="max-w-[1400px] mx-auto animate-fade-in-up space-y-6">
+      {/* Weekly Focus Banner */}
+      {weeklyFocus && (
+        <div className="bg-[#061B3B] p-5 rounded-2xl shadow-lg border border-[#EAB308]/30 flex flex-col sm:flex-row items-start sm:items-center gap-4 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-[#EAB308]/10 blur-3xl rounded-full pointer-events-none" />
+          <div className="p-3.5 bg-[#EAB308] rounded-xl text-[#061B3B] shrink-0 relative z-10 shadow-lg shadow-[#EAB308]/20">
+            <Target className="w-6 h-6" />
+          </div>
+          <div className="relative z-10 flex-1">
+            <h3 className="text-xs font-black text-[#EAB308] uppercase tracking-widest mb-1.5 flex items-center gap-2">
+              Foco da Semana
+              <span className="bg-red-500 text-white text-[9px] px-2 py-0.5 rounded-full animate-pulse">
+                SISTEMA CENTRAL
+              </span>
+            </h3>
+            <p className="text-white text-sm md:text-base font-medium leading-relaxed">
+              {weeklyFocus}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Dashboard Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -27,30 +53,32 @@ export default function Index() {
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
-          {/* Mode Toggle */}
-          <div className="flex items-center gap-3 bg-white py-1.5 px-3 rounded-xl shadow-sm border border-slate-200">
-            <span
-              className={cn(
-                'text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-colors',
-                isStreakMode ? 'text-[#d97706]' : 'text-slate-400',
-              )}
-            >
-              Ofensiva
-            </span>
-            <Switch
-              checked={!isStreakMode}
-              onCheckedChange={(c) => setIsStreakMode(!c)}
-              className="data-[state=checked]:bg-[#061B3B] data-[state=unchecked]:bg-[#EAB308]"
-            />
-            <span
-              className={cn(
-                'text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-colors',
-                !isStreakMode ? 'text-[#061B3B]' : 'text-slate-400',
-              )}
-            >
-              Livre
-            </span>
-          </div>
+          {/* Mode Toggle (Only visible if globally enabled) */}
+          {isStreakModeGlobal && (
+            <div className="flex items-center gap-3 bg-white py-1.5 px-3 rounded-xl shadow-sm border border-slate-200">
+              <span
+                className={cn(
+                  'text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-colors',
+                  isStreakMode ? 'text-[#d97706]' : 'text-slate-400',
+                )}
+              >
+                Ofensiva
+              </span>
+              <Switch
+                checked={!localStreakMode}
+                onCheckedChange={(c) => setLocalStreakMode(!c)}
+                className="data-[state=checked]:bg-[#061B3B] data-[state=unchecked]:bg-[#EAB308]"
+              />
+              <span
+                className={cn(
+                  'text-[10px] sm:text-xs font-bold uppercase tracking-wider transition-colors',
+                  !isStreakMode ? 'text-[#061B3B]' : 'text-slate-400',
+                )}
+              >
+                Livre
+              </span>
+            </div>
+          )}
 
           {/* Zenith Progress */}
           <div className="hidden md:flex items-center gap-6 bg-white py-2 px-4 rounded-xl shadow-sm border border-slate-100">
@@ -136,23 +164,23 @@ export default function Index() {
                 {[
                   {
                     rank: '01',
-                    name: 'Sarah Flux',
-                    role: 'Alta Densidade',
-                    xp: '12.8k XP',
+                    name: 'Marcus Thorne',
+                    role: 'Arquiteto Principal',
+                    xp: '31.2k XP',
                     active: false,
                   },
                   {
                     rank: '02',
-                    name: 'Marcus Watt',
-                    role: 'Gerente de Grid',
-                    xp: '11.4k XP',
+                    name: 'Elena Vance',
+                    role: 'Especialista de Grid',
+                    xp: '24.8k XP',
                     active: false,
                   },
                   {
-                    rank: '12',
+                    rank: '14',
                     name: 'Você (Zenith)',
                     role: 'Arquiteto Solar',
-                    xp: '9.2k XP',
+                    xp: '12.8k XP',
                     active: true,
                   },
                 ].map((user, idx) => (
@@ -175,9 +203,12 @@ export default function Index() {
                     </span>
                     <div
                       className={cn(
-                        'w-8 h-8 rounded-md shrink-0',
-                        user.active ? 'bg-[#EAB308]' : 'bg-[#F4F6F8]',
+                        'w-8 h-8 rounded-md shrink-0 bg-cover bg-center',
+                        user.active ? 'border-2 border-[#EAB308]' : 'bg-slate-200',
                       )}
+                      style={{
+                        backgroundImage: `url('https://img.usecurling.com/p/100/100?q=portrait&seed=${idx}')`,
+                      }}
                     ></div>
                     <div className="flex-1 min-w-0">
                       <p

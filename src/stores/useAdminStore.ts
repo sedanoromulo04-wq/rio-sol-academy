@@ -6,6 +6,9 @@ export type Lesson = {
   title: string
   description: string
   videoUrl: string
+  category?: string
+  difficulty?: string
+  coverImage?: string
   resources: Resource[]
 }
 export type Module = { id: string; title: string; lessons: Lesson[] }
@@ -33,10 +36,22 @@ export type SellerTrackProgress = {
   lastAccessed: string
 }
 
+export type CompletedActivity = {
+  id: string
+  type: 'Pílula de Conhecimento' | 'Exercício Prático' | 'Simulação de Roleplay'
+  title: string
+  date: string
+  score: number
+}
+
 export type SellerProgressData = {
   sellerId: string
   overallProgress: number
   lastActivity: string
+  streakCount: number
+  level: number
+  totalXp: number
+  activities: CompletedActivity[]
   tracks: SellerTrackProgress[]
 }
 
@@ -57,6 +72,9 @@ const initialData: Track[] = [
             title: 'Visão Geral',
             description: 'Bem vindo à academia.',
             videoUrl: 'https://youtube.com/...',
+            category: 'Cultura',
+            difficulty: 'Iniciante',
+            coverImage: 'https://img.usecurling.com/p/600/400?q=solar%20panel&color=yellow',
             resources: [],
           },
         ],
@@ -115,7 +133,26 @@ const initialProgress: SellerProgressData[] = [
   {
     sellerId: 's1',
     overallProgress: 65,
-    lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+    lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    streakCount: 15,
+    level: 40,
+    totalXp: 19800,
+    activities: [
+      {
+        id: 'a1',
+        type: 'Simulação de Roleplay',
+        title: 'Negociação B2B',
+        date: 'Hoje, 10:00',
+        score: 95,
+      },
+      {
+        id: 'a2',
+        type: 'Exercício Prático',
+        title: 'Cálculo de Demanda',
+        date: 'Ontem, 15:30',
+        score: 88,
+      },
+    ],
     tracks: [
       {
         trackId: 't1',
@@ -136,7 +173,19 @@ const initialProgress: SellerProgressData[] = [
   {
     sellerId: 's2',
     overallProgress: 12,
-    lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(), // 5 days ago
+    lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
+    streakCount: 2,
+    level: 39,
+    totalXp: 18250,
+    activities: [
+      {
+        id: 'a3',
+        type: 'Pílula de Conhecimento',
+        title: 'Microinversores',
+        date: 'Semana Passada',
+        score: 100,
+      },
+    ],
     tracks: [
       {
         trackId: 't1',
@@ -150,7 +199,33 @@ const initialProgress: SellerProgressData[] = [
   {
     sellerId: 's3',
     overallProgress: 90,
-    lastActivity: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 mins ago
+    lastActivity: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+    streakCount: 42,
+    level: 58,
+    totalXp: 31200,
+    activities: [
+      {
+        id: 'a4',
+        type: 'Pílula de Conhecimento',
+        title: 'Ética Solar',
+        date: 'Hoje, 09:30',
+        score: 100,
+      },
+      {
+        id: 'a5',
+        type: 'Simulação de Roleplay',
+        title: 'Fechamento Rápido',
+        date: 'Ontem, 14:00',
+        score: 98,
+      },
+      {
+        id: 'a6',
+        type: 'Exercício Prático',
+        title: 'Análise de Sombra',
+        date: 'Ontem, 08:15',
+        score: 94,
+      },
+    ],
     tracks: [
       {
         trackId: 't1',
@@ -171,7 +246,11 @@ const initialProgress: SellerProgressData[] = [
   {
     sellerId: 's4',
     overallProgress: 0,
-    lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 24 * 15).toISOString(), // 15 days ago
+    lastActivity: new Date(Date.now() - 1000 * 60 * 60 * 24 * 15).toISOString(),
+    streakCount: 0,
+    level: 42,
+    totalXp: 24800,
+    activities: [],
     tracks: [],
   },
 ]

@@ -1,9 +1,13 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Card } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Switch } from '@/components/ui/switch'
+import { useToast } from '@/hooks/use-toast'
+import useSystemStore from '@/stores/useSystemStore'
 import { LineChart, Line, XAxis, YAxis } from 'recharts'
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import {
@@ -32,22 +36,25 @@ const chartData = [
 
 const topXpEarners = [
   {
+    id: 's3',
     name: 'Marcus Thorne',
     role: 'Arquiteto Principal',
     xp: '31.2k',
     img: 'https://img.usecurling.com/ppl/thumbnail?gender=male&seed=12',
   },
   {
+    id: 's4',
     name: 'Elena Vance',
     role: 'Especialista de Grid',
     xp: '24.8k',
     img: 'https://img.usecurling.com/ppl/thumbnail?gender=female&seed=22',
   },
   {
-    name: 'Sasha Chen',
+    id: 's1',
+    name: 'Julian Vesper',
     role: 'Analista de Sistemas',
-    xp: '21.1k',
-    img: 'https://img.usecurling.com/ppl/thumbnail?gender=male&seed=33',
+    xp: '19.8k',
+    img: 'https://img.usecurling.com/ppl/thumbnail?gender=male&seed=44',
   },
 ]
 
@@ -73,7 +80,9 @@ const topContentWatched = [
 ]
 
 export default function AdminDashboard() {
-  const [msg, setMsg] = useState('')
+  const { isStreakModeGlobal, setStreakModeGlobal, weeklyFocus, setWeeklyFocus } = useSystemStore()
+  const { toast } = useToast()
+  const [focusInput, setFocusInput] = useState(weeklyFocus)
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6 xl:gap-8 max-w-[1600px] mx-auto animate-fade-in-up pb-10">
@@ -331,11 +340,12 @@ export default function AdminDashboard() {
               </div>
               <div className="space-y-3 flex-1">
                 {topXpEarners.map((user, idx) => (
-                  <div
+                  <Link
+                    to={`/admin/users/${user.id}`}
                     key={idx}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors"
+                    className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors group"
                   >
-                    <span className="font-black text-xs w-4 text-center text-slate-500">
+                    <span className="font-black text-xs w-4 text-center text-slate-500 group-hover:text-slate-300">
                       {idx + 1}
                     </span>
                     <Avatar className="h-9 w-9 border border-white/10">
@@ -343,7 +353,9 @@ export default function AdminDashboard() {
                       <AvatarFallback className="bg-slate-800 text-xs">U</AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm text-white truncate">{user.name}</p>
+                      <p className="font-bold text-sm text-white truncate group-hover:text-[#EAB308] transition-colors">
+                        {user.name}
+                      </p>
                       <p className="text-[9px] uppercase tracking-wider text-slate-400 truncate mt-0.5">
                         {user.role}
                       </p>
@@ -351,7 +363,7 @@ export default function AdminDashboard() {
                     <span className="text-xs font-bold text-[#EAB308] shrink-0 bg-[#EAB308]/10 px-2 py-1 rounded-md border border-[#EAB308]/20">
                       {user.xp} XP
                     </span>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </Card>
@@ -406,18 +418,24 @@ export default function AdminDashboard() {
 
         <Tabs defaultValue="feed" className="flex-1 flex flex-col min-h-0 mt-3">
           <div className="px-5 shrink-0">
-            <TabsList className="bg-white/[0.05] border border-white/10 w-full h-11 p-1 rounded-xl">
+            <TabsList className="bg-white/[0.05] border border-white/10 w-full h-11 p-1 rounded-xl grid grid-cols-3">
               <TabsTrigger
                 value="feed"
-                className="flex-1 rounded-lg data-[state=active]:bg-[#061b3b] data-[state=active]:text-white data-[state=active]:shadow-md text-slate-400 text-xs font-bold"
+                className="rounded-lg data-[state=active]:bg-[#061b3b] data-[state=active]:text-white data-[state=active]:shadow-md text-slate-400 text-[10px] sm:text-xs font-bold"
               >
-                Feed de Atividades
+                Feed
               </TabsTrigger>
               <TabsTrigger
                 value="notes"
-                className="flex-1 rounded-lg data-[state=active]:bg-[#061b3b] data-[state=active]:text-white data-[state=active]:shadow-md text-slate-400 text-xs font-bold"
+                className="rounded-lg data-[state=active]:bg-[#061b3b] data-[state=active]:text-white data-[state=active]:shadow-md text-slate-400 text-[10px] sm:text-xs font-bold"
               >
-                Comunicados e Notas
+                Avisos
+              </TabsTrigger>
+              <TabsTrigger
+                value="system"
+                className="rounded-lg data-[state=active]:bg-[#061b3b] data-[state=active]:text-white data-[state=active]:shadow-md text-slate-400 text-[10px] sm:text-xs font-bold"
+              >
+                Sistema
               </TabsTrigger>
             </TabsList>
           </div>
@@ -425,82 +443,145 @@ export default function AdminDashboard() {
           {/* Feed Tab */}
           <TabsContent value="feed" className="flex-1 flex flex-col min-h-0 mt-0 outline-none">
             <div className="flex-1 overflow-y-auto p-5 space-y-5">
-              <div className="flex flex-col gap-1.5 max-w-[90%]">
-                <div className="bg-white/10 border border-white/10 p-3.5 rounded-2xl rounded-tl-sm text-sm text-slate-200 leading-relaxed shadow-sm">
-                  <span className="text-[#EAB308] font-bold">Sarah Flux</span> completou a aula
-                  "Integração de Grid Inteligente" e ganhou{' '}
+              <Link
+                to="/admin/users/s2"
+                className="flex flex-col gap-1.5 max-w-[90%] hover:bg-white/5 p-2 -mx-2 rounded-xl transition-colors group"
+              >
+                <div className="bg-white/10 border border-white/10 p-3.5 rounded-2xl rounded-tl-sm text-sm text-slate-200 leading-relaxed shadow-sm group-hover:border-white/20">
+                  <span className="text-[#EAB308] font-bold group-hover:underline">Lara Kross</span>{' '}
+                  completou a aula "Integração de Grid Inteligente" e ganhou{' '}
                   <span className="font-bold text-emerald-400">+150 XP</span>.
                 </div>
                 <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                   Ao Vivo • Agora
                 </span>
-              </div>
+              </Link>
 
-              <div className="flex flex-col gap-1.5 max-w-[90%]">
-                <div className="bg-white/10 border border-white/10 p-3.5 rounded-2xl rounded-tl-sm text-sm text-slate-200 leading-relaxed shadow-sm">
-                  <span className="text-[#EAB308] font-bold">Marcus Thorne</span> iniciou o
-                  simulador "Lidando com Objeções de Preço".
+              <Link
+                to="/admin/users/s3"
+                className="flex flex-col gap-1.5 max-w-[90%] hover:bg-white/5 p-2 -mx-2 rounded-xl transition-colors group"
+              >
+                <div className="bg-white/10 border border-white/10 p-3.5 rounded-2xl rounded-tl-sm text-sm text-slate-200 leading-relaxed shadow-sm group-hover:border-white/20">
+                  <span className="text-[#EAB308] font-bold group-hover:underline">
+                    Marcus Thorne
+                  </span>{' '}
+                  iniciou o simulador "Lidando com Objeções de Preço".
                 </div>
                 <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-1 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                   Ao Vivo • 2m atrás
                 </span>
-              </div>
+              </Link>
 
-              <div className="flex flex-col gap-1.5 max-w-[90%]">
-                <div className="bg-white/[0.05] border border-white/5 p-3.5 rounded-2xl rounded-tl-sm text-sm text-slate-400 leading-relaxed">
-                  Alerta do Sistema: <span className="text-slate-300">Julian Vesper</span> alcançou
-                  o Nível Zenith. Acesso estratégico liberado.
+              <Link
+                to="/admin/users/s1"
+                className="flex flex-col gap-1.5 max-w-[90%] hover:bg-white/5 p-2 -mx-2 rounded-xl transition-colors group"
+              >
+                <div className="bg-white/[0.05] border border-white/5 p-3.5 rounded-2xl rounded-tl-sm text-sm text-slate-400 leading-relaxed group-hover:border-white/10">
+                  Alerta do Sistema:{' '}
+                  <span className="text-slate-300 group-hover:text-white">Julian Vesper</span>{' '}
+                  alcançou o Nível Zenith. Acesso estratégico liberado.
                 </div>
                 <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-1">
                   Sistema • 15m atrás
                 </span>
-              </div>
+              </Link>
 
-              <div className="flex flex-col gap-1.5 max-w-[90%]">
-                <div className="bg-white/10 border border-white/10 p-3.5 rounded-2xl rounded-tl-sm text-sm text-slate-200 leading-relaxed shadow-sm">
-                  <span className="text-[#EAB308] font-bold">Elena Vance</span> iniciou a trilha
-                  "Filosofia & Ética Solar".
+              <Link
+                to="/admin/users/s4"
+                className="flex flex-col gap-1.5 max-w-[90%] hover:bg-white/5 p-2 -mx-2 rounded-xl transition-colors group"
+              >
+                <div className="bg-white/10 border border-white/10 p-3.5 rounded-2xl rounded-tl-sm text-sm text-slate-200 leading-relaxed shadow-sm group-hover:border-white/20">
+                  <span className="text-[#EAB308] font-bold group-hover:underline">
+                    Elena Vance
+                  </span>{' '}
+                  iniciou a trilha "Filosofia & Ética Solar".
                 </div>
                 <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest ml-1">
                   30m atrás
                 </span>
-              </div>
+              </Link>
             </div>
           </TabsContent>
 
           {/* Notes Tab */}
           <TabsContent value="notes" className="flex-1 flex flex-col min-h-0 mt-0 outline-none">
-            <div className="flex-1 overflow-y-auto p-5 space-y-4">
-              <div className="bg-[#EAB308]/10 border border-[#EAB308]/20 p-4 rounded-xl">
-                <h4 className="text-sm font-bold text-[#EAB308] mb-2">Nota Executiva - Q3</h4>
-                <p className="text-sm text-slate-300">
-                  Focar no treinamento de resiliência e objeções financeiras. A taxa de conversão
-                  está caindo em orçamentos acima de 50k.
-                </p>
-              </div>
-              <div className="bg-white/5 border border-white/10 p-4 rounded-xl">
-                <h4 className="text-sm font-bold text-white mb-2">Reunião de Alinhamento</h4>
-                <p className="text-sm text-slate-400">
-                  Revisar as novas políticas de desconto na sexta-feira com os líderes de esquadrão.
-                </p>
-              </div>
-            </div>
-            <div className="p-4 border-t border-white/10 bg-[#020b18]/60 backdrop-blur-xl shrink-0">
-              <div className="relative">
+            <div className="flex-1 overflow-y-auto p-5 space-y-6">
+              <div className="space-y-3">
+                <h4 className="text-sm font-bold text-white">Editar Foco da Semana</h4>
                 <textarea
-                  placeholder="Adicione uma observação estratégica..."
-                  value={msg}
-                  onChange={(e) => setMsg(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 text-white placeholder:text-slate-500 rounded-xl p-3 pr-12 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#EAB308] resize-none h-20"
+                  value={focusInput}
+                  onChange={(e) => setFocusInput(e.target.value)}
+                  placeholder="Escreva a mensagem de foco da semana..."
+                  className="w-full bg-white/5 border border-white/10 text-white placeholder:text-slate-500 rounded-xl p-3 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#EAB308] resize-none h-32"
                 />
                 <Button
-                  size="icon"
-                  className="absolute right-2 bottom-2 h-8 w-8 bg-[#EAB308] hover:bg-[#d97706] text-[#061b3b] rounded-lg shadow-sm"
+                  onClick={() => {
+                    setWeeklyFocus(focusInput)
+                    toast({
+                      title: 'Foco Atualizado',
+                      description: 'O foco da semana foi atualizado e está visível para a equipe.',
+                    })
+                  }}
+                  className="w-full bg-[#EAB308] hover:bg-[#d97706] text-[#061b3b] font-bold"
                 >
-                  <Send className="h-3.5 w-3.5 ml-0.5" />
+                  <Send className="w-4 h-4 mr-2" /> Publicar Foco da Semana
                 </Button>
+              </div>
+
+              <div className="space-y-4 pt-6 border-t border-white/10">
+                <h4 className="text-sm font-bold text-slate-300">Avisos Anteriores</h4>
+                <div className="bg-[#EAB308]/10 border border-[#EAB308]/20 p-4 rounded-xl">
+                  <h4 className="text-sm font-bold text-[#EAB308] mb-2">Nota Executiva - Q3</h4>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    Focar no treinamento de resiliência e objeções financeiras. A taxa de conversão
+                    está caindo em orçamentos acima de 50k.
+                  </p>
+                </div>
+                <div className="bg-white/5 border border-white/10 p-4 rounded-xl">
+                  <h4 className="text-sm font-bold text-white mb-2">Reunião de Alinhamento</h4>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Revisar as novas políticas de desconto na sexta-feira com os líderes de
+                    esquadrão.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* System Tab */}
+          <TabsContent value="system" className="flex-1 flex flex-col min-h-0 mt-0 outline-none">
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+              <div className="flex items-start justify-between bg-white/5 p-4 rounded-xl border border-white/10 gap-4">
+                <div className="flex-1">
+                  <h4 className="font-bold text-white text-sm">Ativar Modo Ofensiva</h4>
+                  <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
+                    Controla o sistema de gamificação, missões diárias e interface de "Streak" para
+                    todos os vendedores.
+                  </p>
+                </div>
+                <Switch
+                  checked={isStreakModeGlobal}
+                  onCheckedChange={(val) => {
+                    setStreakModeGlobal(val)
+                    toast({
+                      title: 'Configuração Atualizada',
+                      description: `Modo Ofensiva ${val ? 'ativado' : 'desativado'} globalmente.`,
+                    })
+                  }}
+                  className="data-[state=checked]:bg-[#EAB308] data-[state=unchecked]:bg-slate-700 mt-1"
+                />
+              </div>
+
+              <div className="flex items-start justify-between bg-white/5 p-4 rounded-xl border border-white/10 gap-4 opacity-50">
+                <div className="flex-1">
+                  <h4 className="font-bold text-white text-sm">Bloqueio de Simulador</h4>
+                  <p className="text-xs text-slate-400 mt-1.5 leading-relaxed">
+                    Desativa o uso da IA de roleplay para manutenção.
+                  </p>
+                </div>
+                <Switch disabled checked={false} className="mt-1 bg-slate-700" />
               </div>
             </div>
           </TabsContent>
