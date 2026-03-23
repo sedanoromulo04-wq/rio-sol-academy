@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
+import { useAuth } from '@/hooks/use-auth'
+import useUserStore from '@/stores/useUserStore'
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +27,8 @@ import {
   Search,
   Bell,
   Award,
+  LogOut,
+  ArrowLeft,
 } from 'lucide-react'
 
 const navItems = [
@@ -37,6 +41,8 @@ const navItems = [
 export function AdminLayout() {
   const location = useLocation()
   const [search, setSearch] = useState('')
+  const { signOut } = useAuth()
+  const { profile } = useUserStore()
 
   return (
     <SidebarProvider>
@@ -48,13 +54,17 @@ export function AdminLayout() {
             </h2>
             <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
               <Avatar className="h-10 w-10 border border-white/20">
-                <AvatarImage src="https://img.usecurling.com/ppl/medium?gender=female&seed=99" />
+                <AvatarImage
+                  src={`https://img.usecurling.com/ppl/medium?seed=${profile?.id || 'admin'}`}
+                />
                 <AvatarFallback className="bg-slate-800 text-slate-300 font-bold">
-                  CE
+                  {profile?.full_name?.substring(0, 2).toUpperCase() || 'A'}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <h3 className="font-bold text-sm text-white leading-tight">Sarah Connor</h3>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-sm text-white leading-tight truncate">
+                  {profile?.full_name || 'Admin'}
+                </h3>
                 <p className="text-[9px] font-bold text-[#EAB308] uppercase tracking-widest mt-0.5">
                   Nível Executivo
                 </p>
@@ -101,8 +111,9 @@ export function AdminLayout() {
               asChild
               className="w-full bg-[#061B3B] hover:bg-[#0a2955] border border-white/10 text-white justify-start px-4 py-5 rounded-lg font-bold shadow-lg shadow-black/20"
             >
-              <Link to="/simulador">
-                <Zap className="mr-2 h-4 w-4 text-[#EAB308]" fill="currentColor" /> Admin IA RIO SOL
+              <Link to="/">
+                <ArrowLeft className="mr-2 h-4 w-4 text-[#EAB308]" fill="currentColor" /> Voltar ao
+                App
               </Link>
             </Button>
             <div className="space-y-0.5 pt-2 border-t border-white/5">
@@ -110,13 +121,14 @@ export function AdminLayout() {
                 variant="ghost"
                 className="w-full justify-start text-slate-400 hover:text-white hover:bg-white/5 font-medium h-9 px-3 rounded-md text-sm"
               >
-                <Settings className="mr-2 h-4 w-4" /> Configurações do Sistema
+                <Settings className="mr-2 h-4 w-4" /> Configurações
               </Button>
               <Button
                 variant="ghost"
-                className="w-full justify-start text-slate-400 hover:text-white hover:bg-white/5 font-medium h-9 px-3 rounded-md text-sm"
+                onClick={() => signOut()}
+                className="w-full justify-start text-slate-400 hover:text-red-400 hover:bg-red-950/30 font-medium h-9 px-3 rounded-md text-sm"
               >
-                <HelpCircle className="mr-2 h-4 w-4" /> Suporte
+                <LogOut className="mr-2 h-4 w-4" /> Sair
               </Button>
             </div>
           </SidebarFooter>
@@ -147,9 +159,11 @@ export function AdminLayout() {
               </button>
               <Link to="/perfil" className="shrink-0 transition-transform hover:scale-105 ml-2">
                 <Avatar className="h-9 w-9 border border-white/20 shadow-sm rounded-full">
-                  <AvatarImage src="https://img.usecurling.com/ppl/thumbnail?gender=female&seed=99" />
+                  <AvatarImage
+                    src={`https://img.usecurling.com/ppl/thumbnail?seed=${profile?.id || 'admin'}`}
+                  />
                   <AvatarFallback className="bg-slate-800 text-white text-xs font-bold">
-                    CE
+                    {profile?.full_name?.substring(0, 2).toUpperCase() || 'A'}
                   </AvatarFallback>
                 </Avatar>
               </Link>

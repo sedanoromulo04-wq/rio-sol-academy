@@ -20,6 +20,16 @@ export default function Performance() {
   const roleplays = activities.filter((a) => a.activity_type === 'roleplay')
   const lessons = activities.filter((a) => a.activity_type !== 'roleplay')
 
+  const currentLevel = Math.floor(profile.xp_total / 1000) + 1
+  const levelNames = [
+    'Iniciante',
+    'Consultor Júnior',
+    'Consultor Pleno',
+    'Consultor Sênior',
+    'Arquiteto Solar',
+  ]
+  const currentLevelName = levelNames[Math.min(currentLevel - 1, 4)]
+
   return (
     <div className="max-w-[1200px] mx-auto space-y-8 animate-fade-in-up pb-12">
       <div>
@@ -70,7 +80,7 @@ export default function Performance() {
                 variant="outline"
                 className="text-slate-500 border-slate-200 font-bold text-[10px] uppercase"
               >
-                Nível Elite
+                Nível {currentLevelName}
               </Badge>
             </div>
             <div>
@@ -101,7 +111,9 @@ export default function Performance() {
                 Última Atividade
               </p>
               <h3 className="text-xl font-bold text-[#061B3B] font-display">
-                {new Date(profile.last_activity_date).toLocaleDateString()}
+                {profile.last_activity_date
+                  ? new Date(profile.last_activity_date).toLocaleDateString()
+                  : 'Nenhuma'}
               </h3>
             </div>
           </CardContent>

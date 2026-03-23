@@ -10,40 +10,26 @@ export type ContentItem = {
   category: string
 }
 
-const mockContent: ContentItem[] = [
-  {
-    id: 'c1',
-    title: 'Filosofia & Ética Solar',
-    description:
-      'Mergulhe nas raízes filosóficas da transição energética. Entenda como a ética solar molda nossas interações comerciais e fortalece o propósito por trás de cada sistema.',
-    video_url: 'https://youtube.com',
-    thumbnail_url:
-      'https://img.usecurling.com/p/600/400?q=solar%20architecture%20modern&color=blue',
-    category: 'Cultura',
-  },
-  {
-    id: 'c2',
-    title: 'Engenharia Fotovoltaica Essencial',
-    description:
-      'Domine os princípios físicos e elétricos dos sistemas solares. De inversores string a microinversores, construa a base técnica necessária para dimensionar soluções.',
-    video_url: 'https://youtube.com',
-    thumbnail_url: 'https://img.usecurling.com/p/600/400?q=solar%20panels%20roof&color=black',
-    category: 'Técnico',
-  },
-  {
-    id: 'c3',
-    title: 'A Arquitetura da Persuasão',
-    description:
-      'Desvende os gatilhos mentais e as heurísticas de decisão dos clientes. Aprenda a estruturar narrativas comerciais irrefutáveis e dominar a escuta ativa.',
-    video_url: 'https://youtube.com',
-    thumbnail_url:
-      'https://img.usecurling.com/p/600/400?q=business%20meeting%20strategy&color=blue',
-    category: 'Psicologia',
-  },
-]
+export type Seller = {
+  id: string
+  name: string
+  email: string
+  avatar: string
+}
+
+export type UserProgress = {
+  sellerId: string
+  streakCount: number
+  level: number
+  totalXp: number
+  overallProgress: number
+  activities: Array<{ id: string; title: string; type: string; date: string; score: number }>
+}
 
 let state = {
-  content: mockContent,
+  content: [] as ContentItem[],
+  sellers: [] as Seller[],
+  progress: [] as UserProgress[],
 }
 
 const listeners = new Set<() => void>()
@@ -57,20 +43,42 @@ export const adminStore = {
   },
   init: async () => {
     try {
-      const { data } = await supabase.from('content').select('*')
-      if (data && data.length > 0) {
-        state.content = data
-      } else {
-        await supabase
-          .from('content')
-          .upsert(mockContent)
-          .catch((e) => {
-            console.warn('Failed to upsert mock content', e)
-          })
+      const { data: contentData } = await supabase.from('content').select('*')
+      if (contentData) state.content = contentData
+
+      const { data: profiles } = await supabase.from('profiles').select('*')
+      const { data: acts } = await supabase.from('activities').select('*')
+
+      if (profiles) {
+        state.sellers = profiles.map((p) => ({
+          id: p.id,
+          name: p.full_name || 'Usuário',
+          email: p.email || '',
+          avatar: `https://img.usecurling.com/ppl/medium?seed=${p.id}`,
+        }))
+
+        state.progress = profiles.map((p) => {
+          const userActs = (acts || []).filter((a) => a.user_id === p.id)
+          return {
+            sellerId: p.id,
+            streakCount: p.current_streak || 0,
+            level: Math.floor((p.xp_total || 0) / 1000) + 1,
+            totalXp: p.xp_total || 0,
+            overallProgress: Math.min(100, Math.floor((p.xp_total || 0) / 100)),
+            activities: userActs.map((a) => ({
+              id: a.id,
+              title: `Atividade: ${a.activity_type}`,
+              type: a.activity_type,
+              date: new Date(a.created_at).toLocaleDateString(),
+              score: a.score || 0,
+            })),
+          }
+        })
       }
+
       emit()
     } catch (e) {
-      console.warn('Fallback to mock content data', e)
+      console.warn('Failed to load admin data', e)
     }
   },
   saveContent: async (item: ContentItem) => {

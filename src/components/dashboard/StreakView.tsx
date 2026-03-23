@@ -55,6 +55,8 @@ export default function StreakView() {
   const completedCount = missions.filter((m) => m.completed).length
   const progressPercent = Math.round((completedCount / missions.length) * 100)
 
+  if (!profile) return null
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="relative rounded-3xl overflow-hidden shadow-sm border border-slate-200 group bg-[#061B3B]">
@@ -79,7 +81,7 @@ export default function StreakView() {
             </div>
             <div>
               <h2 className="text-4xl md:text-5xl font-black text-white font-display tracking-tight leading-none">
-                {profile?.current_streak || 0} Dias
+                {profile.current_streak || 0} Dias
               </h2>
               <p className="text-[#EAB308] font-bold text-xs md:text-sm uppercase tracking-widest mt-2">
                 Ofensiva RIO SOL

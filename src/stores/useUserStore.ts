@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 export type Profile = {
   id: string
   full_name: string
+  email: string
   xp_total: number
   current_streak: number
   last_activity_date: string
@@ -18,17 +19,8 @@ export type Activity = {
   created_at: string
 }
 
-const mockProfile: Profile = {
-  id: 'zenith-user-1',
-  full_name: 'Zenith (Você)',
-  xp_total: 12400,
-  current_streak: 12,
-  last_activity_date: new Date().toISOString(),
-  is_admin: true,
-}
-
 let state = {
-  profile: mockProfile,
+  profile: null as Profile | null,
   activities: [] as Activity[],
 }
 
@@ -41,23 +33,24 @@ export const userStore = {
     listeners.add(listener)
     return () => listeners.delete(listener)
   },
-  init: async () => {
+  init: async (userId: string) => {
     try {
-      const { data: p } = await supabase.from('profiles').select('*').limit(1).single()
+      const { data: p } = await supabase.from('profiles').select('*').eq('id', userId).single()
       if (p) state.profile = p
-      else await supabase.from('profiles').upsert([mockProfile])
 
       const { data: a } = await supabase
         .from('activities')
         .select('*')
+        .eq('user_id', userId)
         .order('created_at', { ascending: false })
       if (a) state.activities = a
       emit()
     } catch (e) {
-      console.warn('Fallback to mock user profile data', e)
+      console.warn('Failed to load user profile data', e)
     }
   },
   logActivity: async (type: string, score: number = 100) => {
+    if (!state.profile) return
     const act: Activity = {
       id: crypto.randomUUID(),
       user_id: state.profile.id,
@@ -76,7 +69,14 @@ export const userStore = {
 
     try {
       await supabase.from('activities').insert([act])
-      await supabase.from('profiles').upsert([nextProfile])
+      await supabase
+        .from('profiles')
+        .update({
+          xp_total: nextProfile.xp_total,
+          current_streak: nextProfile.current_streak,
+          last_activity_date: nextProfile.last_activity_date,
+        })
+        .eq('id', nextProfile.id)
     } catch (e) {
       console.warn('Failed to log activity', e)
     }

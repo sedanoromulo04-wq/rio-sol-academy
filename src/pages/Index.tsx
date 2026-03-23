@@ -10,13 +10,28 @@ import { cn } from '@/lib/utils'
 import LivreView from '@/components/dashboard/LivreView'
 import StreakView from '@/components/dashboard/StreakView'
 import useSystemStore from '@/stores/useSystemStore'
+import useUserStore from '@/stores/useUserStore'
 
 export default function Index() {
   const { isStreakModeGlobal, weeklyFocus } = useSystemStore()
+  const { profile } = useUserStore()
   const [localStreakMode, setLocalStreakMode] = useState(true)
+
+  if (!profile) return null
 
   // Only use streak mode if global is enabled AND user wants it locally
   const isStreakMode = isStreakModeGlobal && localStreakMode
+
+  const currentLevel = Math.floor(profile.xp_total / 1000) + 1
+  const levelNames = [
+    'Iniciante',
+    'Consultor Júnior',
+    'Consultor Pleno',
+    'Consultor Sênior',
+    'Arquiteto Solar',
+  ]
+  const currentLevelName = levelNames[Math.min(currentLevel - 1, 4)]
+  const progressPercent = Math.min(100, Math.floor(((profile.xp_total % 1000) / 1000) * 100))
 
   return (
     <div className="max-w-[1400px] mx-auto animate-fade-in-up space-y-6">
@@ -85,15 +100,17 @@ export default function Index() {
             <div className="w-32 space-y-1.5">
               <div className="flex justify-between text-[9px] font-bold text-slate-500 uppercase tracking-widest">
                 <span>Progresso Zenith</span>
-                <span className="text-[#EAB308]">84%</span>
+                <span className="text-[#EAB308]">{progressPercent}%</span>
               </div>
-              <Progress value={84} className="h-1 bg-slate-100 [&>div]:bg-[#EAB308]" />
+              <Progress value={progressPercent} className="h-1 bg-slate-100 [&>div]:bg-[#EAB308]" />
             </div>
             <div className="w-px h-6 bg-slate-100"></div>
             <div className="text-right">
-              <p className="text-sm font-bold text-[#061B3B]">12.8k XP</p>
+              <p className="text-sm font-bold text-[#061B3B]">
+                {(profile.xp_total / 1000).toFixed(1)}k XP
+              </p>
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-                Arquiteto Solar
+                {currentLevelName}
               </p>
             </div>
           </div>
@@ -128,8 +145,8 @@ export default function Index() {
               <div className="space-y-3 mb-4 flex-1 overflow-y-auto pr-1">
                 <div className="bg-white/10 text-slate-200 text-xs p-3 rounded-xl rounded-tl-sm border border-white/5 leading-relaxed backdrop-blur-sm">
                   {isStreakMode
-                    ? 'Zenith, não se esqueça: você está a poucos passos de garantir sua ofensiva de hoje! Recomendamos iniciar pelo Simulador de Objeções para aquecer.'
-                    : 'Zenith, analisei sua última simulação. Sua eficiência máxima foi às 08:45 UTC. Foco na dissipação térmica para a próxima rodada no Modo Livre.'}
+                    ? `${profile.full_name?.split(' ')[0]}, não se esqueça: você está a poucos passos de garantir sua ofensiva de hoje! Recomendamos iniciar pelo Simulador de Objeções para aquecer.`
+                    : `${profile.full_name?.split(' ')[0]}, analisei sua última simulação. Sua eficiência máxima foi às 08:45 UTC. Foco na dissipação térmica para a próxima rodada no Modo Livre.`}
                 </div>
                 <div className="bg-[#EAB308]/10 text-white text-xs p-3 rounded-xl rounded-tr-sm border border-[#EAB308]/20 leading-relaxed ml-6 text-right">
                   Entendido. Mostre-me os pontos de calor dessa sessão.
@@ -157,7 +174,7 @@ export default function Index() {
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-base font-bold text-[#061B3B] font-display">Ranking Global</h3>
                 <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                  Semana 42
+                  Semana Atual
                 </span>
               </div>
               <div className="space-y-2">
@@ -178,9 +195,9 @@ export default function Index() {
                   },
                   {
                     rank: '14',
-                    name: 'Você (Zenith)',
-                    role: 'Arquiteto Solar',
-                    xp: '12.8k XP',
+                    name: 'Você',
+                    role: currentLevelName,
+                    xp: `${(profile.xp_total / 1000).toFixed(1)}k XP`,
                     active: true,
                   },
                 ].map((user, idx) => (

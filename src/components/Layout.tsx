@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
+import { useAuth } from '@/hooks/use-auth'
+import useUserStore from '@/stores/useUserStore'
 import {
   Sidebar,
   SidebarContent,
@@ -27,6 +29,7 @@ import {
   Bell,
   ShieldAlert,
   TrendingUp,
+  LogOut,
 } from 'lucide-react'
 
 const navItems = [
@@ -40,6 +43,8 @@ const navItems = [
 export default function Layout() {
   const location = useLocation()
   const [search, setSearch] = useState('')
+  const { signOut } = useAuth()
+  const { profile } = useUserStore()
 
   return (
     <SidebarProvider>
@@ -51,15 +56,19 @@ export default function Layout() {
             </h2>
             <div className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
               <Avatar className="h-9 w-9 rounded-lg">
-                <AvatarImage src="https://img.usecurling.com/p/100/100?q=space&color=black" />
+                <AvatarImage
+                  src={`https://img.usecurling.com/p/100/100?q=space&seed=${profile?.id || '1'}`}
+                />
                 <AvatarFallback className="bg-[#061B3B] text-white rounded-lg text-xs">
-                  SA
+                  {profile?.full_name?.substring(0, 2).toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <h3 className="font-bold text-sm text-[#061B3B] leading-tight">Arquiteto Solar</h3>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-sm text-[#061B3B] leading-tight truncate">
+                  {profile?.full_name || 'Usuário'}
+                </h3>
                 <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-                  Nível Zenith
+                  Nível {Math.floor((profile?.xp_total || 0) / 1000) + 1}
                 </p>
               </div>
             </div>
@@ -108,15 +117,17 @@ export default function Layout() {
                   Brain
                 </Link>
               </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="w-full justify-start text-[#061B3B] font-bold border-[#EAB308] bg-[#EAB308]/10 hover:bg-[#EAB308]/20 mt-2 h-10"
-              >
-                <Link to="/admin">
-                  <ShieldAlert className="mr-2 h-4 w-4 text-[#d97706]" /> Painel Admin (CEO)
-                </Link>
-              </Button>
+              {profile?.is_admin && (
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full justify-start text-[#061B3B] font-bold border-[#EAB308] bg-[#EAB308]/10 hover:bg-[#EAB308]/20 mt-2 h-10"
+                >
+                  <Link to="/admin">
+                    <ShieldAlert className="mr-2 h-4 w-4 text-[#d97706]" /> Painel Admin (CEO)
+                  </Link>
+                </Button>
+              )}
             </div>
             <div className="space-y-0.5">
               <Button
@@ -127,9 +138,10 @@ export default function Layout() {
               </Button>
               <Button
                 variant="ghost"
-                className="w-full justify-start text-slate-500 hover:text-[#061B3B] hover:bg-slate-50 font-medium h-9 px-3 rounded-md text-sm"
+                onClick={() => signOut()}
+                className="w-full justify-start text-slate-500 hover:text-red-600 hover:bg-red-50 font-medium h-9 px-3 rounded-md text-sm"
               >
-                <HelpCircle className="mr-2 h-4 w-4" /> Suporte
+                <LogOut className="mr-2 h-4 w-4" /> Sair
               </Button>
             </div>
           </SidebarFooter>
@@ -158,9 +170,11 @@ export default function Layout() {
               </button>
               <Link to="/perfil" className="shrink-0 transition-transform hover:scale-105">
                 <Avatar className="h-9 w-9 border-2 border-white shadow-sm rounded-lg">
-                  <AvatarImage src="https://img.usecurling.com/p/100/100?q=landscape&color=blue" />
+                  <AvatarImage
+                    src={`https://img.usecurling.com/p/100/100?q=landscape&seed=${profile?.id || '1'}`}
+                  />
                   <AvatarFallback className="bg-slate-200 text-[#061B3B] rounded-lg font-bold text-xs">
-                    SA
+                    {profile?.full_name?.substring(0, 2).toUpperCase() || 'U'}
                   </AvatarFallback>
                 </Avatar>
               </Link>
