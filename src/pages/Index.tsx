@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Switch } from '@/components/ui/switch'
 import { Progress } from '@/components/ui/progress'
 import { Input } from '@/components/ui/input'
@@ -11,16 +11,68 @@ import LivreView from '@/components/dashboard/LivreView'
 import StreakView from '@/components/dashboard/StreakView'
 import useSystemStore from '@/stores/useSystemStore'
 import useUserStore from '@/stores/useUserStore'
+import { sendMessageToMentor, Message } from '@/services/ai-mentor'
 
 export default function Index() {
   const { isStreakModeGlobal, weeklyFocus } = useSystemStore()
   const { profile } = useUserStore()
   const [localStreakMode, setLocalStreakMode] = useState(true)
 
+  const isStreakMode = isStreakModeGlobal && localStreakMode
+
+  const [messages, setMessages] = useState<Message[]>([])
+  const [inputMsg, setInputMsg] = useState('')
+  const [isTyping, setIsTyping] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (profile && messages.length === 0) {
+      setMessages([
+        {
+          role: 'assistant',
+          content: isStreakMode
+            ? `${profile.full_name?.split(' ')[0]}, não se esqueça: você está a poucos passos de garantir sua ofensiva de hoje! Recomendamos iniciar pelo Simulador de Objeções para aquecer.`
+            : `${profile.full_name?.split(' ')[0]}, analisei sua última simulação. Foco na dissipação térmica para a próxima rodada no Modo Livre. Como posso ajudar agora?`,
+        },
+      ])
+    }
+  }, [profile, isStreakMode, messages.length])
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
+  }, [messages, isTyping])
+
   if (!profile) return null
 
-  // Only use streak mode if global is enabled AND user wants it locally
-  const isStreakMode = isStreakModeGlobal && localStreakMode
+  const handleSendMessage = async () => {
+    if (!inputMsg.trim() || isTyping) return
+    const userMsg = inputMsg.trim()
+    setInputMsg('')
+
+    const newMessages: Message[] = [...messages, { role: 'user', content: userMsg }]
+    setMessages(newMessages)
+    setIsTyping(true)
+
+    try {
+      const reply = await sendMessageToMentor(
+        newMessages.map((m) => ({ role: m.role, content: m.content })),
+      )
+      setMessages([...newMessages, { role: 'assistant', content: reply }])
+    } catch (e) {
+      setMessages([
+        ...newMessages,
+        {
+          role: 'assistant',
+          content:
+            'Desculpe, encontrei um erro ao processar sua solicitação. Tente novamente mais tarde.',
+        },
+      ])
+    } finally {
+      setIsTyping(false)
+    }
+  }
 
   const currentLevel = Math.floor(profile.xp_total / 1000) + 1
   const levelNames = [
@@ -129,38 +181,54 @@ export default function Index() {
               <BrainCircuit className="w-32 h-32 text-white" />
             </div>
             <CardContent className="p-5 relative z-10 flex flex-col h-full">
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-3 mb-4 shrink-0">
                 <div className="p-2 bg-[#EAB308] rounded-lg text-[#061B3B]">
                   <Bot className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-white font-bold text-sm tracking-wide">RIO SOL AI</h4>
+                  <h4 className="text-white font-bold text-sm tracking-wide">Mentor Zenith</h4>
                   <p className="text-[9px] text-[#EAB308] font-bold tracking-widest uppercase flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#EAB308] animate-pulse"></span>{' '}
-                    Ativa
+                    Online
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-3 mb-4 flex-1 overflow-y-auto pr-1">
-                <div className="bg-white/10 text-slate-200 text-xs p-3 rounded-xl rounded-tl-sm border border-white/5 leading-relaxed backdrop-blur-sm">
-                  {isStreakMode
-                    ? `${profile.full_name?.split(' ')[0]}, não se esqueça: você está a poucos passos de garantir sua ofensiva de hoje! Recomendamos iniciar pelo Simulador de Objeções para aquecer.`
-                    : `${profile.full_name?.split(' ')[0]}, analisei sua última simulação. Sua eficiência máxima foi às 08:45 UTC. Foco na dissipação térmica para a próxima rodada no Modo Livre.`}
-                </div>
-                <div className="bg-[#EAB308]/10 text-white text-xs p-3 rounded-xl rounded-tr-sm border border-[#EAB308]/20 leading-relaxed ml-6 text-right">
-                  Entendido. Mostre-me os pontos de calor dessa sessão.
-                </div>
+              <div ref={scrollRef} className="space-y-3 mb-4 flex-1 overflow-y-auto pr-1">
+                {messages.map((msg, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      'text-xs p-3 rounded-xl leading-relaxed backdrop-blur-sm',
+                      msg.role === 'assistant'
+                        ? 'bg-white/10 text-slate-200 rounded-tl-sm border border-white/5 mr-6'
+                        : 'bg-[#EAB308]/10 text-white rounded-tr-sm border border-[#EAB308]/20 ml-6 text-right',
+                    )}
+                  >
+                    {msg.content}
+                  </div>
+                ))}
+                {isTyping && (
+                  <div className="bg-white/10 text-slate-200 text-xs p-3 rounded-xl rounded-tl-sm border border-white/5 w-fit mr-6 animate-pulse">
+                    Digitando...
+                  </div>
+                )}
               </div>
 
               <div className="relative mt-auto shrink-0">
                 <Input
-                  placeholder="Pergunte à IA..."
+                  value={inputMsg}
+                  onChange={(e) => setInputMsg(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                  disabled={isTyping}
+                  placeholder="Pergunte ao Mentor..."
                   className="bg-white/5 border-white/10 text-white placeholder:text-white/40 rounded-lg h-10 pl-3 pr-10 text-sm focus-visible:ring-[#EAB308]"
                 />
                 <Button
+                  onClick={handleSendMessage}
+                  disabled={!inputMsg.trim() || isTyping}
                   size="icon"
-                  className="absolute right-1 top-1 h-8 w-8 bg-[#EAB308] hover:bg-[#d97706] text-[#061B3B] rounded-md"
+                  className="absolute right-1 top-1 h-8 w-8 bg-[#EAB308] hover:bg-[#d97706] text-[#061B3B] rounded-md disabled:opacity-50"
                 >
                   <Play className="w-3 h-3 ml-0.5" fill="currentColor" />
                 </Button>
