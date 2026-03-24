@@ -12,11 +12,13 @@ notebooklm [--storage PATH] [--version] <command> [OPTIONS] [ARGS]
 ```
 
 **Global Options:**
+
 - `--storage PATH` - Override the default storage location (`~/.notebooklm/storage_state.json`)
 - `--version` - Show version and exit
 - `--help` - Show help message
 
 **Environment Variables:**
+
 - `NOTEBOOKLM_HOME` - Base directory for all config files (default: `~/.notebooklm`)
 - `NOTEBOOKLM_AUTH_JSON` - Inline authentication JSON (for CI/CD, no file writes needed)
 - `NOTEBOOKLM_DEBUG_RPC` - Enable RPC debug logging (`1` to enable)
@@ -24,6 +26,7 @@ notebooklm [--storage PATH] [--version] <command> [OPTIONS] [ARGS]
 See [Configuration](configuration.md) for details on environment variables and CI/CD setup.
 
 **Command Organization:**
+
 - **Session commands** - Authentication and context management
 - **Notebook commands** - CRUD operations on notebooks
 - **Chat commands** - Querying and conversation management
@@ -35,151 +38,152 @@ See [Configuration](configuration.md) for details on environment variables and C
 
 ### Session Commands
 
-| Command | Description | Example |
-|---------|-------------|---------|
-| `login` | Authenticate via browser | `notebooklm login` |
-| `use <id>` | Set active notebook | `notebooklm use abc123` |
-| `status` | Show current context | `notebooklm status` |
-| `status --paths` | Show configuration paths | `notebooklm status --paths` |
-| `status --json` | Output status as JSON | `notebooklm status --json` |
-| `clear` | Clear current context | `notebooklm clear` |
-| `auth check` | Diagnose authentication issues | `notebooklm auth check` |
-| `auth check --test` | Validate with network test | `notebooklm auth check --test` |
-| `auth check --json` | Output as JSON | `notebooklm auth check --json` |
+| Command             | Description                    | Example                        |
+| ------------------- | ------------------------------ | ------------------------------ |
+| `login`             | Authenticate via browser       | `notebooklm login`             |
+| `use <id>`          | Set active notebook            | `notebooklm use abc123`        |
+| `status`            | Show current context           | `notebooklm status`            |
+| `status --paths`    | Show configuration paths       | `notebooklm status --paths`    |
+| `status --json`     | Output status as JSON          | `notebooklm status --json`     |
+| `clear`             | Clear current context          | `notebooklm clear`             |
+| `auth check`        | Diagnose authentication issues | `notebooklm auth check`        |
+| `auth check --test` | Validate with network test     | `notebooklm auth check --test` |
+| `auth check --json` | Output as JSON                 | `notebooklm auth check --json` |
 
 ### Language Commands (`notebooklm language <cmd>`)
 
-| Command | Description | Example |
-|---------|-------------|---------|
-| `list` | List all supported languages | `notebooklm language list` |
-| `get` | Show current language setting | `notebooklm language get` |
-| `get --local` | Show local config only (skip server sync) | `notebooklm language get --local` |
-| `set <code>` | Set language for artifact generation | `notebooklm language set zh_Hans` |
-| `set <code> --local` | Set local config only (skip server sync) | `notebooklm language set ja --local` |
+| Command              | Description                               | Example                              |
+| -------------------- | ----------------------------------------- | ------------------------------------ |
+| `list`               | List all supported languages              | `notebooklm language list`           |
+| `get`                | Show current language setting             | `notebooklm language get`            |
+| `get --local`        | Show local config only (skip server sync) | `notebooklm language get --local`    |
+| `set <code>`         | Set language for artifact generation      | `notebooklm language set zh_Hans`    |
+| `set <code> --local` | Set local config only (skip server sync)  | `notebooklm language set ja --local` |
 
 **Note:** Language is a **GLOBAL** setting that affects all notebooks in your account.
 
 ### Notebook Commands
 
-| Command | Description | Example |
-|---------|-------------|---------|
-| `list` | List all notebooks | `notebooklm list` |
-| `create <title>` | Create notebook | `notebooklm create "Research"` |
-| `delete <id>` | Delete notebook | `notebooklm delete abc123` |
-| `rename <title>` | Rename current notebook | `notebooklm rename "New Title"` |
-| `share` | Toggle notebook sharing | `notebooklm share` or `notebooklm share --revoke` |
-| `summary` | Get AI summary | `notebooklm summary` |
+| Command          | Description             | Example                                           |
+| ---------------- | ----------------------- | ------------------------------------------------- |
+| `list`           | List all notebooks      | `notebooklm list`                                 |
+| `create <title>` | Create notebook         | `notebooklm create "Research"`                    |
+| `delete <id>`    | Delete notebook         | `notebooklm delete abc123`                        |
+| `rename <title>` | Rename current notebook | `notebooklm rename "New Title"`                   |
+| `share`          | Toggle notebook sharing | `notebooklm share` or `notebooklm share --revoke` |
+| `summary`        | Get AI summary          | `notebooklm summary`                              |
 
 ### Chat Commands
 
-| Command | Description | Example |
-|---------|-------------|---------|
-| `ask <question>` | Ask a question | `notebooklm ask "What is this about?"` |
-| `ask -s <id>` | Ask using specific sources | `notebooklm ask "Summarize" -s src1 -s src2` |
-| `ask --json` | Get answer with source references | `notebooklm ask "Explain X" --json` |
-| `ask --save-as-note` | Save response as a note | `notebooklm ask "Explain X" --save-as-note` |
+| Command                           | Description                          | Example                                                          |
+| --------------------------------- | ------------------------------------ | ---------------------------------------------------------------- |
+| `ask <question>`                  | Ask a question                       | `notebooklm ask "What is this about?"`                           |
+| `ask -s <id>`                     | Ask using specific sources           | `notebooklm ask "Summarize" -s src1 -s src2`                     |
+| `ask --json`                      | Get answer with source references    | `notebooklm ask "Explain X" --json`                              |
+| `ask --save-as-note`              | Save response as a note              | `notebooklm ask "Explain X" --save-as-note`                      |
 | `ask --save-as-note --note-title` | Save response with custom note title | `notebooklm ask "Explain X" --save-as-note --note-title "Title"` |
-| `configure` | Set persona/mode | `notebooklm configure --mode learning-guide` |
-| `history` | View conversation history | `notebooklm history` |
-| `history --clear` | Clear local conversation cache | `notebooklm history --clear` |
-| `history --save` | Save history as a note | `notebooklm history --save` |
-| `history --save --note-title` | Save history with custom title | `notebooklm history --save --note-title "Summary"` |
-| `history --show-all` | Show full Q&A content (not preview) | `notebooklm history --show-all` |
+| `configure`                       | Set persona/mode                     | `notebooklm configure --mode learning-guide`                     |
+| `history`                         | View conversation history            | `notebooklm history`                                             |
+| `history --clear`                 | Clear local conversation cache       | `notebooklm history --clear`                                     |
+| `history --save`                  | Save history as a note               | `notebooklm history --save`                                      |
+| `history --save --note-title`     | Save history with custom title       | `notebooklm history --save --note-title "Summary"`               |
+| `history --show-all`              | Show full Q&A content (not preview)  | `notebooklm history --show-all`                                  |
 
 ### Source Commands (`notebooklm source <cmd>`)
 
 Supported source types: URLs, YouTube videos, files (PDF, text, Markdown, Word, audio, video, images), Google Drive documents, and pasted text.
 
-| Command | Arguments | Options | Example |
-|---------|-----------|---------|---------|
-| `list` | - | - | `source list` |
-| `add <content>` | URL/file/text | - | `source add "https://..."` |
-| `add-drive <id> <title>` | Drive file ID | - | `source add-drive abc123 "Doc"` |
-| `add-research <query>` | Search query | `--mode [fast|deep]`, `--from [web|drive]`, `--import-all`, `--no-wait` | `source add-research "AI" --mode deep --no-wait` |
-| `get <id>` | Source ID | - | `source get src123` |
-| `fulltext <id>` | Source ID | `--json`, `-o FILE` | `source fulltext src123 -o content.txt` |
-| `guide <id>` | Source ID | `--json` | `source guide src123` |
-| `rename <id> <title>` | Source ID, new title | - | `source rename src123 "New Name"` |
-| `refresh <id>` | Source ID | - | `source refresh src123` |
-| `delete <id>` | Source ID | - | `source delete src123` |
-| `wait <id>` | Source ID | `--timeout`, `--interval` | `source wait src123` |
+| Command                  | Arguments            | Options                   | Example                                 |
+| ------------------------ | -------------------- | ------------------------- | --------------------------------------- | ------------------------------------ | ------------------------------------------------ |
+| `list`                   | -                    | -                         | `source list`                           |
+| `add <content>`          | URL/file/text        | -                         | `source add "https://..."`              |
+| `add-drive <id> <title>` | Drive file ID        | -                         | `source add-drive abc123 "Doc"`         |
+| `add-research <query>`   | Search query         | `--mode [fast             | deep]`, `--from [web                    | drive]`, `--import-all`, `--no-wait` | `source add-research "AI" --mode deep --no-wait` |
+| `get <id>`               | Source ID            | -                         | `source get src123`                     |
+| `fulltext <id>`          | Source ID            | `--json`, `-o FILE`       | `source fulltext src123 -o content.txt` |
+| `guide <id>`             | Source ID            | `--json`                  | `source guide src123`                   |
+| `rename <id> <title>`    | Source ID, new title | -                         | `source rename src123 "New Name"`       |
+| `refresh <id>`           | Source ID            | -                         | `source refresh src123`                 |
+| `delete <id>`            | Source ID            | -                         | `source delete src123`                  |
+| `wait <id>`              | Source ID            | `--timeout`, `--interval` | `source wait src123`                    |
 
 ### Research Commands (`notebooklm research <cmd>`)
 
-| Command | Arguments | Options | Example |
-|---------|-----------|---------|---------|
-| `status` | - | `--json` | `research status` |
-| `wait` | - | `--timeout`, `--interval`, `--import-all`, `--json` | `research wait --import-all` |
+| Command  | Arguments | Options                                             | Example                      |
+| -------- | --------- | --------------------------------------------------- | ---------------------------- |
+| `status` | -         | `--json`                                            | `research status`            |
+| `wait`   | -         | `--timeout`, `--interval`, `--import-all`, `--json` | `research wait --import-all` |
 
 ### Generate Commands (`notebooklm generate <type>`)
 
 All generate commands support:
+
 - `--source/-s` to select specific sources (repeatable)
 - `--json` for machine-readable output (returns `task_id` and `status`)
 - `--language` to override output language (defaults to config or 'en')
 - `--retry N` to automatically retry on rate limits with exponential backoff
 
-| Command | Options | Example |
-|---------|---------|---------|
-| `audio [description]` | `--format [deep-dive\|brief\|critique\|debate]`, `--length [short\|default\|long]`, `--wait` | `generate audio "Focus on history"` |
-| `video [description]` | `--format [explainer\|brief]`, `--style [auto\|classic\|whiteboard\|kawaii\|anime\|watercolor\|retro-print\|heritage\|paper-craft]`, `--wait` | `generate video "Explainer for kids"` |
-| `slide-deck [description]` | `--format [detailed\|presenter]`, `--length [default\|short]`, `--wait` | `generate slide-deck` |
-| `revise-slide <description>` | `-a/--artifact <id>` (required), `--slide N` (required), `--wait` | `generate revise-slide "Move title up" --artifact <id> --slide 0` |
-| `quiz [description]` | `--difficulty [easy\|medium\|hard]`, `--quantity [fewer\|standard\|more]`, `--wait` | `generate quiz --difficulty hard` |
-| `flashcards [description]` | `--difficulty [easy\|medium\|hard]`, `--quantity [fewer\|standard\|more]`, `--wait` | `generate flashcards` |
-| `infographic [description]` | `--orientation [landscape\|portrait\|square]`, `--detail [concise\|standard\|detailed]`, `--wait` | `generate infographic` |
-| `data-table <description>` | `--wait` | `generate data-table "compare concepts"` |
-| `mind-map` | *(sync, no wait needed)* | `generate mind-map` |
-| `report [description]` | `--format [briefing-doc\|study-guide\|blog-post\|custom]`, `--append "extra instructions"`, `--wait` | `generate report --format study-guide` |
+| Command                      | Options                                                                                                                                       | Example                                                           |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `audio [description]`        | `--format [deep-dive\|brief\|critique\|debate]`, `--length [short\|default\|long]`, `--wait`                                                  | `generate audio "Focus on history"`                               |
+| `video [description]`        | `--format [explainer\|brief]`, `--style [auto\|classic\|whiteboard\|kawaii\|anime\|watercolor\|retro-print\|heritage\|paper-craft]`, `--wait` | `generate video "Explainer for kids"`                             |
+| `slide-deck [description]`   | `--format [detailed\|presenter]`, `--length [default\|short]`, `--wait`                                                                       | `generate slide-deck`                                             |
+| `revise-slide <description>` | `-a/--artifact <id>` (required), `--slide N` (required), `--wait`                                                                             | `generate revise-slide "Move title up" --artifact <id> --slide 0` |
+| `quiz [description]`         | `--difficulty [easy\|medium\|hard]`, `--quantity [fewer\|standard\|more]`, `--wait`                                                           | `generate quiz --difficulty hard`                                 |
+| `flashcards [description]`   | `--difficulty [easy\|medium\|hard]`, `--quantity [fewer\|standard\|more]`, `--wait`                                                           | `generate flashcards`                                             |
+| `infographic [description]`  | `--orientation [landscape\|portrait\|square]`, `--detail [concise\|standard\|detailed]`, `--wait`                                             | `generate infographic`                                            |
+| `data-table <description>`   | `--wait`                                                                                                                                      | `generate data-table "compare concepts"`                          |
+| `mind-map`                   | _(sync, no wait needed)_                                                                                                                      | `generate mind-map`                                               |
+| `report [description]`       | `--format [briefing-doc\|study-guide\|blog-post\|custom]`, `--append "extra instructions"`, `--wait`                                          | `generate report --format study-guide`                            |
 
 ### Artifact Commands (`notebooklm artifact <cmd>`)
 
-| Command | Arguments | Options | Example |
-|---------|-----------|---------|---------|
-| `list` | - | `--type` | `artifact list --type audio` |
-| `get <id>` | Artifact ID | - | `artifact get art123` |
-| `rename <id> <title>` | Artifact ID, title | - | `artifact rename art123 "Title"` |
-| `delete <id>` | Artifact ID | - | `artifact delete art123` |
-| `export <id>` | Artifact ID | `--type [docs|sheets]`, `--title` | `artifact export art123 --type sheets` |
-| `poll <task_id>` | Task ID | - | `artifact poll task123` |
-| `wait <id>` | Artifact ID | `--timeout`, `--interval` | `artifact wait art123` |
-| `suggestions` | - | `-s/--source`, `--json` | `artifact suggestions` |
+| Command               | Arguments          | Options                   | Example                          |
+| --------------------- | ------------------ | ------------------------- | -------------------------------- | -------------------------------------- |
+| `list`                | -                  | `--type`                  | `artifact list --type audio`     |
+| `get <id>`            | Artifact ID        | -                         | `artifact get art123`            |
+| `rename <id> <title>` | Artifact ID, title | -                         | `artifact rename art123 "Title"` |
+| `delete <id>`         | Artifact ID        | -                         | `artifact delete art123`         |
+| `export <id>`         | Artifact ID        | `--type [docs             | sheets]`, `--title`              | `artifact export art123 --type sheets` |
+| `poll <task_id>`      | Task ID            | -                         | `artifact poll task123`          |
+| `wait <id>`           | Artifact ID        | `--timeout`, `--interval` | `artifact wait art123`           |
+| `suggestions`         | -                  | `-s/--source`, `--json`   | `artifact suggestions`           |
 
 ### Download Commands (`notebooklm download <type>`)
 
-| Command | Arguments | Options | Example |
-|---------|-----------|---------|---------|
-| `audio [path]` | Output path | `-a/--artifact`, `--all`, `--latest`, `--name`, `--force`, `--dry-run` | `download audio --all` |
-| `video [path]` | Output path | `-a/--artifact`, `--all`, `--latest`, `--name`, `--force`, `--dry-run` | `download video --latest` |
-| `slide-deck [path]` | Output path      | `-a/--artifact`, `--all`, `--latest`, `--name`, `--force`, `--dry-run`, `--format [pdf\|pptx]` | `download slide-deck ./slides.pdf` |
-| `infographic [path]` | Output path | `-a/--artifact`, `--all`, `--latest`, `--name`, `--force`, `--dry-run` | `download infographic ./info.png` |
-| `report [path]` | Output path | `-a/--artifact`, `--all`, `--latest`, `--name`, `--force`, `--dry-run` | `download report ./report.md` |
-| `mind-map [path]` | Output path | `-a/--artifact`, `--all`, `--latest`, `--name`, `--force`, `--dry-run` | `download mind-map ./map.json` |
-| `data-table [path]` | Output path | `-a/--artifact`, `--all`, `--latest`, `--name`, `--force`, `--dry-run` | `download data-table ./data.csv` |
-| `quiz [path]` | Output path | `-n/--notebook`, `-a/--artifact`, `--format` (json/markdown/html) | `download quiz --format markdown quiz.md` |
-| `flashcards [path]` | Output path | `-n/--notebook`, `-a/--artifact`, `--format` (json/markdown/html) | `download flashcards cards.json` |
+| Command              | Arguments   | Options                                                                                        | Example                                   |
+| -------------------- | ----------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| `audio [path]`       | Output path | `-a/--artifact`, `--all`, `--latest`, `--name`, `--force`, `--dry-run`                         | `download audio --all`                    |
+| `video [path]`       | Output path | `-a/--artifact`, `--all`, `--latest`, `--name`, `--force`, `--dry-run`                         | `download video --latest`                 |
+| `slide-deck [path]`  | Output path | `-a/--artifact`, `--all`, `--latest`, `--name`, `--force`, `--dry-run`, `--format [pdf\|pptx]` | `download slide-deck ./slides.pdf`        |
+| `infographic [path]` | Output path | `-a/--artifact`, `--all`, `--latest`, `--name`, `--force`, `--dry-run`                         | `download infographic ./info.png`         |
+| `report [path]`      | Output path | `-a/--artifact`, `--all`, `--latest`, `--name`, `--force`, `--dry-run`                         | `download report ./report.md`             |
+| `mind-map [path]`    | Output path | `-a/--artifact`, `--all`, `--latest`, `--name`, `--force`, `--dry-run`                         | `download mind-map ./map.json`            |
+| `data-table [path]`  | Output path | `-a/--artifact`, `--all`, `--latest`, `--name`, `--force`, `--dry-run`                         | `download data-table ./data.csv`          |
+| `quiz [path]`        | Output path | `-n/--notebook`, `-a/--artifact`, `--format` (json/markdown/html)                              | `download quiz --format markdown quiz.md` |
+| `flashcards [path]`  | Output path | `-n/--notebook`, `-a/--artifact`, `--format` (json/markdown/html)                              | `download flashcards cards.json`          |
 
 ### Note Commands (`notebooklm note <cmd>`)
 
-| Command | Arguments | Options | Example |
-|---------|-----------|---------|---------|
-| `list` | - | - | `note list` |
-| `create <content>` | Note content | - | `note create "My notes..."` |
-| `get <id>` | Note ID | - | `note get note123` |
-| `save <id>` | Note ID | - | `note save note123` |
-| `rename <id> <title>` | Note ID, title | - | `note rename note123 "Title"` |
-| `delete <id>` | Note ID | - | `note delete note123` |
+| Command               | Arguments      | Options | Example                       |
+| --------------------- | -------------- | ------- | ----------------------------- |
+| `list`                | -              | -       | `note list`                   |
+| `create <content>`    | Note content   | -       | `note create "My notes..."`   |
+| `get <id>`            | Note ID        | -       | `note get note123`            |
+| `save <id>`           | Note ID        | -       | `note save note123`           |
+| `rename <id> <title>` | Note ID, title | -       | `note rename note123 "Title"` |
+| `delete <id>`         | Note ID        | -       | `note delete note123`         |
 
 ### Skill Commands (`notebooklm skill <cmd>`)
 
 Manage Claude Code skill integration.
 
-| Command | Description | Example |
-|---------|-------------|---------|
-| `install` | Install/update skill to ~/.claude/skills/ | `skill install` |
-| `status` | Check installation and version | `skill status` |
-| `uninstall` | Remove skill | `skill uninstall` |
-| `show` | Display skill content | `skill show` |
+| Command     | Description                               | Example           |
+| ----------- | ----------------------------------------- | ----------------- |
+| `install`   | Install/update skill to ~/.claude/skills/ | `skill install`   |
+| `status`    | Check installation and version            | `skill status`    |
+| `uninstall` | Remove skill                              | `skill uninstall` |
+| `show`      | Display skill content                     | `skill show`      |
 
 After installation, Claude Code recognizes NotebookLM commands via `/notebooklm` or natural language like "create a podcast about X".
 
@@ -187,18 +191,18 @@ After installation, Claude Code recognizes NotebookLM commands via `/notebooklm`
 
 These CLI capabilities are not available in NotebookLM's web interface:
 
-| Feature | Command | Description |
-|---------|---------|-------------|
-| **Batch downloads** | `download <type> --all` | Download all artifacts of a type at once |
-| **Quiz/Flashcard export** | `download quiz --format json` | Export as JSON, Markdown, or HTML |
-| **Mind map extraction** | `download mind-map` | Export hierarchical JSON for visualization tools |
-| **Data table export** | `download data-table` | Download structured tables as CSV |
-| **Slide deck as PPTX** | `download slide-deck --format pptx` | Download as editable .pptx (web UI only offers PDF) |
-| **Slide revision** | `generate revise-slide "prompt" --artifact <id> --slide N` | Modify individual slides with a natural-language prompt |
-| **Report template append** | `generate report --format study-guide --append "..."` | Append instructions to built-in templates |
-| **Source fulltext** | `source fulltext <id>` | Retrieve the indexed text content of any source |
-| **Save chat to note** | `ask "..." --save-as-note` / `history --save` | Save Q&A answers or full conversation as notebook notes |
-| **Programmatic sharing** | `share` commands | Manage permissions without the UI |
+| Feature                    | Command                                                    | Description                                             |
+| -------------------------- | ---------------------------------------------------------- | ------------------------------------------------------- |
+| **Batch downloads**        | `download <type> --all`                                    | Download all artifacts of a type at once                |
+| **Quiz/Flashcard export**  | `download quiz --format json`                              | Export as JSON, Markdown, or HTML                       |
+| **Mind map extraction**    | `download mind-map`                                        | Export hierarchical JSON for visualization tools        |
+| **Data table export**      | `download data-table`                                      | Download structured tables as CSV                       |
+| **Slide deck as PPTX**     | `download slide-deck --format pptx`                        | Download as editable .pptx (web UI only offers PDF)     |
+| **Slide revision**         | `generate revise-slide "prompt" --artifact <id> --slide N` | Modify individual slides with a natural-language prompt |
+| **Report template append** | `generate report --format study-guide --append "..."`      | Append instructions to built-in templates               |
+| **Source fulltext**        | `source fulltext <id>`                                     | Retrieve the indexed text content of any source         |
+| **Save chat to note**      | `ask "..." --save-as-note` / `history --save`              | Save Q&A answers or full conversation as notebook notes |
+| **Programmatic sharing**   | `share` commands                                           | Manage permissions without the UI                       |
 
 ---
 
@@ -223,6 +227,7 @@ notebooklm use <notebook_id>
 ```
 
 Supports partial ID matching:
+
 ```bash
 notebooklm use abc  # Matches abc123def456...
 ```
@@ -236,10 +241,12 @@ notebooklm status [OPTIONS]
 ```
 
 **Options:**
+
 - `--paths` - Show resolved configuration file paths
 - `--json` - Output as JSON (useful for scripts)
 
 **Examples:**
+
 ```bash
 # Basic status
 notebooklm status
@@ -253,6 +260,7 @@ notebooklm status --json
 ```
 
 **With `--paths`:**
+
 ```
                 Configuration Paths
 ┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┓
@@ -286,10 +294,12 @@ notebooklm language set ja
 ```
 
 **Options for `get`:**
+
 - `--local` - Skip server sync, show local config only
 - `--json` - Output as JSON
 
 **Options for `set`:**
+
 - `--local` - Save to local config only, skip server sync
 - `--json` - Output as JSON
 
@@ -341,6 +351,7 @@ notebooklm share remove user@example.com -y   # Skip confirmation
 ```
 
 **Options (all commands):**
+
 - `-n, --notebook ID` - Specify notebook (uses current if not set, supports partial IDs)
 - `--json` - Output as JSON
 
@@ -365,10 +376,12 @@ notebooklm auth check [OPTIONS]
 ```
 
 **Options:**
+
 - `--test` - Also test token fetch from NotebookLM (makes network request)
 - `--json` - Output as JSON (useful for scripts)
 
 **Examples:**
+
 ```bash
 # Quick local validation
 notebooklm auth check
@@ -381,6 +394,7 @@ notebooklm auth check --json
 ```
 
 **Checks performed:**
+
 1. Storage file exists and is readable
 2. JSON structure is valid
 3. Required cookies (SID) are present
@@ -388,12 +402,14 @@ notebooklm auth check --json
 5. (With `--test`) Token fetch succeeds
 
 **Output shows:**
+
 - Authentication source (file path or environment variable)
 - Which cookies were found and from which domains
 - Detailed cookie breakdown by domain (highlighting key auth cookies)
 - Token lengths when using `--test`
 
 **Use cases:**
+
 - Debug "Not logged in" errors
 - Verify auth setup in CI/CD environments
 - Check if cookies are from correct domain (regional vs .google.com)
@@ -408,12 +424,14 @@ notebooklm source add-research <query> [OPTIONS]
 ```
 
 **Options:**
+
 - `--mode [fast|deep]` - Research depth (default: fast)
 - `--from [web|drive]` - Search source (default: web)
 - `--import-all` - Automatically import all found sources (works with blocking mode)
 - `--no-wait` - Start research and return immediately (non-blocking)
 
 **Examples:**
+
 ```bash
 # Fast web research (blocking)
 notebooklm source add-research "Quantum computing basics"
@@ -434,15 +452,18 @@ notebooklm research status [OPTIONS]
 ```
 
 **Options:**
+
 - `-n, --notebook ID` - Notebook ID (uses current if not set)
 - `--json` - Output as JSON
 
 **Output states:**
+
 - **No research running** - No active research session
 - **Research in progress** - Deep research is still running
 - **Research completed** - Shows query, found sources, and summary
 
 **Examples:**
+
 ```bash
 # Check status
 notebooklm research status
@@ -460,6 +481,7 @@ notebooklm research wait [OPTIONS]
 ```
 
 **Options:**
+
 - `-n, --notebook ID` - Notebook ID (uses current if not set)
 - `--timeout SECONDS` - Maximum seconds to wait (default: 300)
 - `--interval SECONDS` - Seconds between status checks (default: 5)
@@ -467,6 +489,7 @@ notebooklm research wait [OPTIONS]
 - `--json` - Output as JSON
 
 **Examples:**
+
 ```bash
 # Basic wait
 notebooklm research wait
@@ -492,6 +515,7 @@ notebooklm generate audio [description] [OPTIONS]
 ```
 
 **Options:**
+
 - `--format [deep-dive|brief|critique|debate]` - Podcast format (default: deep-dive)
 - `--length [short|default|long]` - Duration (default: default)
 - `--language LANG` - Language code (default: en)
@@ -500,6 +524,7 @@ notebooklm generate audio [description] [OPTIONS]
 - `--json` - Output as JSON (returns `task_id` and `status`)
 
 **Examples:**
+
 ```bash
 # Basic podcast (starts async, returns immediately)
 notebooklm generate audio
@@ -527,6 +552,7 @@ notebooklm generate video [description] [OPTIONS]
 ```
 
 **Options:**
+
 - `--format [explainer|brief]` - Video format
 - `--style [auto|classic|whiteboard|kawaii|anime|watercolor|retro|heritage|paper-craft]` - Visual style
 - `--language LANG` - Language code
@@ -535,6 +561,7 @@ notebooklm generate video [description] [OPTIONS]
 - `--json` - Output as JSON (returns `task_id` and `status`)
 
 **Examples:**
+
 ```bash
 # Kid-friendly explainer
 notebooklm generate video "Explain for 5 year olds" --style kawaii
@@ -558,14 +585,17 @@ notebooklm generate revise-slide <description> --artifact <id> --slide N [OPTION
 ```
 
 **Required Options:**
+
 - `-a, --artifact ID` - The slide deck artifact ID to revise
 - `--slide N` - Zero-based index of the slide to revise (0 = first slide)
 
 **Optional:**
+
 - `--wait` - Wait for revision to complete
 - `--json` - Machine-readable output
 
 **Examples:**
+
 ```bash
 # Revise the first slide
 notebooklm generate revise-slide "Move the title up" --artifact art123 --slide 0
@@ -587,6 +617,7 @@ notebooklm generate report [description] [OPTIONS]
 ```
 
 **Options:**
+
 - `--format [briefing-doc|study-guide|blog-post|custom]` - Report format (default: briefing-doc)
 - `--append TEXT` - Append extra instructions to the built-in prompt (no effect with `--format custom`)
 - `-s, --source ID` - Use specific source(s) (repeatable, uses all if not specified)
@@ -594,6 +625,7 @@ notebooklm generate report [description] [OPTIONS]
 - `--json` - Output as JSON
 
 **Examples:**
+
 ```bash
 notebooklm generate report --format study-guide
 notebooklm generate report "Executive summary for stakeholders" --format briefing-doc
@@ -619,17 +651,18 @@ notebooklm download <type> [OUTPUT_PATH] [OPTIONS]
 
 **Artifact Types and Output Formats:**
 
-| Type | Default Extension | Description |
-|------|-------------------|-------------|
-| `audio` | `.mp4` | Audio overview (podcast) in MP4 container |
-| `video` | `.mp4` | Video overview |
-| `slide-deck` | `.pdf` or `.pptx` | Slide deck as PDF (default) or PowerPoint |
-| `infographic` | `.png` | Infographic image |
-| `report` | `.md` | Report as Markdown (Briefing Doc, Study Guide, etc.) |
-| `mind-map` | `.json` | Mind map as JSON tree structure |
-| `data-table` | `.csv` | Data table as CSV (UTF-8 with BOM for Excel) |
+| Type          | Default Extension | Description                                          |
+| ------------- | ----------------- | ---------------------------------------------------- |
+| `audio`       | `.mp4`            | Audio overview (podcast) in MP4 container            |
+| `video`       | `.mp4`            | Video overview                                       |
+| `slide-deck`  | `.pdf` or `.pptx` | Slide deck as PDF (default) or PowerPoint            |
+| `infographic` | `.png`            | Infographic image                                    |
+| `report`      | `.md`             | Report as Markdown (Briefing Doc, Study Guide, etc.) |
+| `mind-map`    | `.json`           | Mind map as JSON tree structure                      |
+| `data-table`  | `.csv`            | Data table as CSV (UTF-8 with BOM for Excel)         |
 
 **Options:**
+
 - `--all` - Download all artifacts of this type
 - `--latest` - Download only the most recent artifact (default if no ID/name provided)
 - `--earliest` - Download only the oldest artifact
@@ -642,6 +675,7 @@ notebooklm download <type> [OUTPUT_PATH] [OPTIONS]
 - `--json` - Output result in JSON format
 
 **Examples:**
+
 ```bash
 # Download the latest podcast
 notebooklm download audio ./podcast.mp3
@@ -678,16 +712,19 @@ notebooklm download flashcards [OUTPUT_PATH] [OPTIONS]
 ```
 
 **Options:**
+
 - `-n, --notebook ID` - Notebook ID (uses current context if not set)
 - `--format FORMAT` - Output format: `json` (default), `markdown`, or `html`
 - `-a, --artifact ID` - Select specific artifact by ID
 
 **Output Formats:**
+
 - **JSON** - Structured data preserving full API fields (answerOptions, rationale, isCorrect, hint)
 - **Markdown** - Human-readable format with checkboxes for correct answers
 - **HTML** - Raw HTML as returned from NotebookLM
 
 **Examples:**
+
 ```bash
 # Download quiz as JSON
 notebooklm download quiz quiz.json
@@ -756,6 +793,7 @@ notebooklm research wait --import-all --timeout 300
 ```
 
 **Research commands:**
+
 - `research status` - Check if research is in progress, completed, or not running
 - `research wait --import-all` - Block until research completes, then import sources
 

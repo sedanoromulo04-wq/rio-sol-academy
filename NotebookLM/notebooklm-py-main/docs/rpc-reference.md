@@ -14,58 +14,58 @@
 
 ### RPC Method Status
 
-| RPC ID | Method | Purpose | Implementation |
-|--------|--------|---------|----------------|
-| `wXbhsf` | LIST_NOTEBOOKS | List all notebooks | `_notebooks.py` |
-| `CCqFvf` | CREATE_NOTEBOOK | Create new notebook | `_notebooks.py` |
-| `rLM1Ne` | GET_NOTEBOOK | Get notebook details + sources | `_notebooks.py` |
-| `s0tc2d` | RENAME_NOTEBOOK | Rename, chat config, share access | `_notebooks.py`, `_chat.py` |
-| `WWINqb` | DELETE_NOTEBOOK | Delete a notebook | `_notebooks.py` |
-| `izAoDd` | ADD_SOURCE | Add URL/text/YouTube source | `_sources.py` |
-| `o4cbdc` | ADD_SOURCE_FILE | Register uploaded file | `_sources.py` |
-| `tGMBJ` | DELETE_SOURCE | Delete a source | `_sources.py` |
-| `b7Wfje` | UPDATE_SOURCE | Rename source | `_sources.py` |
-| `tr032e` | GET_SOURCE_GUIDE | Get source summary | `_sources.py` |
-| `R7cb6c` | CREATE_ARTIFACT | Unified artifact generation | `_artifacts.py` |
-| `gArtLc` | LIST_ARTIFACTS | List artifacts in a notebook | `_artifacts.py` |
-| `V5N4be` | DELETE_ARTIFACT | Delete artifact | `_artifacts.py` |
-| `hPTbtc` | GET_CONVERSATION_ID | Get most recent conversation ID | `_chat.py` |
-| `khqZz` | GET_CONVERSATION_TURNS | Get Q&A turns for a conversation | `_chat.py` |
-| `CYK0Xb` | CREATE_NOTE | Create a note (placeholder) | `_notes.py` |
-| `cYAfTb` | UPDATE_NOTE | Update note content/title | `_notes.py` |
-| `AH0mwd` | DELETE_NOTE | Delete a note | `_notes.py` |
-| `cFji9` | GET_NOTES_AND_MIND_MAPS | List notes and mind maps | `_notes.py` |
-| `yyryJe` | GENERATE_MIND_MAP | Mind map generation | `_artifacts.py` |
-| `VfAZjd` | SUMMARIZE | Get notebook summary | `_notebooks.py` |
-| `FLmJqe` | REFRESH_SOURCE | Refresh URL/Drive source | `_sources.py` |
-| `yR9Yof` | CHECK_SOURCE_FRESHNESS | Check if source needs refresh | `_sources.py` |
-| `Ljjv0c` | START_FAST_RESEARCH | Start fast research | `_research.py` |
-| `QA9ei` | START_DEEP_RESEARCH | Start deep research | `_research.py` |
-| `e3bVqc` | POLL_RESEARCH | Poll research status | `_research.py` |
-| `LBwxtb` | IMPORT_RESEARCH | Import research results | `_research.py` |
-| `rc3d8d` | RENAME_ARTIFACT | Rename artifact | `_artifacts.py` |
-| `Krh3pd` | EXPORT_ARTIFACT | Export to Docs/Sheets | `_artifacts.py` |
-| `RGP97b` | SHARE_ARTIFACT | Toggle notebook sharing | `_notebooks.py` |
-| `QDyure` | SHARE_NOTEBOOK | Set notebook visibility (restricted/public) | `_notebooks.py` |
-| `JFMDGd` | GET_SHARE_STATUS | Get notebook share settings | `_sharing.py` |
-| `ciyUvf` | GET_SUGGESTED_REPORTS | Get AI-suggested report formats | `_artifacts.py` |
-| `v9rmvd` | GET_INTERACTIVE_HTML | Fetch quiz/flashcard HTML content | `_artifacts.py` |
-| `fejl7e` | REMOVE_RECENTLY_VIEWED | Remove notebook from recent list | `_notebooks.py` |
-| `ZwVcOc` | GET_USER_SETTINGS | Get user settings including output language | `_settings.py` |
-| `hT54vc` | SET_USER_SETTINGS | Set user settings (e.g., output language) | `_settings.py` |
+| RPC ID   | Method                  | Purpose                                     | Implementation              |
+| -------- | ----------------------- | ------------------------------------------- | --------------------------- |
+| `wXbhsf` | LIST_NOTEBOOKS          | List all notebooks                          | `_notebooks.py`             |
+| `CCqFvf` | CREATE_NOTEBOOK         | Create new notebook                         | `_notebooks.py`             |
+| `rLM1Ne` | GET_NOTEBOOK            | Get notebook details + sources              | `_notebooks.py`             |
+| `s0tc2d` | RENAME_NOTEBOOK         | Rename, chat config, share access           | `_notebooks.py`, `_chat.py` |
+| `WWINqb` | DELETE_NOTEBOOK         | Delete a notebook                           | `_notebooks.py`             |
+| `izAoDd` | ADD_SOURCE              | Add URL/text/YouTube source                 | `_sources.py`               |
+| `o4cbdc` | ADD_SOURCE_FILE         | Register uploaded file                      | `_sources.py`               |
+| `tGMBJ`  | DELETE_SOURCE           | Delete a source                             | `_sources.py`               |
+| `b7Wfje` | UPDATE_SOURCE           | Rename source                               | `_sources.py`               |
+| `tr032e` | GET_SOURCE_GUIDE        | Get source summary                          | `_sources.py`               |
+| `R7cb6c` | CREATE_ARTIFACT         | Unified artifact generation                 | `_artifacts.py`             |
+| `gArtLc` | LIST_ARTIFACTS          | List artifacts in a notebook                | `_artifacts.py`             |
+| `V5N4be` | DELETE_ARTIFACT         | Delete artifact                             | `_artifacts.py`             |
+| `hPTbtc` | GET_CONVERSATION_ID     | Get most recent conversation ID             | `_chat.py`                  |
+| `khqZz`  | GET_CONVERSATION_TURNS  | Get Q&A turns for a conversation            | `_chat.py`                  |
+| `CYK0Xb` | CREATE_NOTE             | Create a note (placeholder)                 | `_notes.py`                 |
+| `cYAfTb` | UPDATE_NOTE             | Update note content/title                   | `_notes.py`                 |
+| `AH0mwd` | DELETE_NOTE             | Delete a note                               | `_notes.py`                 |
+| `cFji9`  | GET_NOTES_AND_MIND_MAPS | List notes and mind maps                    | `_notes.py`                 |
+| `yyryJe` | GENERATE_MIND_MAP       | Mind map generation                         | `_artifacts.py`             |
+| `VfAZjd` | SUMMARIZE               | Get notebook summary                        | `_notebooks.py`             |
+| `FLmJqe` | REFRESH_SOURCE          | Refresh URL/Drive source                    | `_sources.py`               |
+| `yR9Yof` | CHECK_SOURCE_FRESHNESS  | Check if source needs refresh               | `_sources.py`               |
+| `Ljjv0c` | START_FAST_RESEARCH     | Start fast research                         | `_research.py`              |
+| `QA9ei`  | START_DEEP_RESEARCH     | Start deep research                         | `_research.py`              |
+| `e3bVqc` | POLL_RESEARCH           | Poll research status                        | `_research.py`              |
+| `LBwxtb` | IMPORT_RESEARCH         | Import research results                     | `_research.py`              |
+| `rc3d8d` | RENAME_ARTIFACT         | Rename artifact                             | `_artifacts.py`             |
+| `Krh3pd` | EXPORT_ARTIFACT         | Export to Docs/Sheets                       | `_artifacts.py`             |
+| `RGP97b` | SHARE_ARTIFACT          | Toggle notebook sharing                     | `_notebooks.py`             |
+| `QDyure` | SHARE_NOTEBOOK          | Set notebook visibility (restricted/public) | `_notebooks.py`             |
+| `JFMDGd` | GET_SHARE_STATUS        | Get notebook share settings                 | `_sharing.py`               |
+| `ciyUvf` | GET_SUGGESTED_REPORTS   | Get AI-suggested report formats             | `_artifacts.py`             |
+| `v9rmvd` | GET_INTERACTIVE_HTML    | Fetch quiz/flashcard HTML content           | `_artifacts.py`             |
+| `fejl7e` | REMOVE_RECENTLY_VIEWED  | Remove notebook from recent list            | `_notebooks.py`             |
+| `ZwVcOc` | GET_USER_SETTINGS       | Get user settings including output language | `_settings.py`              |
+| `hT54vc` | SET_USER_SETTINGS       | Set user settings (e.g., output language)   | `_settings.py`              |
 
 ### Content Type Codes (ArtifactTypeCode)
 
-| Code | Type | Used By |
-|------|------|---------|
-| 1 | Audio | Audio Overview |
-| 2 | Report | Briefing Doc, Study Guide, Blog Post |
-| 3 | Video | Video Overview |
-| 4 | Quiz/Flashcards | Quiz (variant=2), Flashcards (variant=1) |
-| 5 | Mind Map | Mind Map |
-| 7 | Infographic | Infographic |
-| 8 | Slide Deck | Slide Deck |
-| 9 | Data Table | Data Table |
+| Code | Type            | Used By                                  |
+| ---- | --------------- | ---------------------------------------- |
+| 1    | Audio           | Audio Overview                           |
+| 2    | Report          | Briefing Doc, Study Guide, Blog Post     |
+| 3    | Video           | Video Overview                           |
+| 4    | Quiz/Flashcards | Quiz (variant=2), Flashcards (variant=1) |
+| 5    | Mind Map        | Mind Map                                 |
+| 7    | Infographic     | Infographic                              |
+| 8    | Slide Deck      | Slide Deck                               |
+| 9    | Data Table      | Data Table                               |
 
 ---
 
@@ -434,6 +434,7 @@ params = [
 ```
 
 **Response turn structure:**
+
 - `turn[2] == 1`: User question — text is at `turn[3]`
 - `turn[2] == 2`: AI answer — text is at `turn[4][0][0]`
 
@@ -861,6 +862,7 @@ Notes and mind maps share the same storage system and are distinguished by conte
 ```
 
 The Python API:
+
 - `notes.list()` - Returns only active notes (excludes mind maps and status=2)
 - `notes.list_mind_maps()` - Returns only active mind maps (excludes status=2)
 - `artifacts.list()` - Includes mind maps as Artifact objects (excludes status=2)
@@ -871,14 +873,14 @@ The Python API:
 
 **CRITICAL:** Source IDs require different nesting levels depending on the method.
 
-| Pattern | Structure | Used By |
-|---------|-----------|---------|
-| Single | `[source_id]` | UPDATE_SOURCE position [1] |
-| Double | `[[source_id]]` | Artifact source_ids_double |
-| Triple | `[[[source_id]]]` | DELETE_SOURCE, Artifact source_ids_triple |
-| Quadruple | `[[[[source_id]]]]` | GET_SOURCE_GUIDE |
-| Array of Double | `[[s1], [s2], ...]` | Artifact generation |
-| Array of Triple | `[[[s1]], [[s2]], ...]` | Artifact generation |
+| Pattern         | Structure               | Used By                                   |
+| --------------- | ----------------------- | ----------------------------------------- |
+| Single          | `[source_id]`           | UPDATE_SOURCE position [1]                |
+| Double          | `[[source_id]]`         | Artifact source_ids_double                |
+| Triple          | `[[[source_id]]]`       | DELETE_SOURCE, Artifact source_ids_triple |
+| Quadruple       | `[[[[source_id]]]]`     | GET_SOURCE_GUIDE                          |
+| Array of Double | `[[s1], [s2], ...]`     | Artifact generation                       |
+| Array of Triple | `[[[s1]], [[s2]], ...]` | Artifact generation                       |
 
 **Building nesting in Python:**
 
@@ -985,6 +987,7 @@ await rpc_call(
 Multi-purpose RPC for managing notebook sharing: toggle public access, add/update users, or remove users.
 
 **Toggle public/restricted access:**
+
 ```python
 # access_value: 0=restricted, 1=anyone with link
 params = [
@@ -1005,6 +1008,7 @@ params = [
 ```
 
 **Add/update user:**
+
 ```python
 # permission: 2=editor, 3=viewer, 4=remove
 # notify_flag: 0=no email, 1=send notification
@@ -1027,6 +1031,7 @@ params = [
 ```
 
 **Remove user:**
+
 ```python
 params = [
     [
@@ -1088,6 +1093,7 @@ Notebooks have **three sharing dimensions**:
    - `4` = Remove (internal: remove user from share list)
 
 **Python API:**
+
 ```python
 # Use client.sharing for all sharing operations
 status = await client.sharing.get_status(notebook_id)
@@ -1097,6 +1103,7 @@ await client.sharing.add_user(notebook_id, "user@example.com", SharePermission.V
 ```
 
 **Share URLs:**
+
 - Notebook: `https://notebooklm.google.com/notebook/{notebook_id}`
 - Artifact deep-link: `https://notebooklm.google.com/notebook/{notebook_id}?artifactId={artifact_id}`
 
@@ -1162,10 +1169,10 @@ Research allows searching the web or Google Drive for sources to add to notebook
 
 ### Source Type Codes
 
-| Code | Source |
-|------|--------|
-| 1 | Web |
-| 2 | Google Drive |
+| Code | Source       |
+| ---- | ------------ |
+| 1    | Web          |
+| 2    | Google Drive |
 
 ### RPC: START_FAST_RESEARCH (Ljjv0c)
 
@@ -1366,6 +1373,7 @@ await rpc_call(
 **Supported Languages:**
 
 Common language codes include:
+
 - `en` (English), `ja` (日本語), `zh_Hans` (中文简体), `zh_Hant` (中文繁體)
 - `ko` (한국어), `es` (Español), `fr` (Français), `de` (Deutsch), `pt_BR` (Português)
 - See `cli/language.py::SUPPORTED_LANGUAGES` for the full list of 80+ languages
@@ -1522,6 +1530,7 @@ await rpc_call(
 ### Quick Operations
 
 Most operations complete nearly instantly:
+
 - Notebook operations: list, create, rename, delete
 - Source metadata: list, rename, delete
 - Note operations: create, update, delete
@@ -1531,6 +1540,7 @@ Most operations complete nearly instantly:
 ### Processing Operations
 
 These require backend processing - wait for completion:
+
 - **Add source (URL)**: Network fetch + text extraction
 - **Add source (file)**: Upload + parsing
 - **Add source (YouTube)**: Transcript extraction
@@ -1539,6 +1549,7 @@ These require backend processing - wait for completion:
 ### Generation Operations
 
 AI-generated content takes significant time:
+
 - **Audio Overview**: Several minutes
 - **Video Overview**: Several minutes (longer than audio)
 - **Reports/Study Guides**: 1-2 minutes
@@ -1548,6 +1559,7 @@ AI-generated content takes significant time:
 ### Long-Running Operations
 
 Some operations can run much longer:
+
 - **Deep Research**: Can take many minutes depending on query complexity
 
 ### Implementation Note
@@ -1560,12 +1572,13 @@ When automating, poll for completion rather than using fixed timeouts. Check art
 
 These RPC method IDs exist in `rpc/types.py` but are either legacy (superseded by other methods) or not currently used in the implementation. Documented here for completeness.
 
-| RPC ID | Method | Status | Notes |
-|--------|--------|--------|-------|
-| `hizoJc` | GET_SOURCE | Broken | Code comments indicate this doesn't work; `get()` uses GET_NOTEBOOK instead |
-| `qXyaNe` | DISCOVER_SOURCES | Reserved | Not fully rolled out by Google yet |
+| RPC ID   | Method           | Status   | Notes                                                                       |
+| -------- | ---------------- | -------- | --------------------------------------------------------------------------- |
+| `hizoJc` | GET_SOURCE       | Broken   | Code comments indicate this doesn't work; `get()` uses GET_NOTEBOOK instead |
+| `qXyaNe` | DISCOVER_SOURCES | Reserved | Not fully rolled out by Google yet                                          |
 
 **Why keep these?** These IDs are preserved in the codebase in case:
+
 1. Google re-enables or changes their functionality
 2. Future reverse-engineering reveals their purpose
 3. They become useful for specific edge cases

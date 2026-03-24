@@ -53,6 +53,7 @@ pytest
 ```
 
 Or use this one-liner:
+
 ```bash
 ruff format src/ tests/ && ruff check src/ tests/ && mypy src/notebooklm --ignore-missing-imports && pytest
 ```
@@ -91,17 +92,17 @@ RPC Layer (rpc/)
 
 ### Key Files
 
-| File | Purpose |
-|------|---------|
-| `client.py` | Main `NotebookLMClient` class |
-| `_core.py` | HTTP and RPC infrastructure |
-| `_notebooks.py` | `client.notebooks` API |
-| `_sources.py` | `client.sources` API |
-| `_artifacts.py` | `client.artifacts` API |
-| `_chat.py` | `client.chat` API |
-| `rpc/types.py` | RPC method IDs (source of truth) |
-| `auth.py` | Authentication handling |
-| `cli/` | CLI command modules |
+| File            | Purpose                          |
+| --------------- | -------------------------------- |
+| `client.py`     | Main `NotebookLMClient` class    |
+| `_core.py`      | HTTP and RPC infrastructure      |
+| `_notebooks.py` | `client.notebooks` API           |
+| `_sources.py`   | `client.sources` API             |
+| `_artifacts.py` | `client.artifacts` API           |
+| `_chat.py`      | `client.chat` API                |
+| `rpc/types.py`  | RPC method IDs (source of truth) |
+| `auth.py`       | Authentication handling          |
+| `cli/`          | CLI command modules              |
 
 ### Repository Structure
 
@@ -151,6 +152,7 @@ async with await NotebookLMClient.from_storage() as client:
 ### CLI Structure
 
 Commands are organized as:
+
 - **Top-level**: `login`, `use`, `status`, `clear`, `list`, `create`, `ask`
 - **Grouped**: `source add`, `artifact list`, `generate audio`, `download video`, `note create`
 
@@ -178,6 +180,7 @@ Commands are organized as:
 ## Documentation
 
 All docs use lowercase-kebab naming in `docs/`:
+
 - `docs/cli-reference.md` - CLI commands
 - `docs/python-api.md` - Python API reference
 - `docs/configuration.md` - Storage and settings
@@ -196,6 +199,7 @@ All docs use lowercase-kebab naming in `docs/`:
 After creating a PR, you MUST monitor and address feedback:
 
 ### 1. Monitor CI Status
+
 ```bash
 # Check CI status (repeat until all pass)
 gh pr checks <PR_NUMBER>
@@ -204,6 +208,7 @@ gh pr checks <PR_NUMBER>
 Wait for all checks to pass. If any fail, investigate and fix.
 
 ### 2. Check for Review Comments
+
 ```bash
 # Get review comments
 gh api repos/teng-lin/notebooklm-py/pulls/<PR_NUMBER>/comments \
@@ -211,7 +216,9 @@ gh api repos/teng-lin/notebooklm-py/pulls/<PR_NUMBER>/comments \
 ```
 
 ### 3. Address Feedback
+
 For each review comment (especially from `gemini-code-assist`):
+
 1. Read and understand the feedback
 2. Make the suggested fix if it improves the code
 3. Commit with a descriptive message referencing the feedback
@@ -223,12 +230,14 @@ For each review comment (especially from `gemini-code-assist`):
    ```
 
 ### 4. Verify Final State
+
 ```bash
 # Ensure PR is ready to merge
 gh pr view <PR_NUMBER> --json state,mergeStateStatus,mergeable
 ```
 
 **Important**: Do NOT consider a PR complete until:
+
 - All CI checks pass
 - All review comments are addressed
 - `mergeStateStatus` is `CLEAN`

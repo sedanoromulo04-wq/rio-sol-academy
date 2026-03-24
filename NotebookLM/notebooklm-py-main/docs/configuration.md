@@ -49,6 +49,7 @@ Contains the authentication data extracted from your browser session:
 **Required cookies:** `SID`, `HSID`, `SSID`, `APISID`, `SAPISID`, `__Secure-1PSID`, `__Secure-3PSID`
 
 **Override location:**
+
 ```bash
 notebooklm --storage /path/to/storage_state.json list
 ```
@@ -76,12 +77,12 @@ A persistent Chromium user data directory used during `notebooklm login`.
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `NOTEBOOKLM_HOME` | Base directory for all files | `~/.notebooklm` |
-| `NOTEBOOKLM_AUTH_JSON` | Inline authentication JSON (for CI/CD) | - |
-| `NOTEBOOKLM_LOG_LEVEL` | Logging level: `DEBUG`, `INFO`, `WARNING`, `ERROR` | `WARNING` |
-| `NOTEBOOKLM_DEBUG_RPC` | Legacy: Enable RPC debug logging (use `LOG_LEVEL=DEBUG` instead) | `false` |
+| Variable               | Description                                                      | Default         |
+| ---------------------- | ---------------------------------------------------------------- | --------------- |
+| `NOTEBOOKLM_HOME`      | Base directory for all files                                     | `~/.notebooklm` |
+| `NOTEBOOKLM_AUTH_JSON` | Inline authentication JSON (for CI/CD)                           | -               |
+| `NOTEBOOKLM_LOG_LEVEL` | Logging level: `DEBUG`, `INFO`, `WARNING`, `ERROR`               | `WARNING`       |
+| `NOTEBOOKLM_DEBUG_RPC` | Legacy: Enable RPC debug logging (use `LOG_LEVEL=DEBUG` instead) | `false`         |
 
 ### NOTEBOOKLM_HOME
 
@@ -97,6 +98,7 @@ export NOTEBOOKLM_HOME=/custom/path
 ```
 
 **Use cases:**
+
 - Multiple Google accounts (separate home directories)
 - Per-project isolation
 - Custom storage locations
@@ -111,6 +113,7 @@ notebooklm list  # Works without any file on disk
 ```
 
 **Precedence:**
+
 1. `--storage` CLI flag (highest)
 2. `NOTEBOOKLM_AUTH_JSON` environment variable
 3. `$NOTEBOOKLM_HOME/storage_state.json` file
@@ -122,11 +125,11 @@ notebooklm list  # Works without any file on disk
 
 ### Global Options
 
-| Option | Description | Default |
-|--------|-------------|---------|
+| Option           | Description                | Default                               |
+| ---------------- | -------------------------- | ------------------------------------- |
 | `--storage PATH` | Path to storage_state.json | `$NOTEBOOKLM_HOME/storage_state.json` |
-| `--version` | Show version | - |
-| `--help` | Show help | - |
+| `--version`      | Show version               | -                                     |
+| `--help`         | Show help                  | -                                     |
 
 ### Viewing Configuration
 
@@ -137,6 +140,7 @@ notebooklm status --paths
 ```
 
 Output:
+
 ```
                 Configuration Paths
 ┏━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
@@ -154,6 +158,7 @@ Output:
 ### Session Lifetime
 
 Authentication sessions are tied to Google's cookie expiration:
+
 - Sessions typically last several days to weeks
 - Google may invalidate sessions for security reasons
 - Rate limiting or suspicious activity can trigger earlier expiration
@@ -219,6 +224,7 @@ jobs:
 ```
 
 **Benefits:**
+
 - No file writes needed
 - Secret stays in memory only
 - Clean, simple workflow
@@ -247,6 +253,7 @@ If you prefer file-based authentication:
 ### Session Expiration
 
 CSRF tokens are automatically refreshed during API calls. However, the underlying session cookies still expire. For long-running CI pipelines:
+
 - Update the `NOTEBOOKLM_AUTH_JSON` secret every 1-2 weeks
 - Monitor for persistent auth failures (these indicate cookie expiration)
 

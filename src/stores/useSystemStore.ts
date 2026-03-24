@@ -68,8 +68,7 @@ const emit = () => listeners.forEach((listener) => listener())
 
 const mergeNotebookLM = (raw?: Partial<NotebookLMSettings> | null): NotebookLMSettings => ({
   enabled: raw?.enabled ?? defaultNotebookLM.enabled,
-  userCanCreatePodcast:
-    raw?.userCanCreatePodcast ?? defaultNotebookLM.userCanCreatePodcast,
+  userCanCreatePodcast: raw?.userCanCreatePodcast ?? defaultNotebookLM.userCanCreatePodcast,
   silos:
     raw?.silos?.map((silo, index) => ({
       id: silo.id || `silo-${index + 1}`,

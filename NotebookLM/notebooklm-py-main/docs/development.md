@@ -70,12 +70,12 @@ src/notebooklm/
 
 ### Layer Responsibilities
 
-| Layer | Files | Responsibility |
-|-------|-------|----------------|
-| **CLI** | `cli/*.py` | User commands, input validation, Rich output |
+| Layer      | Files                | Responsibility                                   |
+| ---------- | -------------------- | ------------------------------------------------ |
+| **CLI**    | `cli/*.py`           | User commands, input validation, Rich output     |
 | **Client** | `client.py`, `_*.py` | High-level Python API, returns typed dataclasses |
-| **Core** | `_core.py` | HTTP client, request counter, RPC abstraction |
-| **RPC** | `rpc/*.py` | Protocol encoding/decoding, method IDs |
+| **Core**   | `_core.py`           | HTTP client, request counter, RPC abstraction    |
+| **RPC**    | `rpc/*.py`           | Protocol encoding/decoding, method IDs           |
 
 ### Key Design Decisions
 
@@ -88,6 +88,7 @@ src/notebooklm/
 ### Adding New Features
 
 **New RPC Method:**
+
 1. Capture traffic (see [RPC Development Guide](rpc-development.md))
 2. Add to `rpc/types.py`: `NEW_METHOD = "AbCdEf"`
 3. Implement in appropriate `_*.py` API class
@@ -95,6 +96,7 @@ src/notebooklm/
 5. Add CLI command if user-facing
 
 **New API Class:**
+
 1. Create `_newfeature.py` with `NewFeatureAPI` class
 2. Add to `client.py`: `self.newfeature = NewFeatureAPI(self._core)`
 3. Export types from `__init__.py`
@@ -106,11 +108,13 @@ src/notebooklm/
 ### Prerequisites
 
 1. **Install dependencies:**
+
    ```bash
    uv pip install -e ".[dev]"
    ```
 
 2. **Authenticate:**
+
    ```bash
    notebooklm login
    ```
@@ -149,10 +153,12 @@ tests/
 VCR tests record HTTP interactions for offline, deterministic replay. We have two levels:
 
 **Client-level VCR tests** (`tests/integration/test_vcr_*.py`):
+
 - Test Python API methods directly
 - Verify RPC encoding/decoding with real responses
 
 **CLI VCR tests** (`tests/integration/cli_vcr/`):
+
 - Test the full CLI → Client → RPC path
 - Use Click's CliRunner with VCR cassettes
 - Verify CLI commands work end-to-end without mocking the client
@@ -172,15 +178,16 @@ Sensitive data (cookies, tokens, emails) is automatically scrubbed from cassette
 
 ### E2E Fixtures
 
-| Fixture | Use Case |
-|---------|----------|
-| `read_only_notebook_id` | List/download existing artifacts |
-| `temp_notebook` | Add/delete sources (auto-cleanup) |
+| Fixture                  | Use Case                              |
+| ------------------------ | ------------------------------------- |
+| `read_only_notebook_id`  | List/download existing artifacts      |
+| `temp_notebook`          | Add/delete sources (auto-cleanup)     |
 | `generation_notebook_id` | Generate artifacts (CI-aware cleanup) |
 
 ### Rate Limiting
 
 NotebookLM has undocumented rate limits. Generation tests may be skipped when rate limited:
+
 - Use `pytest tests/e2e -m readonly` for quick validation
 - Wait a few minutes between full test runs
 - `SKIPPED (Rate limited by API)` is expected behavior, not failure
@@ -205,14 +212,14 @@ Need network?
 
 ### Workflows
 
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
-| `test.yml` | Push/PR | Unit tests, linting, type checking |
-| `nightly.yml` | Daily 6 AM UTC | E2E tests with real API |
-| `rpc-health.yml` | Daily 7 AM UTC | RPC method ID monitoring (see [stability.md](stability.md#automated-rpc-health-check)) |
-| `testpypi-publish.yml` | Manual dispatch | Publish to TestPyPI |
-| `verify-package.yml` | Manual dispatch | Verify TestPyPI or PyPI install + E2E |
-| `publish.yml` | Tag push | Publish to PyPI |
+| Workflow               | Trigger         | Purpose                                                                                |
+| ---------------------- | --------------- | -------------------------------------------------------------------------------------- |
+| `test.yml`             | Push/PR         | Unit tests, linting, type checking                                                     |
+| `nightly.yml`          | Daily 6 AM UTC  | E2E tests with real API                                                                |
+| `rpc-health.yml`       | Daily 7 AM UTC  | RPC method ID monitoring (see [stability.md](stability.md#automated-rpc-health-check)) |
+| `testpypi-publish.yml` | Manual dispatch | Publish to TestPyPI                                                                    |
+| `verify-package.yml`   | Manual dispatch | Verify TestPyPI or PyPI install + E2E                                                  |
+| `publish.yml`          | Tag push        | Publish to PyPI                                                                        |
 
 ### Setting Up Nightly E2E Tests
 
@@ -223,10 +230,10 @@ Need network?
 
 ### Maintaining Secrets
 
-| Task | Frequency |
-|------|-----------|
-| Refresh credentials | Every 1-2 weeks |
-| Check nightly results | Daily |
+| Task                  | Frequency       |
+| --------------------- | --------------- |
+| Refresh credentials   | Every 1-2 weeks |
+| Check nightly results | Daily           |
 
 ### Troubleshooting CI/CD Auth
 
@@ -237,6 +244,7 @@ Need network?
 **Cause:** The `NOTEBOOKLM_AUTH_JSON` env var is set to an empty string.
 
 **Solution:**
+
 - Ensure the GitHub secret is properly configured
 - Check the secret isn't empty or whitespace-only
 - Verify the workflow syntax: `${{ secrets.NOTEBOOKLM_AUTH_JSON }}`
@@ -246,6 +254,7 @@ Need network?
 **Cause:** The JSON in `NOTEBOOKLM_AUTH_JSON` is missing the required structure.
 
 **Solution:** Ensure your secret contains valid Playwright storage state JSON:
+
 ```json
 {
   "cookies": [
@@ -263,6 +272,7 @@ Need network?
 **Why:** The `login` command saves to a file, which conflicts with environment-based auth.
 
 **Solution:**
+
 - Don't run `login` in CI/CD - use the env var for auth instead
 - If you need to refresh auth, do it locally and update the secret
 
@@ -271,6 +281,7 @@ Need network?
 **Cause:** Google sessions expire periodically (typically every 1-2 weeks).
 
 **Solution:**
+
 1. Re-run `notebooklm login` locally
 2. Copy the contents of `~/.notebooklm/storage_state.json`
 3. Update your GitHub secret
@@ -313,6 +324,7 @@ Add diagnostic steps to your workflow:
 ```
 
 The `auth check --json` output shows:
+
 - Whether storage/env var is being used
 - Which cookies are present
 - Cookie domains (important for regional users)

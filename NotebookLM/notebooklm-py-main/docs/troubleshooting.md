@@ -10,6 +10,7 @@ Common issues, known limitations, and workarounds for `notebooklm-py`.
 ### Authentication Errors
 
 **First step:** Run `notebooklm auth check` to diagnose auth issues:
+
 ```bash
 notebooklm auth check          # Quick local validation
 notebooklm auth check --test   # Full validation with network test
@@ -17,6 +18,7 @@ notebooklm auth check --json   # Machine-readable output for CI/CD
 ```
 
 This shows:
+
 - Storage file location and validity
 - Which cookies are present and their domains
 - Whether NOTEBOOKLM_AUTH_JSON or NOTEBOOKLM_HOME is being used
@@ -42,6 +44,7 @@ This means most "CSRF token expired" errors resolve automatically.
 **Note:** Automatic token refresh handles CSRF/session ID expiration. This error only occurs when the underlying cookies (set during `notebooklm login`) have fully expired.
 
 **Solution:**
+
 ```bash
 notebooklm login
 ```
@@ -53,10 +56,12 @@ notebooklm login
 **Note:** This error should rarely occur now due to automatic retry. If you see it, it likely means the automatic refresh also failed.
 
 **Solution (if auto-refresh fails):**
+
 ```python
 # In Python - manual refresh
 await client.refresh_auth()
 ```
+
 Or re-run `notebooklm login` if session cookies are also expired.
 
 #### Browser opens but login fails
@@ -64,6 +69,7 @@ Or re-run `notebooklm login` if session cookies are also expired.
 **Cause:** Google detecting automation and blocking login.
 
 **Solution:**
+
 1. Delete the browser profile: `rm -rf ~/.notebooklm/browser_profile/`
 2. Run `notebooklm login` again
 3. Complete any CAPTCHA or security challenges Google presents
@@ -74,17 +80,20 @@ Or re-run `notebooklm login` if session cookies are also expired.
 #### "RPCError: No result found for RPC ID: XyZ123"
 
 **Cause:** The RPC method ID may have changed (Google updates these periodically), or:
+
 - Rate limiting from Google
 - Account quota exceeded
 - API restrictions
 
 **Diagnosis:**
+
 ```bash
 # Enable debug mode to see what RPC IDs the server returns
 NOTEBOOKLM_DEBUG_RPC=1 notebooklm <your-command>
 ```
 
 This will show output like:
+
 ```
 DEBUG: Looking for RPC ID: Ljjv0c
 DEBUG: Found RPC IDs in response: ['NewId123']
@@ -93,6 +102,7 @@ DEBUG: Found RPC IDs in response: ['NewId123']
 If the IDs don't match, the method ID has changed. Report the new ID in a GitHub issue.
 
 **Workaround:**
+
 - Wait 5-10 minutes and retry
 - Try with fewer sources selected
 - Reduce generation frequency
@@ -100,11 +110,13 @@ If the IDs don't match, the method ID has changed. Report the new ID in a GitHub
 #### "RPCError: [3]" or "UserDisplayableError"
 
 **Cause:** Google API returned an error, typically:
+
 - Invalid parameters
 - Resource not found
 - Rate limiting
 
 **Solution:**
+
 - Check that notebook/source IDs are valid
 - Add delays between operations (see Rate Limiting section)
 
@@ -115,6 +127,7 @@ If the IDs don't match, the method ID has changed. Report the new ID in a GitHub
 **Cause:** Known issue with artifact generation under heavy load or rate limiting.
 
 **Workaround:**
+
 ```bash
 # Use --wait to see if it eventually succeeds
 notebooklm generate audio --wait
@@ -128,6 +141,7 @@ notebooklm artifact poll <task_id>
 **Cause:** Generation may silently fail without error.
 
 **Solution:**
+
 - Wait 60 seconds and check `artifact list`
 - Try regenerating with different/fewer sources
 
@@ -138,6 +152,7 @@ notebooklm artifact poll <task_id>
 **Cause:** Known issue with native text file uploads.
 
 **Workaround:** Use `add_text` instead:
+
 ```bash
 # Instead of: notebooklm source add ./notes.txt
 # Do:
@@ -145,6 +160,7 @@ notebooklm source add "$(cat ./notes.txt)"
 ```
 
 Or in Python:
+
 ```python
 content = Path("notes.txt").read_text()
 await client.sources.add_text(nb_id, "My Notes", content)
@@ -163,6 +179,7 @@ await client.sources.add_text(nb_id, "My Notes", content)
 #### X.com / Twitter content incorrectly parsed as error page
 
 **Symptoms:**
+
 - Source title shows "Fixing X.com Privacy Errors" or similar error message
 - Generated content discusses browser extensions instead of the actual article
 - Source appears to process successfully but contains wrong content
@@ -187,12 +204,14 @@ notebooklm source add ./article.md
 **Alternative methods:**
 
 **Using browser automation:**
+
 ```bash
 # If you have playwright/browser-use available
 # Fetch content via browser and save as markdown
 ```
 
 **Manual extraction:**
+
 1. Open the X.com post in a browser
 2. Copy the text content
 3. Save to a `.md` file
@@ -201,12 +220,14 @@ notebooklm source add ./article.md
 **Verification:**
 
 Always verify the source was correctly parsed:
+
 ```bash
 notebooklm source list
 # Check that the title matches the actual article, not an error message
 ```
 
 If the title contains error-related text, remove the source and use the pre-fetch method:
+
 ```bash
 # Remove incorrectly parsed source
 notebooklm source delete <source_id>
@@ -215,6 +236,7 @@ notebooklm source delete <source_id>
 ```
 
 **Other affected sites:**
+
 - Some paywalled news sites
 - Sites requiring JavaScript execution for content
 - Sites with aggressive bot detection
@@ -228,6 +250,7 @@ notebooklm source delete <source_id>
 Google enforces strict rate limits on the batchexecute endpoint.
 
 **Symptoms:**
+
 - RPC calls return `None`
 - `RPCError` with ID `R7cb6c`
 - `UserDisplayableError` with code `[3]`
@@ -235,12 +258,14 @@ Google enforces strict rate limits on the batchexecute endpoint.
 **Best Practices:**
 
 **CLI:** Use `--retry` for automatic exponential backoff:
+
 ```bash
 notebooklm generate audio --retry 3   # Retry up to 3 times on rate limit
 notebooklm generate video --retry 5   # Works with all generate commands
 ```
 
 **Python:**
+
 ```python
 import asyncio
 
@@ -263,6 +288,7 @@ async def retry_with_backoff(coro, max_retries=3):
 ### Quota Restrictions
 
 Some features have daily/hourly quotas:
+
 - **Audio Overviews:** Limited generations per day per account
 - **Video Overviews:** More restricted than audio
 - **Deep Research:** Consumes significant backend resources
@@ -274,6 +300,7 @@ Artifact downloads (audio, video, images) use `httpx` with cookies from your sto
 If downloads fail with authentication errors:
 
 **Solution:** Ensure your authentication is valid:
+
 ```bash
 # Re-authenticate if cookies have expired
 notebooklm login
@@ -284,6 +311,7 @@ notebooklm login
 ### URL Expiry
 
 Download URLs for audio/video are temporary:
+
 - Expire within hours
 - Always fetch fresh URLs before downloading:
 
@@ -301,23 +329,27 @@ audio = next(a for a in artifacts if a.kind == "audio")
 ### Linux
 
 **Playwright missing dependencies:**
+
 ```bash
 playwright install-deps chromium
 ```
 
 **No display available (headless server):**
+
 - Browser login requires a display
 - Authenticate on a machine with GUI, then copy `storage_state.json`
 
 ### macOS
 
 **Chromium not opening:**
+
 ```bash
 # Re-install Playwright browsers
 playwright install chromium
 ```
 
 **Security warning about Chromium:**
+
 - Allow in System Preferences → Security & Privacy
 
 ### Windows
@@ -327,6 +359,7 @@ playwright install chromium
 On certain Windows environments (particularly when running inside Sandboxie or similar sandboxing software), the CLI may hang indefinitely at startup. This is caused by the default `ProactorEventLoop` blocking at the IOCP (I/O Completion Ports) layer.
 
 **Symptoms:**
+
 - CLI starts but never responds
 - Process appears frozen with no output
 - Happens consistently in sandboxed environments
@@ -346,20 +379,24 @@ if sys.platform == "win32":
 Windows systems with non-English locales (Chinese cp950, Japanese cp932, etc.) may fail with `UnicodeEncodeError` when outputting Unicode characters like checkmarks (✓) or emojis.
 
 **Symptoms:**
+
 - `UnicodeEncodeError: 'cp950' codec can't encode character`
 - Error occurs when printing status output with Rich tables
 
 **Solution:** The library automatically sets `PYTHONUTF8=1` at CLI startup. For Python API usage, either:
+
 1. Set `PYTHONUTF8=1` environment variable before running
 2. Run Python with `-X utf8` flag: `python -X utf8 your_script.py`
 
 **Path issues:**
+
 - Use forward slashes or raw strings: `r"C:\path\to\file"`
 - Ensure `~` expansion works: use `Path.home()` in Python
 
 ### WSL
 
 **Browser opens in Windows, not WSL:**
+
 - This is expected behavior
 - Storage file is saved in WSL filesystem
 
@@ -373,10 +410,10 @@ Windows systems with non-English locales (Chinese cp950, Japanese cp932, etc.) m
 
 **Environment Variables:**
 
-| Variable | Default | Effect |
-|----------|---------|--------|
+| Variable               | Default   | Effect                                        |
+| ---------------------- | --------- | --------------------------------------------- |
 | `NOTEBOOKLM_LOG_LEVEL` | `WARNING` | Set to `DEBUG`, `INFO`, `WARNING`, or `ERROR` |
-| `NOTEBOOKLM_DEBUG_RPC` | (unset) | Legacy: Set to `1` to enable `DEBUG` level |
+| `NOTEBOOKLM_DEBUG_RPC` | (unset)   | Legacy: Set to `1` to enable `DEBUG` level    |
 
 **When to use each level:**
 

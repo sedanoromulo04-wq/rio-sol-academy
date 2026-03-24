@@ -441,7 +441,10 @@ export default function AdminDashboard() {
           </div>
 
           {/* Feed Tab */}
-          <TabsContent value="feed" className="flex-1 flex flex-col min-h-0 mt-0 outline-none">
+          <TabsContent
+            value="feed"
+            className="flex-1 data-[state=active]:flex flex-col min-h-0 mt-0 outline-none data-[state=inactive]:hidden"
+          >
             <div className="flex-1 overflow-y-auto p-5 space-y-5">
               <Link
                 to="/admin/users/s2"
@@ -506,7 +509,10 @@ export default function AdminDashboard() {
           </TabsContent>
 
           {/* Notes Tab */}
-          <TabsContent value="notes" className="flex-1 flex flex-col min-h-0 mt-0 outline-none">
+          <TabsContent
+            value="notes"
+            className="flex-1 data-[state=active]:flex flex-col min-h-0 mt-0 outline-none data-[state=inactive]:hidden"
+          >
             <div className="flex-1 overflow-y-auto p-5 space-y-6">
               <div className="space-y-3">
                 <h4 className="text-sm font-bold text-white">Editar Foco da Semana</h4>
@@ -551,7 +557,10 @@ export default function AdminDashboard() {
           </TabsContent>
 
           {/* System Tab */}
-          <TabsContent value="system" className="flex-1 flex flex-col min-h-0 mt-0 outline-none">
+          <TabsContent
+            value="system"
+            className="flex-1 data-[state=active]:flex flex-col min-h-0 mt-0 outline-none data-[state=inactive]:hidden"
+          >
             <div className="flex-1 overflow-y-auto p-5 space-y-4">
               <div className="flex items-start justify-between bg-white/5 p-4 rounded-xl border border-white/10 gap-4">
                 <div className="flex-1">

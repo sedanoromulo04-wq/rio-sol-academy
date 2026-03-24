@@ -82,18 +82,20 @@ client = NotebookLMClient(auth)
 
 The library respects these environment variables for authentication:
 
-| Variable | Description |
-|----------|-------------|
-| `NOTEBOOKLM_HOME` | Base directory for config files (default: `~/.notebooklm`) |
-| `NOTEBOOKLM_AUTH_JSON` | Inline auth JSON - no file needed (for CI/CD) |
+| Variable               | Description                                                |
+| ---------------------- | ---------------------------------------------------------- |
+| `NOTEBOOKLM_HOME`      | Base directory for config files (default: `~/.notebooklm`) |
+| `NOTEBOOKLM_AUTH_JSON` | Inline auth JSON - no file needed (for CI/CD)              |
 
 **Precedence** (highest to lowest):
+
 1. Explicit `path` argument to `from_storage()`
 2. `NOTEBOOKLM_AUTH_JSON` environment variable
 3. `$NOTEBOOKLM_HOME/storage_state.json`
 4. `~/.notebooklm/storage_state.json`
 
 **CI/CD Example:**
+
 ```python
 import os
 
@@ -127,6 +129,7 @@ except RPCError as e:
 **Automatic Refresh:** The client automatically refreshes CSRF tokens when authentication errors are detected. This happens transparently during any API call - you don't need to handle it manually.
 
 When an RPC call fails with an auth error (HTTP 401/403 or auth-related message):
+
 1. The client fetches fresh tokens from the NotebookLM homepage
 2. Waits briefly to avoid rate limiting
 3. Retries the failed request automatically
@@ -169,20 +172,21 @@ class NotebookLMClient:
 
 ### NotebooksAPI (`client.notebooks`)
 
-| Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
-| `list()` | - | `list[Notebook]` | List all notebooks |
-| `create(title)` | `title: str` | `Notebook` | Create a notebook |
-| `get(notebook_id)` | `notebook_id: str` | `Notebook` | Get notebook details |
-| `delete(notebook_id)` | `notebook_id: str` | `bool` | Delete a notebook |
-| `rename(notebook_id, new_title)` | `notebook_id: str, new_title: str` | `Notebook` | Rename a notebook |
-| `get_description(notebook_id)` | `notebook_id: str` | `NotebookDescription` | Get AI summary and topics |
-| `get_summary(notebook_id)` | `notebook_id: str` | `str` | Get raw summary text |
-| `share(notebook_id, settings=None)` | `notebook_id: str, settings: dict` | `Any` | Share notebook with settings |
-| `remove_from_recent(notebook_id)` | `notebook_id: str` | `None` | Remove from recently viewed |
-| `get_raw(notebook_id)` | `notebook_id: str` | `Any` | Get raw API response data |
+| Method                              | Parameters                         | Returns               | Description                  |
+| ----------------------------------- | ---------------------------------- | --------------------- | ---------------------------- |
+| `list()`                            | -                                  | `list[Notebook]`      | List all notebooks           |
+| `create(title)`                     | `title: str`                       | `Notebook`            | Create a notebook            |
+| `get(notebook_id)`                  | `notebook_id: str`                 | `Notebook`            | Get notebook details         |
+| `delete(notebook_id)`               | `notebook_id: str`                 | `bool`                | Delete a notebook            |
+| `rename(notebook_id, new_title)`    | `notebook_id: str, new_title: str` | `Notebook`            | Rename a notebook            |
+| `get_description(notebook_id)`      | `notebook_id: str`                 | `NotebookDescription` | Get AI summary and topics    |
+| `get_summary(notebook_id)`          | `notebook_id: str`                 | `str`                 | Get raw summary text         |
+| `share(notebook_id, settings=None)` | `notebook_id: str, settings: dict` | `Any`                 | Share notebook with settings |
+| `remove_from_recent(notebook_id)`   | `notebook_id: str`                 | `None`                | Remove from recently viewed  |
+| `get_raw(notebook_id)`              | `notebook_id: str`                 | `Any`                 | Get raw API response data    |
 
 **Example:**
+
 ```python
 # List all notebooks
 notebooks = await client.notebooks.list()
@@ -208,6 +212,7 @@ await client.notebooks.share(nb.id, settings={"public": True})
 ```
 
 **get_summary vs get_description:**
+
 - `get_summary()` returns the raw summary text string
 - `get_description()` returns a `NotebookDescription` object with the parsed summary and a list of `SuggestedTopic` objects for suggested questions
 
@@ -215,23 +220,24 @@ await client.notebooks.share(nb.id, settings={"public": True})
 
 ### SourcesAPI (`client.sources`)
 
-| Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
-| `list(notebook_id)` | `notebook_id: str` | `list[Source]` | List sources |
-| `get(notebook_id, source_id)` | `str, str` | `Source` | Get source details |
-| `get_fulltext(notebook_id, source_id)` | `str, str` | `SourceFulltext` | Get full indexed text content |
-| `get_guide(notebook_id, source_id)` | `str, str` | `dict` | Get AI-generated summary and keywords |
-| `add_url(notebook_id, url)` | `str, str` | `Source` | Add URL source |
-| `add_youtube(notebook_id, url)` | `str, str` | `Source` | Add YouTube video |
-| `add_text(notebook_id, title, content)` | `str, str, str` | `Source` | Add text content |
-| `add_file(notebook_id, path, mime_type=None)` | `str, Path, str` | `Source` | Upload file |
-| `add_drive(notebook_id, file_id, title, mime_type)` | `str, str, str, str` | `Source` | Add Google Drive doc |
-| `rename(notebook_id, source_id, new_title)` | `str, str, str` | `Source` | Rename source |
-| `refresh(notebook_id, source_id)` | `str, str` | `bool` | Refresh URL/Drive source |
-| `check_freshness(notebook_id, source_id)` | `str, str` | `bool` | Check if source needs refresh |
-| `delete(notebook_id, source_id)` | `str, str` | `bool` | Delete source |
+| Method                                              | Parameters           | Returns          | Description                           |
+| --------------------------------------------------- | -------------------- | ---------------- | ------------------------------------- |
+| `list(notebook_id)`                                 | `notebook_id: str`   | `list[Source]`   | List sources                          |
+| `get(notebook_id, source_id)`                       | `str, str`           | `Source`         | Get source details                    |
+| `get_fulltext(notebook_id, source_id)`              | `str, str`           | `SourceFulltext` | Get full indexed text content         |
+| `get_guide(notebook_id, source_id)`                 | `str, str`           | `dict`           | Get AI-generated summary and keywords |
+| `add_url(notebook_id, url)`                         | `str, str`           | `Source`         | Add URL source                        |
+| `add_youtube(notebook_id, url)`                     | `str, str`           | `Source`         | Add YouTube video                     |
+| `add_text(notebook_id, title, content)`             | `str, str, str`      | `Source`         | Add text content                      |
+| `add_file(notebook_id, path, mime_type=None)`       | `str, Path, str`     | `Source`         | Upload file                           |
+| `add_drive(notebook_id, file_id, title, mime_type)` | `str, str, str, str` | `Source`         | Add Google Drive doc                  |
+| `rename(notebook_id, source_id, new_title)`         | `str, str, str`      | `Source`         | Rename source                         |
+| `refresh(notebook_id, source_id)`                   | `str, str`           | `bool`           | Refresh URL/Drive source              |
+| `check_freshness(notebook_id, source_id)`           | `str, str`           | `bool`           | Check if source needs refresh         |
+| `delete(notebook_id, source_id)`                    | `str, str`           | `bool`           | Delete source                         |
 
 **Example:**
+
 ```python
 # Add various source types
 await client.sources.add_url(nb_id, "https://example.com/article")
@@ -268,55 +274,55 @@ print(f"Keywords: {guide['keywords']}")
 
 #### Core Methods
 
-| Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
-| `list(notebook_id, type=None)` | `str, int` | `list[Artifact]` | List artifacts |
-| `get(notebook_id, artifact_id)` | `str, str` | `Artifact` | Get artifact details |
-| `delete(notebook_id, artifact_id)` | `str, str` | `bool` | Delete artifact |
-| `rename(notebook_id, artifact_id, new_title)` | `str, str, str` | `None` | Rename artifact |
-| `poll_status(notebook_id, task_id)` | `str, str` | `GenerationStatus` | Check generation status |
-| `wait_for_completion(notebook_id, task_id, ...)` | `str, str, ...` | `GenerationStatus` | Wait for generation |
+| Method                                           | Parameters      | Returns            | Description             |
+| ------------------------------------------------ | --------------- | ------------------ | ----------------------- |
+| `list(notebook_id, type=None)`                   | `str, int`      | `list[Artifact]`   | List artifacts          |
+| `get(notebook_id, artifact_id)`                  | `str, str`      | `Artifact`         | Get artifact details    |
+| `delete(notebook_id, artifact_id)`               | `str, str`      | `bool`             | Delete artifact         |
+| `rename(notebook_id, artifact_id, new_title)`    | `str, str, str` | `None`             | Rename artifact         |
+| `poll_status(notebook_id, task_id)`              | `str, str`      | `GenerationStatus` | Check generation status |
+| `wait_for_completion(notebook_id, task_id, ...)` | `str, str, ...` | `GenerationStatus` | Wait for generation     |
 
 #### Type-Specific List Methods
 
-| Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
-| `list_audio(notebook_id)` | `str` | `list[Artifact]` | List audio overview artifacts |
-| `list_video(notebook_id)` | `str` | `list[Artifact]` | List video overview artifacts |
-| `list_reports(notebook_id)` | `str` | `list[Artifact]` | List report artifacts (Briefing Doc, Study Guide, Blog Post) |
-| `list_quizzes(notebook_id)` | `str` | `list[Artifact]` | List quiz artifacts |
-| `list_flashcards(notebook_id)` | `str` | `list[Artifact]` | List flashcard artifacts |
-| `list_infographics(notebook_id)` | `str` | `list[Artifact]` | List infographic artifacts |
-| `list_slide_decks(notebook_id)` | `str` | `list[Artifact]` | List slide deck artifacts |
-| `list_data_tables(notebook_id)` | `str` | `list[Artifact]` | List data table artifacts |
+| Method                           | Parameters | Returns          | Description                                                  |
+| -------------------------------- | ---------- | ---------------- | ------------------------------------------------------------ |
+| `list_audio(notebook_id)`        | `str`      | `list[Artifact]` | List audio overview artifacts                                |
+| `list_video(notebook_id)`        | `str`      | `list[Artifact]` | List video overview artifacts                                |
+| `list_reports(notebook_id)`      | `str`      | `list[Artifact]` | List report artifacts (Briefing Doc, Study Guide, Blog Post) |
+| `list_quizzes(notebook_id)`      | `str`      | `list[Artifact]` | List quiz artifacts                                          |
+| `list_flashcards(notebook_id)`   | `str`      | `list[Artifact]` | List flashcard artifacts                                     |
+| `list_infographics(notebook_id)` | `str`      | `list[Artifact]` | List infographic artifacts                                   |
+| `list_slide_decks(notebook_id)`  | `str`      | `list[Artifact]` | List slide deck artifacts                                    |
+| `list_data_tables(notebook_id)`  | `str`      | `list[Artifact]` | List data table artifacts                                    |
 
 #### Generation Methods
 
-| Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
-| `generate_audio(...)` | See below | `GenerationStatus` | Generate podcast |
-| `generate_video(...)` | See below | `GenerationStatus` | Generate video |
-| `generate_report(...)` | See below | `GenerationStatus` | Generate report |
-| `generate_quiz(...)` | See below | `GenerationStatus` | Generate quiz |
-| `generate_flashcards(...)` | See below | `GenerationStatus` | Generate flashcards |
-| `generate_slide_deck(...)` | See below | `GenerationStatus` | Generate slide deck |
-| `generate_infographic(...)` | See below | `GenerationStatus` | Generate infographic |
-| `generate_data_table(...)` | See below | `GenerationStatus` | Generate data table |
-| `generate_mind_map(...)` | See below | `dict` | Generate mind map |
+| Method                      | Parameters | Returns            | Description          |
+| --------------------------- | ---------- | ------------------ | -------------------- |
+| `generate_audio(...)`       | See below  | `GenerationStatus` | Generate podcast     |
+| `generate_video(...)`       | See below  | `GenerationStatus` | Generate video       |
+| `generate_report(...)`      | See below  | `GenerationStatus` | Generate report      |
+| `generate_quiz(...)`        | See below  | `GenerationStatus` | Generate quiz        |
+| `generate_flashcards(...)`  | See below  | `GenerationStatus` | Generate flashcards  |
+| `generate_slide_deck(...)`  | See below  | `GenerationStatus` | Generate slide deck  |
+| `generate_infographic(...)` | See below  | `GenerationStatus` | Generate infographic |
+| `generate_data_table(...)`  | See below  | `GenerationStatus` | Generate data table  |
+| `generate_mind_map(...)`    | See below  | `dict`             | Generate mind map    |
 
 #### Downloading Artifacts
 
-| Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
-| `download_audio(notebook_id, output_path, artifact_id=None)` | `str, str, str` | `str` | Download audio to file (MP4/MP3) |
-| `download_video(notebook_id, output_path, artifact_id=None)` | `str, str, str` | `str` | Download video to file (MP4) |
-| `download_infographic(notebook_id, output_path, artifact_id=None)` | `str, str, str` | `str` | Download infographic to file (PNG) |
-| `download_slide_deck(notebook_id, output_path, artifact_id=None)` | `str, str, str` | `str` | Download slide deck as PDF |
-| `download_report(notebook_id, output_path, artifact_id=None)` | `str, str, str` | `str` | Download report as Markdown (.md) |
-| `download_mind_map(notebook_id, output_path, artifact_id=None)` | `str, str, str` | `str` | Download mind map as JSON (.json) |
-| `download_data_table(notebook_id, output_path, artifact_id=None)` | `str, str, str` | `str` | Download data table as CSV (.csv) |
-| `download_quiz(notebook_id, output_path, artifact_id=None, output_format="json")` | `str, str, str, str` | `str` | Download quiz (json/markdown/html) |
-| `download_flashcards(notebook_id, output_path, artifact_id=None, output_format="json")` | `str, str, str, str` | `str` | Download flashcards (json/markdown/html) |
+| Method                                                                                  | Parameters           | Returns | Description                              |
+| --------------------------------------------------------------------------------------- | -------------------- | ------- | ---------------------------------------- |
+| `download_audio(notebook_id, output_path, artifact_id=None)`                            | `str, str, str`      | `str`   | Download audio to file (MP4/MP3)         |
+| `download_video(notebook_id, output_path, artifact_id=None)`                            | `str, str, str`      | `str`   | Download video to file (MP4)             |
+| `download_infographic(notebook_id, output_path, artifact_id=None)`                      | `str, str, str`      | `str`   | Download infographic to file (PNG)       |
+| `download_slide_deck(notebook_id, output_path, artifact_id=None)`                       | `str, str, str`      | `str`   | Download slide deck as PDF               |
+| `download_report(notebook_id, output_path, artifact_id=None)`                           | `str, str, str`      | `str`   | Download report as Markdown (.md)        |
+| `download_mind_map(notebook_id, output_path, artifact_id=None)`                         | `str, str, str`      | `str`   | Download mind map as JSON (.json)        |
+| `download_data_table(notebook_id, output_path, artifact_id=None)`                       | `str, str, str`      | `str`   | Download data table as CSV (.csv)        |
+| `download_quiz(notebook_id, output_path, artifact_id=None, output_format="json")`       | `str, str, str, str` | `str`   | Download quiz (json/markdown/html)       |
+| `download_flashcards(notebook_id, output_path, artifact_id=None, output_format="json")` | `str, str, str, str` | `str`   | Download flashcards (json/markdown/html) |
 
 **Download Methods:**
 
@@ -363,6 +369,7 @@ path = await client.artifacts.download_flashcards(nb_id, "cards.md", output_form
 ```
 
 **Notes:**
+
 - If `artifact_id` is not specified, downloads the first completed artifact of that type
 - Raises `ValueError` if no completed artifact is found
 - Some URLs require browser-based download (handled automatically)
@@ -375,13 +382,14 @@ path = await client.artifacts.download_flashcards(nb_id, "cards.md", output_form
 
 Export artifacts to Google Docs or Google Sheets.
 
-| Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
-| `export_report(notebook_id, artifact_id, title, export_type)` | `str, str, str, ExportType` | `Any` | Export report to Google Docs/Sheets |
-| `export_data_table(notebook_id, artifact_id, title)` | `str, str, str` | `Any` | Export data table to Google Sheets |
-| `export(notebook_id, artifact_id, content, title, export_type)` | `str, str, str, str, ExportType` | `Any` | Generic export to Docs/Sheets |
+| Method                                                          | Parameters                       | Returns | Description                         |
+| --------------------------------------------------------------- | -------------------------------- | ------- | ----------------------------------- |
+| `export_report(notebook_id, artifact_id, title, export_type)`   | `str, str, str, ExportType`      | `Any`   | Export report to Google Docs/Sheets |
+| `export_data_table(notebook_id, artifact_id, title)`            | `str, str, str`                  | `Any`   | Export data table to Google Sheets  |
+| `export(notebook_id, artifact_id, content, title, export_type)` | `str, str, str, str, ExportType` | `Any`   | Generic export to Docs/Sheets       |
 
 **Export Types (ExportType enum):**
+
 - `ExportType.DOCS` (1): Export to Google Docs
 - `ExportType.SHEETS` (2): Export to Google Sheets
 
@@ -482,14 +490,15 @@ else:
 
 ### ChatAPI (`client.chat`)
 
-| Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
-| `ask(notebook_id, question, ...)` | `str, str, ...` | `AskResult` | Ask a question |
-| `configure(notebook_id, ...)` | `str, ...` | `bool` | Set chat persona |
+| Method                                                      | Parameters      | Returns                 | Description                                 |
+| ----------------------------------------------------------- | --------------- | ----------------------- | ------------------------------------------- |
+| `ask(notebook_id, question, ...)`                           | `str, str, ...` | `AskResult`             | Ask a question                              |
+| `configure(notebook_id, ...)`                               | `str, ...`      | `bool`                  | Set chat persona                            |
 | `get_history(notebook_id, limit=100, conversation_id=None)` | `str, int, str` | `list[tuple[str, str]]` | Get Q&A pairs from most recent conversation |
-| `get_conversation_id(notebook_id)` | `str` | `str \| None` | Get most recent conversation ID from server |
+| `get_conversation_id(notebook_id)`                          | `str`           | `str \| None`           | Get most recent conversation ID from server |
 
 **ask() Parameters:**
+
 ```python
 async def ask(
     notebook_id: str,
@@ -500,6 +509,7 @@ async def ask(
 ```
 
 **Example:**
+
 ```python
 # Ask questions (uses all sources)
 result = await client.chat.ask(nb_id, "What are the main themes?")
@@ -536,11 +546,11 @@ await client.chat.configure(
 
 ### ResearchAPI (`client.research`)
 
-| Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
-| `start(notebook_id, query, source, mode)` | `str, str, str="web", str="fast"` | `dict` | Start research (mode: "fast" or "deep") |
-| `poll(notebook_id)` | `str` | `dict` | Check research status |
-| `import_sources(notebook_id, task_id, sources)` | `str, str, list` | `list[dict]` | Import findings |
+| Method                                          | Parameters                        | Returns      | Description                             |
+| ----------------------------------------------- | --------------------------------- | ------------ | --------------------------------------- |
+| `start(notebook_id, query, source, mode)`       | `str, str, str="web", str="fast"` | `dict`       | Start research (mode: "fast" or "deep") |
+| `poll(notebook_id)`                             | `str`                             | `dict`       | Check research status                   |
+| `import_sources(notebook_id, task_id, sources)` | `str, str, list`                  | `list[dict]` | Import findings                         |
 
 **Method Signatures:**
 
@@ -570,6 +580,7 @@ async def import_sources(notebook_id: str, task_id: str, sources: list[dict]) ->
 ```
 
 **Example:**
+
 ```python
 # Start fast web research (default)
 result = await client.research.start(nb_id, "AI safety regulations")
@@ -599,17 +610,18 @@ print(f"Imported {len(imported)} sources")
 
 ### NotesAPI (`client.notes`)
 
-| Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
-| `list(notebook_id)` | `str` | `list[Note]` | List text notes (excludes mind maps) |
-| `create(notebook_id, title="New Note", content="")` | `str, str, str` | `Note` | Create note |
-| `get(notebook_id, note_id)` | `str, str` | `Optional[Note]` | Get note by ID |
-| `update(notebook_id, note_id, content, title)` | `str, str, str, str` | `None` | Update note content and title |
-| `delete(notebook_id, note_id)` | `str, str` | `bool` | Delete note |
-| `list_mind_maps(notebook_id)` | `str` | `list[Any]` | List mind maps in the notebook |
-| `delete_mind_map(notebook_id, mind_map_id)` | `str, str` | `bool` | Delete a mind map |
+| Method                                              | Parameters           | Returns          | Description                          |
+| --------------------------------------------------- | -------------------- | ---------------- | ------------------------------------ |
+| `list(notebook_id)`                                 | `str`                | `list[Note]`     | List text notes (excludes mind maps) |
+| `create(notebook_id, title="New Note", content="")` | `str, str, str`      | `Note`           | Create note                          |
+| `get(notebook_id, note_id)`                         | `str, str`           | `Optional[Note]` | Get note by ID                       |
+| `update(notebook_id, note_id, content, title)`      | `str, str, str, str` | `None`           | Update note content and title        |
+| `delete(notebook_id, note_id)`                      | `str, str`           | `bool`           | Delete note                          |
+| `list_mind_maps(notebook_id)`                       | `str`                | `list[Any]`      | List mind maps in the notebook       |
+| `delete_mind_map(notebook_id, mind_map_id)`         | `str, str`           | `bool`           | Delete a mind map                    |
 
 **Example:**
+
 ```python
 # Create and manage notes
 note = await client.notes.create(nb_id, title="Meeting Notes", content="Discussion points...")
@@ -643,12 +655,13 @@ await client.notes.delete_mind_map(nb_id, mind_map_id)
 
 ### SettingsAPI (`client.settings`)
 
-| Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
-| `get_output_language()` | none | `Optional[str]` | Get current output language setting |
-| `set_output_language(language)` | `str` | `Optional[str]` | Set output language for artifact generation |
+| Method                          | Parameters | Returns         | Description                                 |
+| ------------------------------- | ---------- | --------------- | ------------------------------------------- |
+| `get_output_language()`         | none       | `Optional[str]` | Get current output language setting         |
+| `set_output_language(language)` | `str`      | `Optional[str]` | Set output language for artifact generation |
 
 **Example:**
+
 ```python
 # Get current language setting
 lang = await client.settings.get_output_language()
@@ -660,6 +673,7 @@ print(f"Language set to: {result}")
 ```
 
 **Important:** Language is a **GLOBAL setting** that affects all notebooks in your account. Supported languages include:
+
 - `en` (English), `ja` (日本語), `zh_Hans` (中文简体), `zh_Hant` (中文繁體)
 - `ko` (한국어), `es` (Español), `fr` (Français), `de` (Deutsch), `pt_BR` (Português)
 - And [over 70 other languages](cli-reference.md#language-commands-notebooklm-language-cmd)
@@ -668,16 +682,17 @@ print(f"Language set to: {result}")
 
 ### SharingAPI (`client.sharing`)
 
-| Method | Parameters | Returns | Description |
-|--------|------------|---------|-------------|
-| `get_status(notebook_id)` | `str` | `ShareStatus` | Get current sharing configuration |
-| `set_public(notebook_id, public)` | `str, bool` | `ShareStatus` | Enable/disable public link sharing |
-| `set_view_level(notebook_id, level)` | `str, ShareViewLevel` | `None` | Set what viewers can access |
-| `add_user(notebook_id, email, permission, notify, welcome_message)` | `str, str, SharePermission, bool, str` | `ShareStatus` | Share with a user |
-| `update_user(notebook_id, email, permission)` | `str, str, SharePermission` | `ShareStatus` | Update user's permission |
-| `remove_user(notebook_id, email)` | `str, str` | `ShareStatus` | Remove user's access |
+| Method                                                              | Parameters                             | Returns       | Description                        |
+| ------------------------------------------------------------------- | -------------------------------------- | ------------- | ---------------------------------- |
+| `get_status(notebook_id)`                                           | `str`                                  | `ShareStatus` | Get current sharing configuration  |
+| `set_public(notebook_id, public)`                                   | `str, bool`                            | `ShareStatus` | Enable/disable public link sharing |
+| `set_view_level(notebook_id, level)`                                | `str, ShareViewLevel`                  | `None`        | Set what viewers can access        |
+| `add_user(notebook_id, email, permission, notify, welcome_message)` | `str, str, SharePermission, bool, str` | `ShareStatus` | Share with a user                  |
+| `update_user(notebook_id, email, permission)`                       | `str, str, SharePermission`            | `ShareStatus` | Update user's permission           |
+| `remove_user(notebook_id, email)`                                   | `str, str`                             | `ShareStatus` | Remove user's access               |
 
 **Example:**
+
 ```python
 from notebooklm import SharePermission, ShareViewLevel
 
@@ -717,11 +732,13 @@ status = await client.sharing.set_public(notebook_id, False)
 ```
 
 **Permission Levels:**
+
 - `SharePermission.OWNER` - Full control (read-only, cannot be assigned)
 - `SharePermission.EDITOR` - Can edit notebook content
 - `SharePermission.VIEWER` - Read-only access
 
 **View Levels:**
+
 - `ShareViewLevel.FULL_NOTEBOOK` - Viewers can access chat, sources, and notes
 - `ShareViewLevel.CHAT_ONLY` - Viewers can only access the chat interface
 
@@ -1083,6 +1100,7 @@ class SourceStatus(Enum):
 ```
 
 **Usage Example:**
+
 ```python
 from notebooklm import SourceType, ArtifactType
 
@@ -1131,6 +1149,7 @@ class ChatMode(Enum):
 ```
 
 **ChatGoal vs ChatMode:**
+
 - `ChatGoal` is an RPC-level enum used with `client.chat.configure()` for low-level API configuration
 - `ChatMode` is a service-level enum providing predefined configurations for common use cases
 

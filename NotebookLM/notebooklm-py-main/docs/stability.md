@@ -21,12 +21,12 @@ We follow [Semantic Versioning](https://semver.org/) with modifications for our 
 
 ### Version Format: `MAJOR.MINOR.PATCH`
 
-| Change Type | Version Bump | Example |
-|-------------|--------------|---------|
-| RPC method ID fixes (Google changed something) | PATCH | 0.1.0 → 0.1.1 |
-| Bug fixes | PATCH | 0.1.1 → 0.1.2 |
-| New features (backward compatible) | MINOR | 0.1.2 → 0.2.0 |
-| Public API breaking changes | MAJOR | 0.2.0 → 1.0.0 |
+| Change Type                                    | Version Bump | Example       |
+| ---------------------------------------------- | ------------ | ------------- |
+| RPC method ID fixes (Google changed something) | PATCH        | 0.1.0 → 0.1.1 |
+| Bug fixes                                      | PATCH        | 0.1.1 → 0.1.2 |
+| New features (backward compatible)             | MINOR        | 0.1.2 → 0.2.0 |
+| Public API breaking changes                    | MAJOR        | 0.2.0 → 1.0.0 |
 
 ### Special Considerations
 
@@ -97,6 +97,7 @@ notebooklm.auth.*         # Auth internals (except AuthTokens)
 ```
 
 To use internal APIs, import them explicitly:
+
 ```python
 # Explicit import for power users (may break)
 from notebooklm.rpc import RPCMethod, encode_rpc_request
@@ -113,13 +114,13 @@ from notebooklm.rpc import RPCMethod, encode_rpc_request
 
 The following are deprecated and will be removed in **v0.4.0**:
 
-| Deprecated | Replacement | Notes |
-|------------|-------------|-------|
-| `Source.source_type` | `Source.kind` | Returns `SourceType` str enum |
-| `Artifact.artifact_type` | `Artifact.kind` | Returns `ArtifactType` str enum |
-| `Artifact.variant` | `Artifact.kind` | Use `.is_quiz` / `.is_flashcards` |
-| `SourceFulltext.source_type` | `SourceFulltext.kind` | Returns `SourceType` str enum |
-| `StudioContentType` | `ArtifactType` | Str enum for user-facing code |
+| Deprecated                   | Replacement           | Notes                             |
+| ---------------------------- | --------------------- | --------------------------------- |
+| `Source.source_type`         | `Source.kind`         | Returns `SourceType` str enum     |
+| `Artifact.artifact_type`     | `Artifact.kind`       | Returns `ArtifactType` str enum   |
+| `Artifact.variant`           | `Artifact.kind`       | Use `.is_quiz` / `.is_flashcards` |
+| `SourceFulltext.source_type` | `SourceFulltext.kind` | Returns `SourceType` str enum     |
+| `StudioContentType`          | `ArtifactType`        | Str enum for user-facing code     |
 
 ## Migration Guides
 
@@ -131,6 +132,7 @@ These will be removed in v0.4.0. Update your code now to avoid breakage.
 #### 1. `Source.source_type` → `Source.kind`
 
 **Before (deprecated):**
+
 ```python
 source = await client.sources.list(notebook_id)[0]
 if source.source_type == "pdf":  # ⚠️ Emits DeprecationWarning
@@ -138,6 +140,7 @@ if source.source_type == "pdf":  # ⚠️ Emits DeprecationWarning
 ```
 
 **After (recommended):**
+
 ```python
 from notebooklm import SourceType
 
@@ -158,6 +161,7 @@ if source.kind == "pdf":
 #### 2. `Artifact.artifact_type` → `Artifact.kind`
 
 **Before (deprecated):**
+
 ```python
 from notebooklm import StudioContentType  # ⚠️ Emits DeprecationWarning
 
@@ -167,6 +171,7 @@ if artifact.artifact_type == StudioContentType.AUDIO:  # ⚠️ Emits Deprecatio
 ```
 
 **After (recommended):**
+
 ```python
 from notebooklm import ArtifactType
 
@@ -187,12 +192,14 @@ if artifact.kind == "audio":
 #### 3. `Artifact.variant` → `Artifact.kind` or helpers
 
 **Before (deprecated):**
+
 ```python
 if artifact.artifact_type == 4 and artifact.variant == 2:  # ⚠️ Deprecated
     print("This is a quiz")
 ```
 
 **After (recommended):**
+
 ```python
 # Option 1: Use .kind
 if artifact.kind == ArtifactType.QUIZ:
@@ -225,24 +232,29 @@ When Google changes their internal APIs:
 A nightly GitHub Action (`rpc-health.yml`) monitors all 35+ RPC methods for ID changes.
 
 **What it verifies:**
+
 - The RPC method ID we send matches the ID returned in the response envelope
 - Example: `LIST_NOTEBOOKS` sends `wXbhsf` → response must contain `wXbhsf`
 
 **What it does NOT verify:**
+
 - Response data correctness (E2E tests cover this)
 - Response schema validation (too fragile across 35+ methods)
 - Business logic (out of scope for monitoring)
 
 **Why this design:**
+
 - Google's breaking change pattern is silent ID changes, not schema changes
 - Error responses still contain the method ID, so we detect mismatches even on API errors
 - A mismatch means `rpc/types.py` needs updating, triggering a patch release
 
 **On mismatch detection:**
+
 - GitHub Issue auto-created with `bug`, `rpc-breakage`, and `automated` labels
 - Report shows expected vs actual IDs and which `RPCMethod` entries need updating
 
 **Configuration:**
+
 - `NOTEBOOKLM_RPC_DELAY`: Delay between RPC calls in seconds (default: 1.0)
 
 **Manual trigger:** `gh workflow run rpc-health.yml`

@@ -38,6 +38,7 @@ ruff format src/ tests/
 ```
 
 **Pre-commit hooks** (optional but recommended):
+
 ```bash
 pip install pre-commit
 pre-commit install
@@ -73,14 +74,19 @@ pre-commit install
 Some sections within files are critical and must not be modified without explicit user approval.
 
 **Inline markers** (source of truth):
+
 ```markdown
 <!-- PROTECTED: Do not modify without approval -->
+
 ## Critical Section Title
+
 Content that should not be changed by agents...
+
 <!-- END PROTECTED -->
 ```
 
 For code files:
+
 ```python
 # PROTECTED: Do not modify without approval
 class RPCMethod(Enum):
@@ -94,12 +100,12 @@ class RPCMethod(Enum):
 
 Design decisions should be captured where they're most useful, not in separate documents that become stale.
 
-| When | Where | What to Include |
-|------|-------|-----------------|
-| **Feature work** | PR description | Design rationale, edge cases, alternatives considered |
-| **Specific decisions** | Commit message | Why this approach was chosen |
-| **Large discussions** | GitHub Issue | Link from PR, spans multiple changes |
-| **Investigation/debugging** | `docs/scratch/` | Temporary work, delete when done |
+| When                        | Where           | What to Include                                       |
+| --------------------------- | --------------- | ----------------------------------------------------- |
+| **Feature work**            | PR description  | Design rationale, edge cases, alternatives considered |
+| **Specific decisions**      | Commit message  | Why this approach was chosen                          |
+| **Large discussions**       | GitHub Issue    | Link from PR, spans multiple changes                  |
+| **Investigation/debugging** | `docs/scratch/` | Temporary work, delete when done                      |
 
 **Why not design docs?** Separate design documents accumulate and become stale. PR descriptions stay attached to the code changes, are searchable in GitHub, and don't clutter the repository.
 
@@ -107,13 +113,13 @@ Design decisions should be captured where they're most useful, not in separate d
 
 ### Naming Conventions
 
-| Type | Format | Example |
-|------|--------|---------|
-| Root GitHub files | `UPPERCASE.md` | `README.md`, `CONTRIBUTING.md` |
-| Agent files | `UPPERCASE.md` | `CLAUDE.md`, `AGENTS.md` |
-| Subfolder README | `README.md` | `docs/examples/README.md` |
-| All other docs/ files | `lowercase-kebab.md` | `cli-reference.md`, `contributing.md` |
-| Scratch files | `YYYY-MM-DD-context.md` | `2026-01-06-debug-auth.md` |
+| Type                  | Format                  | Example                               |
+| --------------------- | ----------------------- | ------------------------------------- |
+| Root GitHub files     | `UPPERCASE.md`          | `README.md`, `CONTRIBUTING.md`        |
+| Agent files           | `UPPERCASE.md`          | `CLAUDE.md`, `AGENTS.md`              |
+| Subfolder README      | `README.md`             | `docs/examples/README.md`             |
+| All other docs/ files | `lowercase-kebab.md`    | `cli-reference.md`, `contributing.md` |
+| Scratch files         | `YYYY-MM-DD-context.md` | `2026-01-06-debug-auth.md`            |
 
 ### Status Headers
 

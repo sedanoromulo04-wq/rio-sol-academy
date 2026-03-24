@@ -23,11 +23,11 @@ This library stores authentication credentials locally. Please understand these 
 
 Default location is `~/.notebooklm/` (can be changed via `NOTEBOOKLM_HOME` environment variable):
 
-| File | Contents | Permissions |
-|------|----------|-------------|
+| File                 | Contents               | Permissions          |
+| -------------------- | ---------------------- | -------------------- |
 | `storage_state.json` | Google session cookies | `0o600` (owner-only) |
-| `browser_profile/` | Chromium profile data | `0o700` (owner-only) |
-| `context.json` | Active notebook ID | Default |
+| `browser_profile/`   | Chromium profile data  | `0o700` (owner-only) |
+| `context.json`       | Active notebook ID     | Default              |
 
 ### Security Best Practices
 
@@ -37,6 +37,7 @@ Default location is `~/.notebooklm/` (can be changed via `NOTEBOOKLM_HOME` envir
    - Never share, commit, or expose this file
 
 2. **Add to .gitignore**
+
    ```gitignore
    .notebooklm/
    ```
@@ -67,12 +68,12 @@ Default location is `~/.notebooklm/` (can be changed via `NOTEBOOKLM_HOME` envir
 
 This library uses minimal dependencies:
 
-| Dependency | Purpose | Security Notes |
-|------------|---------|----------------|
-| `httpx` | HTTP client | Well-maintained, security-focused |
-| `click` | CLI framework | Stable, minimal attack surface |
-| `rich` | Terminal output | Cosmetic, no network access |
-| `playwright` | Browser automation (optional) | Used only for login |
+| Dependency   | Purpose                       | Security Notes                    |
+| ------------ | ----------------------------- | --------------------------------- |
+| `httpx`      | HTTP client                   | Well-maintained, security-focused |
+| `click`      | CLI framework                 | Stable, minimal attack surface    |
+| `rich`       | Terminal output               | Cosmetic, no network access       |
+| `playwright` | Browser automation (optional) | Used only for login               |
 
 ### Auditing Dependencies
 

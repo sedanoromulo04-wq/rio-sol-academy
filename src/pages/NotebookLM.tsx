@@ -136,7 +136,9 @@ export default function NotebookLM() {
                 status: 'failed',
                 error: {
                   message:
-                    error instanceof Error ? error.message : 'Falha ao consultar o progresso do podcast.',
+                    error instanceof Error
+                      ? error.message
+                      : 'Falha ao consultar o progresso do podcast.',
                 },
               }
             : current,
@@ -233,9 +235,7 @@ export default function NotebookLM() {
               <div className="rounded-2xl border border-white bg-white/80 p-4 shadow-sm">
                 <div className="mb-2 flex items-center gap-2 text-[#061B3B]">
                   <Mic2 className="h-4 w-4 text-[#EAB308]" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.25em]">
-                    Podcast
-                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.25em]">Podcast</span>
                 </div>
                 <p className="text-base font-black uppercase tracking-[0.15em] text-[#061B3B]">
                   {notebookLM.userCanCreatePodcast ? 'Liberado' : 'Bloqueado'}
@@ -260,7 +260,8 @@ export default function NotebookLM() {
             <div className="space-y-3">
               <div className="rounded-2xl border border-white/10 bg-white/10 p-4 text-sm leading-relaxed text-slate-200">
                 {profile?.full_name?.split(' ')[0] || 'Equipe'}, os notebooks abaixo refletem o que
-                o admin publicou do NotebookLM real. O backend le os dados direto da sessao autenticada.
+                o admin publicou do NotebookLM real. O backend le os dados direto da sessao
+                autenticada.
               </div>
               <div className="rounded-2xl border border-[#EAB308]/20 bg-[#EAB308]/10 p-4 text-sm leading-relaxed text-[#fff3bf]">
                 {backendError
@@ -423,15 +424,22 @@ export default function NotebookLM() {
                   </p>
                   <div className="mt-3 space-y-3">
                     {detail.sources.slice(0, 5).map((source) => (
-                      <div key={source.id} className="rounded-xl border border-white/10 bg-black/10 p-3">
-                        <p className="font-semibold text-white">{source.title || 'Fonte sem titulo'}</p>
+                      <div
+                        key={source.id}
+                        className="rounded-xl border border-white/10 bg-black/10 p-3"
+                      >
+                        <p className="font-semibold text-white">
+                          {source.title || 'Fonte sem titulo'}
+                        </p>
                         <p className="text-xs uppercase tracking-[0.16em] text-slate-400">
                           {source.kind} • {source.isReady ? 'ready' : `status ${source.status}`}
                         </p>
                       </div>
                     ))}
                     {detail.sources.length === 0 && (
-                      <p className="text-sm text-slate-400">Esse notebook nao retornou fontes listadas.</p>
+                      <p className="text-sm text-slate-400">
+                        Esse notebook nao retornou fontes listadas.
+                      </p>
                     )}
                   </div>
                 </div>
@@ -503,13 +511,16 @@ export default function NotebookLM() {
 
               {chatTurns.length === 0 && (
                 <div className="rounded-[1.4rem] border border-dashed border-slate-300 bg-slate-50 p-6 text-sm leading-relaxed text-slate-500">
-                  Quando voce fizer a primeira pergunta, a resposta real do NotebookLM aparecera aqui
-                  com as referencias citadas.
+                  Quando voce fizer a primeira pergunta, a resposta real do NotebookLM aparecera
+                  aqui com as referencias citadas.
                 </div>
               )}
 
               {chatTurns.map((turn) => (
-                <div key={turn.id} className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm">
+                <div
+                  key={turn.id}
+                  className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm"
+                >
                   <div className="rounded-2xl border border-[#061B3B]/10 bg-[#061B3B]/5 p-4">
                     <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#061B3B]">
                       Pergunta #{turn.turnNumber}
@@ -537,7 +548,8 @@ export default function NotebookLM() {
                           className="rounded-2xl border border-slate-200 bg-slate-50 p-3"
                         >
                           <p className="text-sm font-semibold text-[#061B3B]">
-                            {reference.sourceTitle || `Fonte ${reference.citationNumber || index + 1}`}
+                            {reference.sourceTitle ||
+                              `Fonte ${reference.citationNumber || index + 1}`}
                           </p>
                           {reference.citedText && (
                             <p className="mt-1 text-sm leading-relaxed text-slate-600">
@@ -558,9 +570,12 @@ export default function NotebookLM() {
               <Badge className="w-fit border border-[#061B3B]/10 bg-[#061B3B]/5 px-3 py-1 text-[10px] font-black uppercase tracking-[0.26em] text-[#061B3B]">
                 Podcast Studio
               </Badge>
-              <h2 className="text-2xl font-black tracking-tight text-[#061B3B]">Gerar podcast real</h2>
+              <h2 className="text-2xl font-black tracking-tight text-[#061B3B]">
+                Gerar podcast real
+              </h2>
               <p className="text-sm leading-relaxed text-slate-500">
-                O pedido abaixo cria um job local, acompanha o progresso e dispara um Audio Overview real no NotebookLM.
+                O pedido abaixo cria um job local, acompanha o progresso e dispara um Audio Overview
+                real no NotebookLM.
               </p>
             </div>
 
@@ -579,7 +594,12 @@ export default function NotebookLM() {
                   className="min-h-[150px] rounded-[1.5rem] border-slate-200"
                 />
                 <Button
-                  disabled={!selectedSilo?.notebookId || !podcastTitle.trim() || !podcastBrief.trim() || podcastLoading}
+                  disabled={
+                    !selectedSilo?.notebookId ||
+                    !podcastTitle.trim() ||
+                    !podcastBrief.trim() ||
+                    podcastLoading
+                  }
                   onClick={async () => {
                     if (!selectedSilo?.notebookId) return
                     setPodcastLoading(true)
@@ -631,7 +651,8 @@ export default function NotebookLM() {
                     )}
                     {podcastJob.result && (
                       <p className="mt-2">
-                        Task final `{podcastJob.result.taskId}` com status `{podcastJob.result.status}`.
+                        Task final `{podcastJob.result.taskId}` com status `
+                        {podcastJob.result.status}`.
                       </p>
                     )}
                     {podcastJob.result?.artifact?.url && (

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.3] - 2026-03-03
 
 ### Added
+
 - **`ask --save-as-note`** - Save chat answers as notebook notes directly from the CLI (#135)
   - `notebooklm ask "question" --save-as-note` - Save response as a note
   - `notebooklm ask "question" --save-as-note --note-title "Title"` - Save with custom title
@@ -26,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `notebooklm download slide-deck --format pptx` (web UI only offers PDF)
 
 ### Fixed
+
 - **Partial artifact ID in download commands** - Download commands now support partial artifact IDs (#130)
 - **Chat empty answer** - Fixed `ask` returning empty answer when API response marker changes (#123)
 - **X.com/Twitter content parsing** - Fixed parsing of X.com/Twitter source content (#119)
@@ -37,27 +39,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`generate report --language`** - Fixed missing `--language` option for report generation (#109)
 
 ### Changed
+
 - **Chat history API** - Simplified history retrieval; removed `exchange_id`, improved conversation grouping with parallel fetching (#140, #141)
 - **Conversation ID tracking** - Server-side conversation lookup via new `hPTbtc` RPC (`GET_LAST_CONVERSATION_ID`) replaces local exchange ID tracking
 - **History Q&A population** - Now uses `khqZz` RPC (`GET_CONVERSATION_TURNS`) to fetch full Q&A turns with accurate previews (#136)
 
 ### Infrastructure
+
 - Bumped `actions/upload-artifact` from v6 to v7 (#131)
 
 ## [0.3.2] - 2026-01-26
 
 ### Fixed
+
 - **CLI conversation reset** - Fixed conversation ID not resetting when switching notebooks (#97)
 - **UTF-8 file encoding** - Added explicit UTF-8 encoding to all file I/O operations (#93)
 - **Windows Playwright login** - Restored ProactorEventLoop for Playwright login on Windows (#91)
 
 ### Infrastructure
+
 - Fixed E2E test teardown hook for pytest 8.x compatibility (#101)
 - Added 15-second delay between E2E generation tests to avoid rate limits (#95)
 
 ## [0.3.1] - 2026-01-23
 
 ### Fixed
+
 - **Windows CLI hanging** - Fixed asyncio ProactorEventLoop incompatibility causing CLI to hang on Windows (#79)
 - **Unicode encoding errors** - Fixed encoding issues on non-English Windows systems (#80)
 - **Streaming downloads** - Downloads now use streaming with temp files to prevent corrupted partial downloads (#82)
@@ -68,12 +75,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Script cleanup** - Ensure temp notebook cleanup on failure or interrupt
 
 ### Infrastructure
+
 - Added develop branch to nightly E2E tests with staggered schedule
 - Added custom branch support to nightly E2E workflow for release testing
 
 ## [0.3.0] - 2026-01-21
 
 ### Added
+
 - **Language settings** - Configure output language for artifact generation (audio, video, etc.)
   - New `notebooklm language list` - List all 80+ supported languages with native names
   - New `notebooklm language get` - Show current language setting
@@ -118,18 +127,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Partial UUID matching for note commands** - `note get`, `note delete`, etc. now support partial IDs
 
 ### Fixed
+
 - **Silent failures in CLI** - Commands now properly report errors instead of failing silently
 - **Source type emoji display** - Improved consistency in `source list` output
 
 ### Changed
+
 - **Source type detection** - Use API-provided type codes as source of truth instead of URL/extension heuristics
 - **CLI file handling** - Simplified to always use `add_file()` for proper type detection
 
 ### Removed
+
 - **`detect_source_type()`** - Obsolete heuristic function replaced by `Source.kind` property
 - **`ARTIFACT_TYPE_DISPLAY`** - Unused constant replaced by `get_artifact_type_display()`
 
 ### Deprecated
+
 The following emit `DeprecationWarning` when accessed and will be removed in **v0.4.0**.
 See [Migration Guide](docs/stability.md#migrating-from-v02x-to-v030) for upgrade instructions.
 
@@ -142,6 +155,7 @@ See [Migration Guide](docs/stability.md#migrating-from-v02x-to-v030) for upgrade
 ## [0.2.1] - 2026-01-15
 
 ### Added
+
 - **Authentication diagnostics** - New `notebooklm auth check` command for troubleshooting auth issues
   - Shows storage file location and validity
   - Lists cookies present and their domains
@@ -157,10 +171,12 @@ See [Migration Guide](docs/stability.md#migrating-from-v02x-to-v030) for upgrade
   - Auto-creates GitHub issues with `rpc-breakage` label on detection
 
 ### Fixed
+
 - **Cookie domain priority** - Prioritize `.google.com` cookies over regional domains (e.g., `.google.co.uk`) for more reliable authentication
 - **YouTube URL parsing** - Improved handling of edge cases in YouTube video URLs
 
 ### Documentation
+
 - Added `auth check` to CLI reference and troubleshooting guide
 - Consolidated CI/CD troubleshooting in development guide
 - Added installation instructions to SKILL.md for Claude Code
@@ -169,6 +185,7 @@ See [Migration Guide](docs/stability.md#migrating-from-v02x-to-v030) for upgrade
 ## [0.2.0] - 2026-01-14
 
 ### Added
+
 - **Source fulltext extraction** - Retrieve the complete indexed text content of any source
   - New `client.sources.get_fulltext(notebook_id, source_id)` Python API
   - New `source fulltext <source_id>` CLI command with `--json` and `-o` output options
@@ -189,26 +206,31 @@ See [Migration Guide](docs/stability.md#migrating-from-v02x-to-v030) for upgrade
   - All download commands support `--all`, `--latest`, `--name`, and `--artifact` selection options
 
 ### Fixed
+
 - **Regional Google domain authentication** - SID cookie extraction now works with regional Google domains (e.g., google.co.uk, google.de, google.cn) in addition to google.com
 - **Artifact completion detection** - Media URL availability is now verified before reporting artifact as complete, preventing premature "ready" status
 - **URL hostname validation** - Use proper URL parsing instead of string operations for security
 
 ### Changed
+
 - **Pre-commit checks** - Added mypy type checking to required pre-commit workflow
 
 ## [0.1.4] - 2026-01-11
 
 ### Added
+
 - **Source selection for chat and artifacts** - Select specific sources when using `ask` or `generate` commands
   - New `--sources` flag accepts comma-separated source IDs or partial matches
   - Works with all generation commands (audio, video, quiz, etc.) and chat
 - **Research sources table** - `research status` now displays sources in a formatted table instead of just a count
 
 ### Fixed
+
 - **JSON output broken in TTY terminals** - `--json` flag output was including ANSI color codes, breaking JSON parsing for commands like `notebooklm list --json`
 - **Warning stacklevel** - `warnings.warn` calls now report correct source location
 
 ### Infrastructure
+
 - **Windows CI testing** - Windows is now part of the nightly E2E test matrix
 - **VCR.py integration** - Added recorded HTTP cassette support for faster, deterministic integration tests
 - **Test coverage improvements** - Improved coverage for `_artifacts.py` (71% → 83%), `download.py`, and `session.py`
@@ -216,6 +238,7 @@ See [Migration Guide](docs/stability.md#migrating-from-v02x-to-v030) for upgrade
 ## [0.1.3] - 2026-01-10
 
 ### Fixed
+
 - **PyPI README links** - Documentation links now work correctly on PyPI
   - Added `hatch-fancy-pypi-readme` plugin for build-time link transformation
   - Relative links (e.g., `docs/troubleshooting.md`) are converted to version-tagged GitHub URLs
@@ -225,21 +248,25 @@ See [Migration Guide](docs/stability.md#migrating-from-v02x-to-v030) for upgrade
 ## [0.1.2] - 2026-01-10
 
 ### Added
+
 - **Ruff linter/formatter** - Added to development workflow with pre-commit hooks and CI integration
 - **Multi-version testing** - Docker-based test runner script for Python 3.10-3.14 (`/matrix` skill)
 - **Artifact verification workflow** - New CI workflow runs 2 hours after nightly tests to verify generated artifacts
 
 ### Changed
+
 - **Python version support** - Now supports Python 3.10-3.14 (dropped 3.9)
 - **CI authentication** - Use `NOTEBOOKLM_AUTH_JSON` environment variable (inline JSON, no file writes)
 
 ### Fixed
+
 - **E2E test cleanup** - Generation notebook fixture now only cleans artifacts once per session (was deleting artifacts between tests)
 - **Nightly CI** - Fixed pytest marker from `-m e2e` to `-m "not variants"` (e2e marker didn't exist)
 - macOS CI fix for Playwright version extraction (grep pattern anchoring)
 - Python 3.10 test compatibility with mock.patch resolution
 
 ### Documentation
+
 - Claude Code skill: parallel agent safety guidance
 - Claude Code skill: timeout recommendations for all artifact types
 - Claude Code skill: clarified `-n` vs `--notebook` flag availability
@@ -247,17 +274,20 @@ See [Migration Guide](docs/stability.md#migrating-from-v02x-to-v030) for upgrade
 ## [0.1.1] - 2026-01-08
 
 ### Added
+
 - `NOTEBOOKLM_HOME` environment variable for custom storage location
 - `NOTEBOOKLM_AUTH_JSON` environment variable for inline authentication (CI/CD friendly)
 - Claude Code skill installation via `notebooklm skill install`
 
 ### Fixed
+
 - Infographic generation parameter structure
 - Mind map artifacts now persist as notes after generation
 - Artifact export with proper ExportType enum handling
 - Skill install path resolution for package data
 
 ### Documentation
+
 - PyPI release checklist
 - Streamlined README
 - E2E test fixture documentation
@@ -265,6 +295,7 @@ See [Migration Guide](docs/stability.md#migrating-from-v02x-to-v030) for upgrade
 ## [0.1.0] - 2026-01-06
 
 ### Added
+
 - Initial release of `notebooklm-py` - unofficial Python client for Google NotebookLM
 - Full notebook CRUD operations (create, list, rename, delete)
 - **Research polling CLI commands** for LLM agent workflows:
@@ -298,6 +329,7 @@ See [Migration Guide](docs/stability.md#migrating-from-v02x-to-v030) for upgrade
 - E2E tests for all major features
 
 ### Fixed
+
 - Audio overview instructions parameter now properly supported at RPC position [6][1][0]
 - Quiz and flashcard distinction via title-based filtering
 - Package renamed from `notebooklm-automation` to `notebooklm`

@@ -8,6 +8,7 @@ Checklist for releasing a new version of `notebooklm-py`.
 > **For Claude Code:** Follow this checklist step by step. **NO STEPS ARE OPTIONAL.** "Quick release" means efficient execution, NOT skipping steps.
 >
 > **Critical rules:**
+>
 > 1. **Always use a worktree** - never work directly on main for releases
 > 2. **Use PRs, not direct pushes** - all release changes go through a PR
 > 3. **Explicit confirmation required** for: creating PR, publishing to TestPyPI, creating tags, pushing tags
@@ -76,16 +77,16 @@ Proceed with release preparation?
 
 **Related docs to check/update if relevant:**
 
-| Doc | Update when... |
-|-----|----------------|
-| [README.md](../README.md) | New features, changed capabilities, Beyond the Web UI section |
-| [SKILL.md](../src/notebooklm/data/SKILL.md) | New CLI commands, changed flags, new workflows |
-| [cli-reference.md](cli-reference.md) | Any CLI changes |
-| [python-api.md](python-api.md) | New/changed Python API |
-| [troubleshooting.md](troubleshooting.md) | New known issues, fixed issues to remove |
-| [development.md](development.md) | Architecture changes, new test patterns |
-| [configuration.md](configuration.md) | New env vars, config options |
-| [stability.md](stability.md) | Public API changes, deprecations |
+| Doc                                         | Update when...                                                |
+| ------------------------------------------- | ------------------------------------------------------------- |
+| [README.md](../README.md)                   | New features, changed capabilities, Beyond the Web UI section |
+| [SKILL.md](../src/notebooklm/data/SKILL.md) | New CLI commands, changed flags, new workflows                |
+| [cli-reference.md](cli-reference.md)        | Any CLI changes                                               |
+| [python-api.md](python-api.md)              | New/changed Python API                                        |
+| [troubleshooting.md](troubleshooting.md)    | New known issues, fixed issues to remove                      |
+| [development.md](development.md)            | Architecture changes, new test patterns                       |
+| [configuration.md](configuration.md)        | New env vars, config options                                  |
+| [stability.md](stability.md)                | Public API changes, deprecations                              |
 
 ### Version Bump
 
@@ -121,11 +122,13 @@ Proceed with release preparation?
   - **Security** - Security fixes
 - [ ] Add entries under `## [Unreleased]` in `CHANGELOG.md`
 - [ ] Move `[Unreleased]` content to new version section:
+
   ```markdown
   ## [Unreleased]
 
   ## [X.Y.Z] - YYYY-MM-DD
   ```
+
 - [ ] Update comparison links at bottom of `CHANGELOG.md`:
   ```markdown
   [Unreleased]: https://github.com/teng-lin/notebooklm-py/compare/vX.Y.Z...HEAD
@@ -164,12 +167,14 @@ Proceed with release preparation?
 
 - [ ] **⏸️ CONFIRM:** Ask user "Ready to create PR for release vX.Y.Z?"
 - [ ] Push branch and create PR:
+
   ```bash
   git push -u origin release/X.Y.Z
   gh pr create --title "chore: release vX.Y.Z" --body "Release vX.Y.Z
 
   See CHANGELOG.md for details."
   ```
+
 - [ ] Wait for **test.yml** to pass:
   - Linting and formatting
   - Type checking
@@ -290,6 +295,7 @@ Proceed with release preparation?
 ### CI fails on PR
 
 Fix issues in the release worktree and push again:
+
 ```bash
 # In release worktree
 git add -A
@@ -335,12 +341,12 @@ git push origin :refs/tags/vX.Y.Z
 
 **IMPORTANT:** Read [stability.md](stability.md) before deciding version bump.
 
-| Change Type | Bump | Example |
-|-------------|------|---------|
-| RPC method ID fixes | PATCH | 0.1.0 → 0.1.1 |
-| Bug fixes | PATCH | 0.1.1 → 0.1.2 |
-| Internal improvements (logging, auth UX, CI) | PATCH | 0.1.2 → 0.1.3 |
+| Change Type                                            | Bump  | Example       |
+| ------------------------------------------------------ | ----- | ------------- |
+| RPC method ID fixes                                    | PATCH | 0.1.0 → 0.1.1 |
+| Bug fixes                                              | PATCH | 0.1.1 → 0.1.2 |
+| Internal improvements (logging, auth UX, CI)           | PATCH | 0.1.2 → 0.1.3 |
 | **New public API** (new classes, methods in `__all__`) | MINOR | 0.1.3 → 0.2.0 |
-| Breaking changes to public API | MAJOR | 0.2.0 → 1.0.0 |
+| Breaking changes to public API                         | MAJOR | 0.2.0 → 1.0.0 |
 
 **Key distinction:** "New features" means new **public API surface** (additions to `__all__` in `__init__.py`). Internal improvements, better error messages, logging enhancements, and UX improvements are PATCH releases.

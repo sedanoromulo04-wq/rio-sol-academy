@@ -13,13 +13,13 @@ NotebookLM uses Google's `batchexecute` RPC protocol.
 
 ### Key Concepts
 
-| Term | Description |
-|------|-------------|
-| **batchexecute** | Google's internal RPC endpoint |
-| **RPC ID** | 6-character identifier (e.g., `wXbhsf`, `s0tc2d`) |
-| **f.req** | URL-encoded JSON payload |
-| **at** | CSRF token (SNlM0e value) |
-| **Anti-XSSI** | `)]}'` prefix on responses |
+| Term             | Description                                       |
+| ---------------- | ------------------------------------------------- |
+| **batchexecute** | Google's internal RPC endpoint                    |
+| **RPC ID**       | 6-character identifier (e.g., `wXbhsf`, `s0tc2d`) |
+| **f.req**        | URL-encoded JSON payload                          |
+| **at**           | CSRF token (SNlM0e value)                         |
+| **Anti-XSSI**    | `)]}'` prefix on responses                        |
 
 ### Protocol Flow
 
@@ -55,6 +55,7 @@ Best for quick investigation and bug reports.
 7. Click the request to inspect
 
 **From the request:**
+
 - **Headers tab → URL `rpcids`**: The RPC method ID
 - **Payload tab → `f.req`**: URL-encoded payload
 - **Response tab**: Starts with `)]}'` prefix
@@ -62,15 +63,17 @@ Best for quick investigation and bug reports.
 ### Decoding the Payload
 
 **Browser console:**
+
 ```javascript
-const encoded = "...";  // Paste f.req value
-const decoded = decodeURIComponent(encoded);
-const outer = JSON.parse(decoded);
-console.log("RPC ID:", outer[0][0][0]);
-console.log("Params:", JSON.parse(outer[0][0][1]));
+const encoded = '...' // Paste f.req value
+const decoded = decodeURIComponent(encoded)
+const outer = JSON.parse(decoded)
+console.log('RPC ID:', outer[0][0][0])
+console.log('Params:', JSON.parse(outer[0][0][1]))
 ```
 
 **Python:**
+
 ```python
 import json
 from urllib.parse import unquote
@@ -129,6 +132,7 @@ NOTEBOOKLM_DEBUG_RPC=1 notebooklm <command>
 ```
 
 Output:
+
 ```
 DEBUG: Looking for RPC ID: Ljjv0c
 DEBUG: Found RPC IDs in response: ['Ljjv0c']
@@ -153,11 +157,13 @@ await client.refresh_auth()
 #### RPC Method Returns None
 
 **Causes:**
+
 - Rate limiting (Google returns empty result)
 - Wrong RPC method ID
 - Incorrect parameter structure
 
 **Debug:**
+
 ```python
 from notebooklm.rpc import decode_response
 
@@ -241,6 +247,7 @@ def parse_response(text: str, rpc_id: str):
 Use Chrome DevTools or Playwright (see above).
 
 **What to capture:**
+
 - RPC ID from URL `rpcids` parameter
 - Decoded `f.req` payload
 - Response structure
@@ -260,6 +267,7 @@ params = [
 ```
 
 Key patterns:
+
 - **Nested source IDs:** Count brackets carefully
 - **Fixed flags:** Arrays like `[2]`, `[1]` that don't change
 - **Optional positions:** Often `None`
@@ -267,12 +275,14 @@ Key patterns:
 ### Step 3: Implement
 
 **Add RPC method ID** (`src/notebooklm/rpc/types.py`):
+
 ```python
 class RPCMethod(str, Enum):
     NEW_METHOD = "AbCdEf"  # 6-char ID from capture
 ```
 
 **Add client method** (appropriate `_*.py` file):
+
 ```python
 async def new_method(self, notebook_id: str, param: str) -> SomeResult:
     """Short description.
@@ -302,6 +312,7 @@ async def new_method(self, notebook_id: str, param: str) -> SomeResult:
 ```
 
 **Add dataclass if needed** (`src/notebooklm/types.py`):
+
 ```python
 @dataclass
 class SomeResult:
@@ -316,6 +327,7 @@ class SomeResult:
 ### Step 4: Test
 
 **Unit test** (`tests/unit/`):
+
 ```python
 def test_encode_new_method():
     params = ["value", "notebook_id", [2]]
@@ -324,6 +336,7 @@ def test_encode_new_method():
 ```
 
 **Integration test** (`tests/integration/`):
+
 ```python
 @pytest.mark.asyncio
 async def test_new_method(mock_client):
@@ -335,6 +348,7 @@ async def test_new_method(mock_client):
 ```
 
 **E2E test** (`tests/e2e/`):
+
 ```python
 @pytest.mark.e2e
 @pytest.mark.asyncio
@@ -347,12 +361,13 @@ async def test_new_method_e2e(client, read_only_notebook_id):
 
 Update `docs/rpc-reference.md`:
 
-```markdown
+````markdown
 ### NEW_METHOD (`AbCdEf`)
 
 **Purpose:** Short description
 
 **Params:**
+
 ```python
 params = [
     some_value,      # 0: Description
@@ -360,11 +375,13 @@ params = [
     [2],             # 2: Fixed flag
 ]
 ```
+````
 
 **Response:** Description of response structure
 
 **Source:** `_some_api.py:123`
-```
+
+````
 
 ---
 
@@ -384,7 +401,7 @@ params = [value, notebook_id, settings]
 
 # RIGHT - explicit None for unused positions
 params = [value, notebook_id, None, settings]
-```
+````
 
 ### Forgetting source_path
 

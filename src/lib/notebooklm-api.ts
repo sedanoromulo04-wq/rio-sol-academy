@@ -112,7 +112,9 @@ export const notebooklmApi = {
     return data.notebooks
   },
   getNotebook: (notebookId: string) =>
-    request<NotebookLMNotebookDetail>(`/api/notebooklm/notebooks/${encodeURIComponent(notebookId)}`),
+    request<NotebookLMNotebookDetail>(
+      `/api/notebooklm/notebooks/${encodeURIComponent(notebookId)}`,
+    ),
   createPodcastJob: (payload: {
     notebookId: string
     title: string

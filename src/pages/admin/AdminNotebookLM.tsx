@@ -4,7 +4,11 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { useToast } from '@/hooks/use-toast'
-import { notebooklmApi, type NotebookLMLiveNotebook, type NotebookLMStatus } from '@/lib/notebooklm-api'
+import {
+  notebooklmApi,
+  type NotebookLMLiveNotebook,
+  type NotebookLMStatus,
+} from '@/lib/notebooklm-api'
 import useSystemStore from '@/stores/useSystemStore'
 import {
   AlertTriangle,
@@ -193,7 +197,8 @@ export default function AdminNotebookLM() {
                 </h2>
                 {backendError ? (
                   <p className="text-sm leading-relaxed text-red-200">
-                    {backendError} Execute o backend e, se preciso, renove o login com `notebooklm login`.
+                    {backendError} Execute o backend e, se preciso, renove o login com `notebooklm
+                    login`.
                   </p>
                 ) : (
                   <div className="space-y-2">
@@ -252,7 +257,9 @@ export default function AdminNotebookLM() {
               <Badge className="w-fit border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-[0.28em] text-slate-200">
                 Backend
               </Badge>
-              <h2 className="text-2xl font-black tracking-tight">Notebooks disponiveis no NotebookLM</h2>
+              <h2 className="text-2xl font-black tracking-tight">
+                Notebooks disponiveis no NotebookLM
+              </h2>
               <p className="text-sm leading-relaxed text-slate-400">
                 Esta lista vem do backend real. Publique daqui para exibir no app.
               </p>
@@ -343,7 +350,8 @@ export default function AdminNotebookLM() {
                               await deleteNotebookLMSiloByNotebookId(notebook.id)
                               toast({
                                 title: 'Notebook removido do app',
-                                description: 'Ele continua no NotebookLM, mas saiu da experiencia do usuario.',
+                                description:
+                                  'Ele continua no NotebookLM, mas saiu da experiencia do usuario.',
                               })
                             }}
                             className="rounded-2xl border-red-400/20 bg-red-500/10 text-red-200 hover:bg-red-500/20 hover:text-red-100"
@@ -389,7 +397,8 @@ export default function AdminNotebookLM() {
             </Badge>
             <h2 className="text-2xl font-black tracking-tight">Silos expostos no produto</h2>
             <p className="text-sm leading-relaxed text-slate-400">
-              Aqui ficam os silos efetivamente publicados no app, incluindo legados sem `notebookId`.
+              Aqui ficam os silos efetivamente publicados no app, incluindo legados sem
+              `notebookId`.
             </p>
           </div>
 
@@ -432,7 +441,11 @@ export default function AdminNotebookLM() {
                     }}
                     className="text-red-300 hover:text-red-100 hover:bg-red-500/10"
                   >
-                    {silo.isVisible ? <Eye className="mr-2 h-4 w-4" /> : <EyeOff className="mr-2 h-4 w-4" />}
+                    {silo.isVisible ? (
+                      <Eye className="mr-2 h-4 w-4" />
+                    ) : (
+                      <EyeOff className="mr-2 h-4 w-4" />
+                    )}
                     Excluir
                   </Button>
                 </div>
