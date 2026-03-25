@@ -22,6 +22,7 @@ import Performance from './pages/Performance'
 import NotebookLM from './pages/NotebookLM'
 import NotFound from './pages/NotFound'
 import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminAgents from './pages/admin/AdminAgents'
 import AdminNotebookLM from './pages/admin/AdminNotebookLM'
 import AdminTracks from './pages/admin/AdminTracks'
 import AdminTrackEdit from './pages/admin/AdminTrackEdit'
@@ -114,6 +115,7 @@ const AppRoutes = () => {
         }
       >
         <Route index element={<AdminDashboard />} />
+        <Route path="agents" element={<AdminAgents />} />
         <Route path="notebooklm" element={<AdminNotebookLM />} />
         <Route path="tracks" element={<AdminTracks />} />
         <Route path="tracks/new" element={<AdminTrackEdit />} />

@@ -7,6 +7,16 @@ export type NotebookLMStatus = {
   authenticated: boolean
   storagePath: string
   notebookCount: number
+  error?: {
+    message: string
+    requiresLogin?: boolean
+  } | null
+  gemini?: {
+    hasApiKey: boolean
+    embeddingModel: string
+    embeddingDimension: number
+    agentModel: string
+  }
 }
 
 export type NotebookLMLiveNotebook = {
@@ -24,6 +34,8 @@ export type NotebookLMLiveSource = {
   kind: string
   status: number
   isReady: boolean
+  createdAt?: string | null
+  youtubeVideoId?: string | null
 }
 
 export type NotebookLMNotebookDetail = {
@@ -54,13 +66,20 @@ export type NotebookLMPodcastResponse = {
   } | null
 }
 
+export type NotebookLMSessionActionResult = {
+  launched?: boolean
+  pid?: number | null
+  action?: string
+  instructions?: string
+}
+
 export type NotebookLMPodcastJob = {
   id: string
   kind: string
   status: 'queued' | 'in_progress' | 'completed' | 'failed'
   createdAt: string
   updatedAt: string
-  result: NotebookLMPodcastResponse | null
+  result: NotebookLMPodcastResponse | NotebookLMSessionActionResult | null
   error: { message: string } | null
 }
 
@@ -72,6 +91,10 @@ export type NotebookLMChatReference = {
   startChar: number | null
   endChar: number | null
   chunkId: string | null
+  url?: string | null
+  kind?: string | null
+  notebookTitle?: string | null
+  score?: number | null
 }
 
 export type NotebookLMAskResponse = {
@@ -80,6 +103,8 @@ export type NotebookLMAskResponse = {
   turnNumber: number
   isFollowUp: boolean
   references: NotebookLMChatReference[]
+  engine?: string
+  fallbackReason?: string
 }
 
 type ApiEnvelope<T> =
@@ -111,6 +136,16 @@ export const notebooklmApi = {
     const data = await request<{ notebooks: NotebookLMLiveNotebook[] }>('/api/notebooklm/notebooks')
     return data.notebooks
   },
+  refreshSession: () =>
+    request<NotebookLMStatus>('/api/notebooklm/session/refresh', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }),
+  launchLoginSession: () =>
+    request<NotebookLMPodcastJob>('/api/notebooklm/session/login', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }),
   getNotebook: (notebookId: string) =>
     request<NotebookLMNotebookDetail>(
       `/api/notebooklm/notebooks/${encodeURIComponent(notebookId)}`,

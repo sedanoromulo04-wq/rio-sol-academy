@@ -28,9 +28,11 @@ import {
   LogOut,
   ArrowLeft,
   Bot,
+  BrainCircuit,
 } from 'lucide-react'
 
 const navItems = [
+  { title: 'Agentes', path: '/admin/agents', icon: BrainCircuit },
   { title: 'Visão Geral', path: '/admin', icon: LayoutDashboard },
   { title: 'NotebookLM', path: '/admin/notebooklm', icon: Bot },
   { title: 'Gestão de Conteúdo', path: '/admin/tracks', icon: BookOpen },

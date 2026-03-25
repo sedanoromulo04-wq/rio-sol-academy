@@ -1,10 +1,49 @@
 import { supabase } from '@/lib/supabase/client'
+import { userStore } from '@/stores/useUserStore'
+
+const API_BASE = (import.meta.env.VITE_NOTEBOOKLM_API_URL || 'http://127.0.0.1:3002').replace(
+  /\/$/,
+  '',
+)
 
 export type Message = {
   id?: string
   role: 'user' | 'assistant' | 'system'
   content: string
   created_at?: string
+}
+
+const postAgentRequest = async <T>(path: string, body: Record<string, unknown>) => {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(session?.access_token
+        ? {
+            Authorization: `Bearer ${session.access_token}`,
+          }
+        : {}),
+    },
+    body: JSON.stringify({
+      ...body,
+      accessToken: session?.access_token || undefined,
+    }),
+  })
+
+  const payload = (await response.json().catch(() => null)) as
+    | { ok: true; data: T }
+    | { ok: false; error: { message: string } }
+    | null
+
+  if (!response.ok || !payload?.ok) {
+    throw new Error(payload && 'error' in payload ? payload.error.message : 'Falha ao consultar o backend local.')
+  }
+
+  return payload.data
 }
 
 export const loadChatHistory = async (userId: string, sessionId: string) => {
@@ -39,32 +78,30 @@ export const saveChatMessage = async (userId: string, sessionId: string, message
 }
 
 export const sendMessageToMentor = async (messages: Message[]) => {
-  const { data, error } = await supabase.functions.invoke('zenith-mentor', {
-    body: { messages },
+  const { profile, activities } = userStore.getSnapshot()
+  const data = await postAgentRequest<{ reply: string }>('/api/agents/mentor', {
+    messages,
+    profile,
+    activities,
   })
-
-  if (error) {
-    console.error('Error invoking mentor function:', error)
-    throw error
-  }
 
   return data.reply
 }
 
 export const simulateRoleplay = async (messages: Message[], persona: any) => {
-  const { data, error } = await supabase.functions.invoke('simulator-roleplay', {
-    body: { messages, persona },
+  const data = await postAgentRequest<{ reply: string }>('/api/agents/roleplay', {
+    messages,
+    persona,
   })
-  if (error) throw error
+
   return data.reply
 }
 
 export const getMentorFeedback = async (userMessage: string, persona: any) => {
-  const prompt = `O aluno está simulando uma venda para o perfil: ${persona.name} (${persona.type}).\nA última mensagem do aluno na negociação foi: "${userMessage}".\nAtue como o Mentor Zenith e forneça um feedback pedagógico ultra rápido, direto e em um único parágrafo sobre essa abordagem. Se foi boa, valide a técnica. Se foi ruim ou ingênua, corrija de forma assertiva e dê uma sugestão de fala ("Tente dizer..."). Não responda a saudação, vá direto ao feedback.`
-
-  const { data, error } = await supabase.functions.invoke('zenith-mentor', {
-    body: { messages: [{ role: 'user', content: prompt }] },
+  const data = await postAgentRequest<{ reply: string }>('/api/agents/mentor-feedback', {
+    userMessage,
+    persona,
   })
-  if (error) throw error
+
   return data.reply
 }
