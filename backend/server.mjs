@@ -512,22 +512,26 @@ const createAgentReply = async ({
   let matches = []
   let searchEnabled = false
 
-  try {
-    if (`${question || ''}`.trim()) {
-      const queryEmbedding = await embedSingleText(question, { taskType: 'RETRIEVAL_QUERY' })
-      if (queryEmbedding.length) {
-        searchEnabled = true
-        matches = await searchAgentMemories({
-          accessToken,
-          queryEmbedding,
-          agentKind,
-          matchCount: 6,
-        })
+  const hasValidAccessToken = accessToken && accessToken.length > 10
+
+  if (hasValidAccessToken) {
+    try {
+      if (`${question || ''}`.trim()) {
+        const queryEmbedding = await embedSingleText(question, { taskType: 'RETRIEVAL_QUERY' })
+        if (queryEmbedding.length) {
+          searchEnabled = true
+          matches = await searchAgentMemories({
+            accessToken,
+            queryEmbedding,
+            agentKind,
+            matchCount: 6,
+          })
+        }
       }
+    } catch (memorySearchError) {
+      console.warn('Supabase RAG search warning:', memorySearchError)
+      matches = []
     }
-  } catch (memorySearchError) {
-    console.warn('Supabase RAG search warning:', memorySearchError)
-    matches = []
   }
 
   const reply = await generateText({
@@ -543,34 +547,36 @@ const createAgentReply = async ({
     stored: false,
   }
 
-  try {
-    const memoryText = [`Pergunta: ${question}`, `Resposta: ${reply}`].join('\n')
-    const memoryEmbedding = await embedSingleText(memoryText, { taskType: 'RETRIEVAL_DOCUMENT' })
-    const memoryInsert = await storeAgentMemory({
-      accessToken,
-      agentKind,
-      title: question.slice(0, 120),
-      content: memoryText,
-      metadata: {
-        historyLength: Array.isArray(messages) ? messages.length : 0,
-      },
-      embedding: memoryEmbedding,
-      visibility: 'private',
-      sourceType: 'conversation',
-    })
+  if (hasValidAccessToken) {
+    try {
+      const memoryText = [`Pergunta: ${question}`, `Resposta: ${reply}`].join('\n')
+      const memoryEmbedding = await embedSingleText(memoryText, { taskType: 'RETRIEVAL_DOCUMENT' })
+      const memoryInsert = await storeAgentMemory({
+        accessToken,
+        agentKind,
+        title: question.slice(0, 120),
+        content: memoryText,
+        metadata: {
+          historyLength: Array.isArray(messages) ? messages.length : 0,
+        },
+        embedding: memoryEmbedding,
+        visibility: 'private',
+        sourceType: 'conversation',
+      })
 
-    memory = {
-      ...memory,
-      stored: Boolean(memoryInsert.stored),
-      reason: memoryInsert.reason || null,
-      recordId: memoryInsert.memory?.id || null,
-    }
-  } catch (memoryStoreError) {
-    console.warn('Supabase RAG store warning:', memoryStoreError)
-    memory = {
-      ...memory,
-      stored: false,
-      reason: memoryStoreError instanceof Error ? memoryStoreError.message : 'Failed to store memory.',
+      memory = {
+        ...memory,
+        stored: Boolean(memoryInsert.stored),
+        reason: memoryInsert.reason || null,
+        recordId: memoryInsert.memory?.id || null,
+      }
+    } catch (memoryStoreError) {
+      console.warn('Supabase RAG store warning:', memoryStoreError)
+      memory = {
+        ...memory,
+        stored: false,
+        reason: memoryStoreError instanceof Error ? memoryStoreError.message : 'Failed to store memory.',
+      }
     }
   }
 
@@ -578,7 +584,7 @@ const createAgentReply = async ({
     reply,
     references: buildAgentMemoryReferences(matches),
     memory,
-    engine: 'gemini_rag',
+    engine: 'gemini',
   }
 }
 
