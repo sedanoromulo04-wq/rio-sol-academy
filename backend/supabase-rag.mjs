@@ -149,6 +149,52 @@ export async function saveAgentPromptConfig(accessToken, config) {
   return nextConfig
 }
 
+export async function listAgentInteractions({
+  accessToken,
+  limit = 60,
+  search = '',
+  agentKind = '',
+}) {
+  const { supabase } = await assertAdminAccess(accessToken)
+
+  let query = supabase
+    .from('agent_memories')
+    .select('id, user_id, agent_kind, title, content, metadata, created_at, document_id')
+    .eq('source_type', 'conversation')
+    .order('created_at', { ascending: false })
+    .limit(Math.min(Math.max(limit, 1), 200))
+
+  if (agentKind) query = query.eq('agent_kind', agentKind)
+  if (search.trim()) query = query.or(`title.ilike.%${search.trim()}%,content.ilike.%${search.trim()}%`)
+
+  const { data, error } = await query
+  if (error) {
+    throw new Error(`Falha ao listar interacoes: ${error.message}`)
+  }
+
+  const rows = data || []
+  const userIds = [...new Set(rows.map((row) => row.user_id).filter(Boolean))]
+
+  let profilesById = {}
+  if (userIds.length > 0) {
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, full_name, email')
+      .in('id', userIds)
+
+    if (profilesError) {
+      throw new Error(`Falha ao carregar usuarios das interacoes: ${profilesError.message}`)
+    }
+
+    profilesById = Object.fromEntries((profiles || []).map((profile) => [profile.id, profile]))
+  }
+
+  return rows.map((row) => ({
+    ...row,
+    profile: profilesById[row.user_id] || null,
+  }))
+}
+
 export async function searchAgentMemories({
   accessToken,
   queryEmbedding,

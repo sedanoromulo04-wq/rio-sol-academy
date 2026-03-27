@@ -1,9 +1,9 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 import {
   applyPromptOverridesToInstruction,
-  buildRoleplaySystemPrompt,
-  createAgentReply,
+  buildMentorFeedbackSystemPrompt,
   createAuthedClient,
+  createStructuredMentorFeedback,
   json,
   jsonError,
   latestUserMessage,
@@ -21,34 +21,29 @@ Deno.serve(async (req: Request) => {
     const supabase = createAuthedClient(req)
     const user = await requireAuthenticatedUser(supabase)
     const payload = await req.json()
-    const messages = Array.isArray(payload.messages) ? payload.messages : []
+    const messages =
+      Array.isArray(payload.messages) && payload.messages.length > 0
+        ? payload.messages
+        : [{ role: 'user', content: payload.userMessage || '' }]
     const persona = payload.persona || {}
     const promptConfig = await loadPromptConfig(supabase)
 
-    const result = await createAgentReply({
+    const result = await createStructuredMentorFeedback({
       supabase,
       userId: user.id,
       messages,
       question: latestUserMessage(messages),
-      agentKind: 'roleplay',
+      persona,
       systemInstruction: applyPromptOverridesToInstruction(
-        buildRoleplaySystemPrompt(persona),
+        buildMentorFeedbackSystemPrompt(persona),
         promptConfig,
-        'roleplay',
+        'mentorFeedback',
       ),
-      extraInstructions:
-        'Responda apenas como o cliente da simulacao em 1 ou 2 frases curtas. Nao explique seu raciocinio, nao quebre o personagem e nunca pare no meio da sentenca.',
-      temperature: 0.45,
-      maxOutputTokens: 450,
-      thinkingBudget: 0,
     })
 
-    return json({
-      ...result,
-      reply: `${result.reply || ''}`.replace(/^.*:\s*/i, '').trim(),
-    })
+    return json(result)
   } catch (error) {
-    console.error('Simulator Roleplay Edge Function Error:', error)
-    return jsonError(error instanceof Error ? error.message : 'Erro ao consultar o cliente roleplay.', 400)
+    console.error('Mentor Feedback Edge Function Error:', error)
+    return jsonError(error instanceof Error ? error.message : 'Erro ao gerar feedback.', 400)
   }
 })

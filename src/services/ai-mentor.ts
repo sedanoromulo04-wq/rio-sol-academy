@@ -83,6 +83,8 @@ export const loadChatHistory = async (userId: string, sessionId: string) => {
     .from('chats' as any)
     .select('*')
     .eq('user_id', userId)
+    .select('*')
+    .eq('user_id', userId)
     .eq('session_id', sessionId)
     .order('created_at', { ascending: true })
 
@@ -90,7 +92,7 @@ export const loadChatHistory = async (userId: string, sessionId: string) => {
     console.error('Error loading chat history:', error)
     return []
   }
-  return (data || []) as Message[]
+  return (data || []) as ChatRow[] as Message[]
 }
 
 export const loadSimulatorSessions = async (userId: string) => {

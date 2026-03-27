@@ -88,6 +88,7 @@ export async function generateText({
   systemInstruction,
   temperature = 0.35,
   maxOutputTokens = 900,
+  thinkingBudget,
   model = defaultAgentModel(),
 }) {
   const payload = {
@@ -101,6 +102,12 @@ export async function generateText({
       temperature,
       maxOutputTokens,
     },
+  }
+
+  if (Number.isFinite(thinkingBudget)) {
+    payload.generationConfig.thinkingConfig = {
+      thinkingBudget,
+    }
   }
 
   if (systemInstruction?.trim()) {

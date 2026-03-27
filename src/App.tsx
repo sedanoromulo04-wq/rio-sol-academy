@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { Suspense, lazy, useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
@@ -6,28 +6,33 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { systemStore } from '@/stores/useSystemStore'
 import { adminStore } from '@/stores/useAdminStore'
 import { userStore } from '@/stores/useUserStore'
-import useSystemStore from '@/stores/useSystemStore'
 import useUserStore from '@/stores/useUserStore'
 import { AuthProvider, useAuth } from '@/hooks/use-auth'
 
-import Layout from './components/Layout'
-import { AdminLayout } from './components/AdminLayout'
-import Index from './pages/Index'
-import Paths from './pages/Paths'
-import Lesson from './pages/Lesson'
-import Simulator from './pages/Simulator'
-import Ranking from './pages/Ranking'
-import Profile from './pages/Profile'
-import Performance from './pages/Performance'
-import NotebookLM from './pages/NotebookLM'
-import NotFound from './pages/NotFound'
-import AdminDashboard from './pages/admin/AdminDashboard'
-import AdminAgents from './pages/admin/AdminAgents'
-import AdminNotebookLM from './pages/admin/AdminNotebookLM'
-import AdminTracks from './pages/admin/AdminTracks'
-import AdminTrackEdit from './pages/admin/AdminTrackEdit'
-import AdminUserDetail from './pages/admin/AdminUserDetail'
-import Login from './pages/Login'
+const Layout = lazy(() => import('./components/Layout'))
+const AdminLayout = lazy(() =>
+  import('./components/AdminLayout').then((module) => ({ default: module.AdminLayout })),
+)
+const Index = lazy(() => import('./pages/Index'))
+const Paths = lazy(() => import('./pages/Paths'))
+const Lesson = lazy(() => import('./pages/Lesson'))
+const Simulator = lazy(() => import('./pages/Simulator'))
+const Ranking = lazy(() => import('./pages/Ranking'))
+const Profile = lazy(() => import('./pages/Profile'))
+const Performance = lazy(() => import('./pages/Performance'))
+const NotFound = lazy(() => import('./pages/NotFound'))
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
+const AdminAgents = lazy(() => import('./pages/admin/AdminAgents'))
+const AdminTracks = lazy(() => import('./pages/admin/AdminTracks'))
+const AdminTrackEdit = lazy(() => import('./pages/admin/AdminTrackEdit'))
+const AdminUserDetail = lazy(() => import('./pages/admin/AdminUserDetail'))
+const Login = lazy(() => import('./pages/Login'))
+
+const AppLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-[#F4F6F8] text-[#061B3B]">
+    Carregando...
+  </div>
+)
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth()
@@ -58,26 +63,20 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   return children
 }
 
-const NotebookLMRoute = ({ children }: { children: React.ReactNode }) => {
-  const { notebookLM } = useSystemStore()
-  const hasPublishedExperience =
-    notebookLM.enabled &&
-    (notebookLM.userCanCreatePodcast || notebookLM.silos.some((silo) => silo.isVisible))
-
-  if (!hasPublishedExperience) return <Navigate to="/" replace />
-  return children
-}
-
 const AppRoutes = () => {
   const { user } = useAuth()
 
   useEffect(() => {
-    if (user) {
-      systemStore.init()
-      adminStore.init()
-      userStore.init(user.id)
+    if (user?.id) {
+      // Inicialização paralela para máxima performance
+      // Usamos o ID para garantir estabilidade da dependência
+      Promise.all([
+        systemStore.init(),
+        adminStore.init(),
+        userStore.init(user.id)
+      ]).catch(err => console.error('Error initializing stores', err))
     }
-  }, [user])
+  }, [user?.id])
 
   return (
     <Routes>
@@ -96,14 +95,6 @@ const AppRoutes = () => {
         <Route path="/desempenho" element={<Performance />} />
         <Route path="/ranking" element={<Ranking />} />
         <Route path="/perfil" element={<Profile />} />
-        <Route
-          path="/notebooklm"
-          element={
-            <NotebookLMRoute>
-              <NotebookLM />
-            </NotebookLMRoute>
-          }
-        />
       </Route>
 
       <Route
@@ -116,7 +107,6 @@ const AppRoutes = () => {
       >
         <Route index element={<AdminDashboard />} />
         <Route path="agents" element={<AdminAgents />} />
-        <Route path="notebooklm" element={<AdminNotebookLM />} />
         <Route path="tracks" element={<AdminTracks />} />
         <Route path="tracks/new" element={<AdminTrackEdit />} />
         <Route path="tracks/:id" element={<AdminTrackEdit />} />
@@ -134,12 +124,14 @@ const AppRoutes = () => {
 
 const App = () => {
   return (
-    <BrowserRouter future={{ v7_startTransition: false, v7_relativeSplatPath: false }}>
+    <BrowserRouter>
       <AuthProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <AppRoutes />
+          <Suspense fallback={<AppLoader />}>
+            <AppRoutes />
+          </Suspense>
         </TooltipProvider>
       </AuthProvider>
     </BrowserRouter>

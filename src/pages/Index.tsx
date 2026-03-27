@@ -46,7 +46,7 @@ export default function Index() {
             role: 'assistant',
             content: isStreakModeGlobal
               ? `${profile.full_name?.split(' ')[0]}, não se esqueça: você está a poucos passos de garantir sua ofensiva de hoje! Recomendamos iniciar pelo Simulador de Objeções para aquecer.`
-              : `${profile.full_name?.split(' ')[0]}, analisei sua última simulação. Foco na dissipação térmica para a próxima rodada no Modo Livre. Como posso ajudar agora?`,
+              : `${profile.full_name?.split(' ')[0]}, analizei sua última simulação. Foco na dissipação térmica para a próxima rodada no Modo Livre. Como posso ajudar agora?`,
           }
           await saveChatMessage(profile.id, 'mentor-main', initialMsg)
           setMessages([initialMsg])
@@ -65,10 +65,8 @@ export default function Index() {
     }
   }, [messages, isTyping])
 
-  if (!profile) return null
-
   const handleSendMessage = async () => {
-    if (!inputMsg.trim() || isTyping) return
+    if (!profile || !inputMsg.trim() || isTyping) return
     const userMsgContent = inputMsg.trim()
     setInputMsg('')
 
@@ -102,7 +100,7 @@ export default function Index() {
     }
   }
 
-  const currentLevel = Math.floor(profile.xp_total / 1000) + 1
+  const currentLevel = profile ? Math.floor(profile.xp_total / 1000) + 1 : 1
   const levelNames = [
     'Iniciante',
     'Consultor Júnior',
@@ -110,12 +108,14 @@ export default function Index() {
     'Consultor Sênior',
     'Arquiteto Solar',
   ]
-  const currentLevelName = levelNames[Math.min(currentLevel - 1, 4)]
-  const progressPercent = Math.min(100, Math.floor(((profile.xp_total % 1000) / 1000) * 100))
+  const currentLevelName = profile ? levelNames[Math.min(currentLevel - 1, 4)] : 'Carregando...'
+  const progressPercent = profile ? Math.min(100, Math.floor(((profile.xp_total % 1000) / 1000) * 100)) : 0
 
   return (
     <div className="max-w-[1400px] mx-auto animate-fade-in-up space-y-6">
-      {weeklyFocus && (
+      {!profile ? (
+        <div className="h-24 w-full bg-slate-100 animate-pulse rounded-2xl" />
+      ) : weeklyFocus && (
         <div className="bg-[#061B3B] p-5 rounded-2xl shadow-lg border border-[#EAB308]/30 flex flex-col sm:flex-row items-start sm:items-center gap-4 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-48 h-48 bg-[#EAB308]/10 blur-3xl rounded-full pointer-events-none" />
           <div className="p-3.5 bg-[#EAB308] rounded-xl text-[#061B3B] shrink-0 relative z-10 shadow-lg shadow-[#EAB308]/20">
@@ -173,22 +173,28 @@ export default function Index() {
           )}
 
           <div className="hidden md:flex items-center gap-6 bg-white py-2 px-4 rounded-xl shadow-sm border border-slate-100">
-            <div className="w-32 space-y-1.5">
-              <div className="flex justify-between text-[9px] font-bold text-slate-500 uppercase tracking-widest">
-                <span>Progresso Zenith</span>
-                <span className="text-[#EAB308]">{progressPercent}%</span>
-              </div>
-              <Progress value={progressPercent} className="h-1 bg-slate-100 [&>div]:bg-[#EAB308]" />
-            </div>
-            <div className="w-px h-6 bg-slate-100"></div>
-            <div className="text-right">
-              <p className="text-sm font-bold text-[#061B3B]">
-                {(profile.xp_total / 1000).toFixed(1)}k XP
-              </p>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-                {currentLevelName}
-              </p>
-            </div>
+            {!profile ? (
+              <div className="w-48 h-10 bg-slate-100 animate-pulse rounded-lg" />
+            ) : (
+              <>
+                <div className="w-32 space-y-1.5">
+                  <div className="flex justify-between text-[9px] font-bold text-slate-500 uppercase tracking-widest">
+                    <span>Progresso Zenith</span>
+                    <span className="text-[#EAB308]">{progressPercent}%</span>
+                  </div>
+                  <Progress value={progressPercent} className="h-1 bg-slate-100 [&>div]:bg-[#EAB308]" />
+                </div>
+                <div className="w-px h-6 bg-slate-100"></div>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-[#061B3B]">
+                    {((profile?.xp_total || 0) / 1000).toFixed(1)}k XP
+                  </p>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                    {currentLevelName}
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -295,7 +301,7 @@ export default function Index() {
                     rank: '14',
                     name: 'Você',
                     role: currentLevelName,
-                    xp: `${(profile.xp_total / 1000).toFixed(1)}k XP`,
+                    xp: `${((profile?.xp_total || 0) / 1000).toFixed(1)}k XP`,
                     active: true,
                   },
                 ].map((user, idx) => (

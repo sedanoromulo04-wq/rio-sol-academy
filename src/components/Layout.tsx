@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
 import useUserStore from '@/stores/useUserStore'
-import useSystemStore from '@/stores/useSystemStore'
 import {
   Sidebar,
   SidebarContent,
@@ -30,7 +29,6 @@ import {
   ShieldAlert,
   TrendingUp,
   LogOut,
-  Bot,
 } from 'lucide-react'
 
 const baseNavItems = [
@@ -44,17 +42,12 @@ const baseNavItems = [
 export default function Layout() {
   const location = useLocation()
   const [search, setSearch] = useState('')
-  const { signOut } = useAuth()
+  const { signOut, user } = useAuth()
   const { profile } = useUserStore()
-  const { notebookLM } = useSystemStore()
-
-  const showNotebookLM =
-    notebookLM.enabled &&
-    (notebookLM.userCanCreatePodcast || notebookLM.silos.some((silo) => silo.isVisible))
-
-  const navItems = showNotebookLM
-    ? [...baseNavItems, { title: 'NotebookLM', path: '/notebooklm', icon: Bot }]
-    : baseNavItems
+  const avatarUrl =
+    profile?.avatar_url ||
+    `${user?.user_metadata?.avatar_url || ''}` ||
+    `https://img.usecurling.com/p/100/100?q=space&seed=${profile?.id || '1'}`
 
   return (
     <SidebarProvider>
@@ -67,7 +60,7 @@ export default function Layout() {
             <div className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
               <Avatar className="h-9 w-9 rounded-lg">
                 <AvatarImage
-                  src={`https://img.usecurling.com/p/100/100?q=space&seed=${profile?.id || '1'}`}
+                  src={avatarUrl}
                 />
                 <AvatarFallback className="bg-[#061B3B] text-white rounded-lg text-xs">
                   {profile?.full_name?.substring(0, 2).toUpperCase() || 'U'}
@@ -86,7 +79,7 @@ export default function Layout() {
 
           <SidebarContent className="px-3 pt-2">
             <SidebarMenu className="gap-1">
-              {navItems.map((item) => {
+              {baseNavItems.map((item) => {
                 const isActive = location.pathname === item.path
                 return (
                   <SidebarMenuItem key={item.path}>
@@ -141,10 +134,13 @@ export default function Layout() {
             </div>
             <div className="space-y-0.5">
               <Button
+                asChild
                 variant="ghost"
                 className="w-full justify-start text-slate-500 hover:text-[#061B3B] hover:bg-slate-50 font-medium h-9 px-3 rounded-md text-sm"
               >
-                <Settings className="mr-2 h-4 w-4" /> Configurações
+                <Link to="/perfil">
+                  <Settings className="mr-2 h-4 w-4" /> Configurações
+                </Link>
               </Button>
               <Button
                 variant="ghost"
@@ -181,7 +177,7 @@ export default function Layout() {
               <Link to="/perfil" className="shrink-0 transition-transform hover:scale-105">
                 <Avatar className="h-9 w-9 border-2 border-white shadow-sm rounded-lg">
                   <AvatarImage
-                    src={`https://img.usecurling.com/p/100/100?q=landscape&seed=${profile?.id || '1'}`}
+                    src={avatarUrl}
                   />
                   <AvatarFallback className="bg-slate-200 text-[#061B3B] rounded-lg font-bold text-xs">
                     {profile?.full_name?.substring(0, 2).toUpperCase() || 'U'}

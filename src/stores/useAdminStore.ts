@@ -30,6 +30,8 @@ let state = {
   content: [] as ContentItem[],
   sellers: [] as Seller[],
   progress: [] as UserProgress[],
+  loading: false,
+  initialized: false,
 }
 
 const listeners = new Set<() => void>()
@@ -42,22 +44,30 @@ export const adminStore = {
     return () => listeners.delete(listener)
   },
   init: async () => {
-    try {
-      const { data: contentData } = await supabase.from('content').select('*')
-      if (contentData) state.content = contentData
+    if (state.initialized || state.loading) return
+    
+    state = { ...state, loading: true }
+    emit()
 
-      const { data: profiles } = await supabase.from('profiles').select('*')
-      const { data: acts } = await supabase.from('activities').select('*')
+    try {
+      const [{ data: contentData }, { data: profiles }, { data: acts }] = await Promise.all([
+        supabase.from('content').select('*'),
+        supabase.from('profiles').select('*'),
+        supabase.from('activities').select('*'),
+      ])
+
+      let sellers: Seller[] = []
+      let progress: UserProgress[] = []
 
       if (profiles) {
-        state.sellers = profiles.map((p) => ({
+        sellers = profiles.map((p) => ({
           id: p.id,
           name: p.full_name || 'Usuário',
           email: p.email || '',
           avatar: `https://img.usecurling.com/ppl/medium?seed=${p.id}`,
         }))
 
-        state.progress = profiles.map((p) => {
+        progress = profiles.map((p) => {
           const userActs = (acts || []).filter((a) => a.user_id === p.id)
           return {
             sellerId: p.id,
@@ -76,17 +86,28 @@ export const adminStore = {
         })
       }
 
+      state = {
+        ...state,
+        content: contentData || [],
+        sellers,
+        progress,
+        loading: false,
+        initialized: true
+      }
       emit()
     } catch (e) {
       console.warn('Failed to load admin data', e)
+      state = { ...state, loading: false }
+      emit()
     }
   },
   saveContent: async (item: ContentItem) => {
     const isExisting = state.content.find((c) => c.id === item.id)
-    if (isExisting) {
-      state.content = state.content.map((c) => (c.id === item.id ? item : c))
-    } else {
-      state.content = [...state.content, item]
+    state = {
+      ...state,
+      content: isExisting
+        ? state.content.map((c) => (c.id === item.id ? item : c))
+        : [...state.content, item]
     }
     emit()
     try {
@@ -96,7 +117,10 @@ export const adminStore = {
     }
   },
   deleteContent: async (id: string) => {
-    state.content = state.content.filter((c) => c.id !== id)
+    state = {
+      ...state,
+      content: state.content.filter((c) => c.id !== id)
+    }
     emit()
     try {
       await supabase.from('content').delete().eq('id', id)
@@ -107,5 +131,6 @@ export const adminStore = {
 }
 
 export default function useAdminStore() {
-  return { ...useSyncExternalStore(adminStore.subscribe, adminStore.getSnapshot), ...adminStore }
+  const current = useSyncExternalStore(adminStore.subscribe, adminStore.getSnapshot)
+  return { ...current, ...adminStore }
 }

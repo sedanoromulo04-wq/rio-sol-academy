@@ -5,6 +5,7 @@ export type Profile = {
   id: string
   full_name: string
   email: string
+  avatar_url?: string | null
   xp_total: number
   current_streak: number
   last_activity_date: string
@@ -17,11 +18,14 @@ export type Activity = {
   activity_type: string
   score: number | null
   created_at: string
+  metadata?: any
 }
 
 let state = {
   profile: null as Profile | null,
   activities: [] as Activity[],
+  loading: false,
+  initialized: false,
 }
 
 const listeners = new Set<() => void>()
@@ -34,19 +38,59 @@ export const userStore = {
     return () => listeners.delete(listener)
   },
   init: async (userId: string) => {
-    try {
-      const { data: p } = await supabase.from('profiles').select('*').eq('id', userId).single()
-      if (p) state.profile = p
+    if (state.initialized || state.loading) return
+    
+    state = { ...state, loading: true }
+    emit()
 
-      const { data: a } = await supabase
-        .from('activities')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-      if (a) state.activities = a
+    try {
+      const [{ data: p }, { data: a }] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', userId).single(),
+        supabase
+          .from('activities')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false }),
+      ])
+      
+      state = {
+        ...state,
+        profile: (p as Profile) || null,
+        activities: (a as Activity[]) || [],
+        loading: false,
+        initialized: true
+      }
       emit()
     } catch (e) {
       console.warn('Failed to load user profile data', e)
+      state = { ...state, loading: false }
+      emit()
+    }
+  },
+  updateProfile: async (payload: Partial<Profile>) => {
+    if (!state.profile) return
+
+    const nextProfile = {
+      ...state.profile,
+      ...payload,
+    }
+
+    state = {
+      ...state,
+      profile: nextProfile,
+    }
+    emit()
+
+    try {
+      await supabase
+        .from('profiles')
+        .update({
+          full_name: nextProfile.full_name,
+        })
+        .eq('id', nextProfile.id)
+    } catch (error) {
+      console.warn('Failed to update profile', error)
+      await userStore.init(nextProfile.id)
     }
   },
   logActivity: async (type: string, score: number = 100) => {
@@ -84,5 +128,6 @@ export const userStore = {
 }
 
 export default function useUserStore() {
-  return { ...useSyncExternalStore(userStore.subscribe, userStore.getSnapshot), ...userStore }
+  const current = useSyncExternalStore(userStore.subscribe, userStore.getSnapshot)
+  return { ...current, ...userStore }
 }

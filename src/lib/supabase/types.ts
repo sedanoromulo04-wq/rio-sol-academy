@@ -20,6 +20,7 @@ export type Database = {
           activity_type: string
           created_at: string | null
           id: string
+          metadata: Json | null
           score: number | null
           user_id: string
         }
@@ -27,6 +28,7 @@ export type Database = {
           activity_type: string
           created_at?: string | null
           id?: string
+          metadata?: Json | null
           score?: number | null
           user_id: string
         }
@@ -34,12 +36,72 @@ export type Database = {
           activity_type?: string
           created_at?: string | null
           id?: string
+          metadata?: Json | null
           score?: number | null
           user_id?: string
         }
         Relationships: [
           {
             foreignKeyName: "activities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_memories: {
+        Row: {
+          agent_kind: "mentor" | "roleplay" | "mentor_feedback"
+          chunk_index: number
+          content: string
+          created_at: string
+          document_id: string
+          embedding: number[]
+          id: string
+          metadata: Json
+          source_name: string | null
+          source_type: "conversation" | "admin_text" | "admin_upload"
+          title: string | null
+          updated_at: string
+          user_id: string
+          visibility: "global" | "private"
+        }
+        Insert: {
+          agent_kind: "mentor" | "roleplay" | "mentor_feedback"
+          chunk_index?: number
+          content: string
+          created_at?: string
+          document_id?: string
+          embedding: number[]
+          id?: string
+          metadata?: Json
+          source_name?: string | null
+          source_type?: "conversation" | "admin_text" | "admin_upload"
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+          visibility?: "global" | "private"
+        }
+        Update: {
+          agent_kind?: "mentor" | "roleplay" | "mentor_feedback"
+          chunk_index?: number
+          content?: string
+          created_at?: string
+          document_id?: string
+          embedding?: number[]
+          id?: string
+          metadata?: Json
+          source_name?: string | null
+          source_type?: "conversation" | "admin_text" | "admin_upload"
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+          visibility?: "global" | "private"
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_memories_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -114,6 +176,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string | null
           current_streak: number | null
           email: string
@@ -124,6 +187,7 @@ export type Database = {
           xp_total: number | null
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string | null
           current_streak?: number | null
           email?: string
@@ -134,6 +198,7 @@ export type Database = {
           xp_total?: number | null
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string | null
           current_streak?: number | null
           email?: string
@@ -166,6 +231,28 @@ export type Database = {
     }
     Functions: {
       is_admin: { Args: never; Returns: boolean }
+      match_agent_memories: {
+        Args: {
+          filter_agent_kind?: string | null
+          match_count?: number
+          query_embedding: number[]
+        }
+        Returns: {
+          agent_kind: string
+          chunk_index: number
+          content: string
+          created_at: string
+          document_id: string
+          id: string
+          metadata: Json
+          similarity: number
+          source_name: string | null
+          source_type: string
+          title: string | null
+          user_id: string
+          visibility: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

@@ -1,9 +1,5 @@
+import mammoth from 'mammoth'
 import { supabase } from '@/lib/supabase/client'
-
-const API_BASE = (import.meta.env.VITE_NOTEBOOKLM_API_URL || 'http://127.0.0.1:3002').replace(
-  /\/$/,
-  '',
-)
 
 export type AgentPromptConfig = {
   shared: string
@@ -37,127 +33,265 @@ export type AgentMemoryRecord = {
   document_id: string
 }
 
-type ApiEnvelope<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: { message: string } }
+export type AgentPromptTarget = 'shared' | 'mentor' | 'roleplay' | 'mentorFeedback'
+export type AgentKind = 'mentor' | 'roleplay' | 'mentor_feedback'
 
-const fileToBase64 = (file: File) =>
-  new Promise<string>((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => {
-      const result = reader.result
-      if (typeof result !== 'string') {
-        reject(new Error('Falha ao converter o arquivo para base64.'))
-        return
-      }
-      resolve(result.split(',')[1] || '')
-    }
-    reader.onerror = () => reject(reader.error || new Error('Falha ao ler o arquivo.'))
-    reader.readAsDataURL(file)
-  })
+export type AgentInteractionRecord = {
+  id: string
+  user_id: string
+  agent_kind: 'mentor' | 'roleplay' | 'mentor_feedback'
+  title: string | null
+  content: string
+  metadata: Record<string, unknown>
+  created_at: string
+  document_id: string
+  profile: {
+    id: string
+    full_name: string
+    email: string
+    avatar_url?: string | null
+  } | null
+}
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+const defaultPrompts: AgentPromptConfig = {
+  shared: '',
+  mentor: '',
+  roleplay: '',
+  mentorFeedback: '',
+}
 
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      'Content-Type': 'application/json',
-      ...(session?.access_token
-        ? {
-            Authorization: `Bearer ${session.access_token}`,
-          }
-        : {}),
-      ...(init?.headers || {}),
-    },
-    ...init,
-  })
+const hostedGuidance: AgentMemoryGuidance = {
+  maxFilesPerBatch: 5,
+  maxFileSizeMb: 10,
+  recommendedPdfPages: 0,
+  hardPdfPages: 0,
+  recommendedCharactersPerText: 120000,
+  supportedExtensions: ['.txt', '.md', '.docx'],
+}
 
-  const payload = (await response.json().catch(() => null)) as ApiEnvelope<T> | null
-  if (!response.ok || !payload?.ok) {
-    throw new Error(payload && 'error' in payload ? payload.error.message : 'Erro no backend dos agentes.')
+const normalizeWhitespace = (text = '') =>
+  `${text || ''}`
+    .replace(/\r/g, '')
+    .replace(/\t/g, ' ')
+    .replace(/[ ]{2,}/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+
+const loadPromptConfig = async () => {
+  const { data, error } = await supabase
+    .from('system_settings' as any)
+    .select('value')
+    .eq('key', 'agent_prompt_config')
+    .maybeSingle()
+
+  if (error) {
+    throw new Error(error.message)
   }
 
-  return payload.data
+  if (!data?.value) return defaultPrompts
+
+  try {
+    return {
+      ...defaultPrompts,
+      ...JSON.parse(data.value),
+    } as AgentPromptConfig
+  } catch {
+    return defaultPrompts
+  }
+}
+
+const savePromptConfig = async (prompts: AgentPromptConfig) => {
+  const nextConfig = {
+    ...defaultPrompts,
+    ...prompts,
+  }
+
+  const { error } = await supabase.from('system_settings' as any).upsert({
+    key: 'agent_prompt_config',
+    value: JSON.stringify(nextConfig),
+  })
+
+  if (error) throw new Error(error.message)
+  return nextConfig
+}
+
+const parseMemoryFile = async (file: File) => {
+  const fileName = file.name.toLowerCase()
+
+  if (fileName.endsWith('.txt') || fileName.endsWith('.md')) {
+    return normalizeWhitespace(await file.text())
+  }
+
+  if (fileName.endsWith('.docx')) {
+    const arrayBuffer = await file.arrayBuffer()
+    const result = await mammoth.extractRawText({ arrayBuffer })
+    return normalizeWhitespace(result.value)
+  }
+
+  throw new Error(
+    'No modo Vercel com Supabase, o upload direto aceita .txt, .md e .docx. PDFs ficaram desativados com a remocao do backend local.',
+  )
+}
+
+const invokeEdgeFunction = async <T>(name: string, body: Record<string, unknown>) => {
+  const { data, error } = await supabase.functions.invoke(name, {
+    body,
+  })
+
+  if (error) {
+    throw new Error(error.message || 'Erro na Edge Function do Supabase.')
+  }
+
+  return data as T
 }
 
 export const agentsAdminApi = {
-  getConfig: () =>
-    request<{ prompts: AgentPromptConfig; guidance: AgentMemoryGuidance }>('/api/agents/config'),
-  saveConfig: (prompts: AgentPromptConfig) =>
-    request<{ prompts: AgentPromptConfig }>('/api/agents/config', {
-      method: 'POST',
-      body: JSON.stringify({ prompts }),
-    }),
-  listMemories: (params?: { search?: string; agentKind?: string; visibility?: string; limit?: number }) => {
-    const searchParams = new URLSearchParams()
-    if (params?.search) searchParams.set('search', params.search)
-    if (params?.agentKind) searchParams.set('agentKind', params.agentKind)
-    if (params?.visibility) searchParams.set('visibility', params.visibility)
-    if (params?.limit) searchParams.set('limit', String(params.limit))
-    return request<{ memories: AgentMemoryRecord[]; guidance: AgentMemoryGuidance }>(
-      `/api/agents/memories${searchParams.toString() ? `?${searchParams.toString()}` : ''}`,
-    )
+  getConfig: async () => ({
+    prompts: await loadPromptConfig(),
+    guidance: hostedGuidance,
+  }),
+  saveConfig: async (prompts: AgentPromptConfig) => ({
+    prompts: await savePromptConfig(prompts),
+  }),
+  getPromptField: async (target: AgentPromptTarget) => {
+    const prompts = await loadPromptConfig()
+    return {
+      target,
+      value: prompts[target] || '',
+      prompts,
+      guidance: hostedGuidance,
+    }
   },
-  deleteMemory: (id: string) =>
-    request<{ deleted: boolean }>(`/api/agents/memories/${encodeURIComponent(id)}`, {
-      method: 'DELETE',
-    }),
-  clearMemories: (payload: { agentKind?: string; visibility?: string; sourceType?: string }) =>
-    request<{ deleted: number }>('/api/agents/memories/clear', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
-  reindexMemories: (payload: { ids?: string[]; documentId?: string; agentKind?: string; sourceType?: string }) =>
-    request<{ reindexed: number }>('/api/agents/memories/reindex', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
+  savePromptField: async (target: AgentPromptTarget, value: string) => {
+    const currentConfig = await loadPromptConfig()
+    const prompts = await savePromptConfig({
+      ...currentConfig,
+      [target]: `${value || ''}`,
+    })
+
+    return {
+      target,
+      value: prompts[target] || '',
+      prompts,
+    }
+  },
+  listInteractions: async (params?: { search?: string; agentKind?: string; limit?: number }) => {
+    let query = supabase
+      .from('agent_memories' as any)
+      .select('id, user_id, agent_kind, title, content, metadata, created_at, document_id')
+      .eq('source_type', 'conversation')
+      .order('created_at', { ascending: false })
+      .limit(Math.min(Math.max(params?.limit || 60, 1), 200))
+
+    if (params?.agentKind) query = query.eq('agent_kind', params.agentKind)
+    if (params?.search?.trim()) {
+      const search = params.search.trim()
+      query = query.or(`title.ilike.%${search}%,content.ilike.%${search}%`)
+    }
+
+    const { data, error } = await query
+    if (error) throw new Error(error.message)
+
+    const rows = (data || []) as Omit<AgentInteractionRecord, 'profile'>[]
+    const userIds = [...new Set(rows.map((row) => row.user_id).filter(Boolean))]
+
+    let profilesById: Record<string, AgentInteractionRecord['profile']> = {}
+    if (userIds.length > 0) {
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles' as any)
+        .select('id, full_name, email, avatar_url')
+        .in('id', userIds)
+
+      if (profilesError) throw new Error(profilesError.message)
+      profilesById = Object.fromEntries((profiles || []).map((profile: any) => [profile.id, profile]))
+    }
+
+    return {
+      interactions: rows.map((row) => ({
+        ...row,
+        profile: profilesById[row.user_id] || null,
+      })),
+    }
+  },
+  listMemories: async (params?: {
+    search?: string
+    agentKind?: string
+    visibility?: string
+    limit?: number
+  }) => {
+    let query = supabase
+      .from('agent_memories' as any)
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(Math.min(Math.max(params?.limit || 100, 1), 500))
+
+    if (params?.agentKind) query = query.eq('agent_kind', params.agentKind)
+    if (params?.visibility) query = query.eq('visibility', params.visibility)
+    if (params?.search?.trim()) {
+      const search = params.search.trim()
+      query = query.or(`title.ilike.%${search}%,content.ilike.%${search}%`)
+    }
+
+    const { data, error } = await query
+    if (error) throw new Error(error.message)
+
+    return {
+      memories: (data || []) as AgentMemoryRecord[],
+      guidance: hostedGuidance,
+    }
+  },
+  deleteMemory: async (id: string) => {
+    const { error } = await supabase.from('agent_memories' as any).delete().eq('id', id)
+    if (error) throw new Error(error.message)
+    return { deleted: true }
+  },
+  clearMemories: async (payload: { agentKind?: string; visibility?: string; sourceType?: string }) => {
+    let query = supabase.from('agent_memories' as any).delete().neq('id', '00000000-0000-0000-0000-000000000000')
+    if (payload.agentKind) query = query.eq('agent_kind', payload.agentKind)
+    if (payload.visibility) query = query.eq('visibility', payload.visibility)
+    if (payload.sourceType) query = query.eq('source_type', payload.sourceType)
+    const { error } = await query
+    if (error) throw new Error(error.message)
+    return { deleted: 0 }
+  },
+  reindexMemories: async () => {
+    throw new Error('Reindexacao manual ainda nao foi migrada para o modo Supabase-only.')
+  },
   importTextMemory: (payload: {
     title: string
     content: string
     visibility: 'global' | 'private'
-    agentKinds: Array<'mentor' | 'roleplay' | 'mentor_feedback'>
+    agentKinds: AgentKind[]
   }) =>
-    request<{
+    invokeEdgeFunction<{
       documentId: string
       storedChunks: number
       chunkCount: number
+      agentKinds: AgentKind[]
       warnings: string[]
       stats: { charCount: number; pageCount: number | null; sizeMb: number | null; chunkCount: number }
       guidance: AgentMemoryGuidance
-    }>('/api/agents/memories/import', {
-      method: 'POST',
-      body: JSON.stringify({
-        ...payload,
-        sourceType: 'text',
-      }),
-    }),
+    }>('agent-memory-import', payload),
   importFileMemory: async (payload: {
     file: File
     title?: string
     visibility: 'global' | 'private'
-    agentKinds: Array<'mentor' | 'roleplay' | 'mentor_feedback'>
+    agentKinds: AgentKind[]
   }) => {
-    const base64 = await fileToBase64(payload.file)
-    return request<{
+    const content = await parseMemoryFile(payload.file)
+    return invokeEdgeFunction<{
       documentId: string
       storedChunks: number
       chunkCount: number
+      agentKinds: AgentKind[]
       warnings: string[]
       stats: { charCount: number; pageCount: number | null; sizeMb: number | null; chunkCount: number }
       guidance: AgentMemoryGuidance
-    }>('/api/agents/memories/import', {
-      method: 'POST',
-      body: JSON.stringify({
-        sourceType: 'file',
-        fileName: payload.file.name,
-        title: payload.title || payload.file.name,
-        base64,
-        visibility: payload.visibility,
-        agentKinds: payload.agentKinds,
-      }),
+    }>('agent-memory-import', {
+      title: payload.title || payload.file.name,
+      content,
+      visibility: payload.visibility,
+      agentKinds: payload.agentKinds,
     })
   },
 }

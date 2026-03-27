@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -7,13 +7,25 @@ import { cn } from '@/lib/utils'
 import { Sparkles, Cpu, UserCircle, Play } from 'lucide-react'
 import useAdminStore from '@/stores/useAdminStore'
 
-const filters = ['Todas as Trilhas', 'Cultura', 'Técnico', 'Psicologia']
-
 export default function Paths() {
   const { content } = useAdminStore()
-  const [activeFilter, setActiveFilter] = useState('Todas as Trilhas')
   const [searchParams] = useSearchParams()
+  const categoryParam = searchParams.get('category') || ''
   const searchQuery = (searchParams.get('q') || '').toLowerCase()
+  const filters = useMemo(() => {
+    const categories = [...new Set(content.map((item) => item.category).filter(Boolean))]
+    return ['Todas as Trilhas', ...categories]
+  }, [content])
+  const [activeFilter, setActiveFilter] = useState(categoryParam || 'Todas as Trilhas')
+
+  useEffect(() => {
+    if (!categoryParam) {
+      setActiveFilter('Todas as Trilhas')
+      return
+    }
+
+    setActiveFilter(categoryParam)
+  }, [categoryParam])
 
   const isMatch = (category: string, title: string, description?: string) => {
     if (activeFilter !== 'Todas as Trilhas' && category !== activeFilter) return false

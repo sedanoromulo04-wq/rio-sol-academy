@@ -27,16 +27,14 @@ import {
   Award,
   LogOut,
   ArrowLeft,
-  Bot,
   BrainCircuit,
 } from 'lucide-react'
 
 const navItems = [
   { title: 'Agentes', path: '/admin/agents', icon: BrainCircuit },
-  { title: 'Visão Geral', path: '/admin', icon: LayoutDashboard },
-  { title: 'NotebookLM', path: '/admin/notebooklm', icon: Bot },
-  { title: 'Gestão de Conteúdo', path: '/admin/tracks', icon: BookOpen },
-  { title: 'Relatórios de Vendas', path: '/admin/analytics', icon: BarChart3 },
+  { title: 'Visao Geral', path: '/admin', icon: LayoutDashboard },
+  { title: 'Gestao de Conteudo', path: '/admin/tracks', icon: BookOpen },
+  { title: 'Relatorios de Vendas', path: '/admin/analytics', icon: BarChart3 },
   { title: 'Ranking Global', path: '/admin/rankings', icon: Medal },
 ]
 
@@ -54,21 +52,21 @@ export function AdminLayout() {
             <h2 className="text-xl font-black text-white tracking-tight font-display mb-6">
               RIO SOL <span className="text-[#EAB308]">ACADEMY</span>
             </h2>
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+            <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm">
               <Avatar className="h-10 w-10 border border-white/20">
                 <AvatarImage
                   src={`https://img.usecurling.com/ppl/medium?seed=${profile?.id || 'admin'}`}
                 />
-                <AvatarFallback className="bg-slate-800 text-slate-300 font-bold">
+                <AvatarFallback className="bg-slate-800 font-bold text-slate-300">
                   {profile?.full_name?.substring(0, 2).toUpperCase() || 'A'}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-sm text-white leading-tight truncate">
+              <div className="min-w-0 flex-1">
+                <h3 className="truncate text-sm font-bold leading-tight text-white">
                   {profile?.full_name || 'Admin'}
                 </h3>
-                <p className="text-[9px] font-bold text-[#EAB308] uppercase tracking-widest mt-0.5">
-                  Nível Executivo
+                <p className="mt-0.5 text-[9px] font-bold uppercase tracking-widest text-[#EAB308]">
+                  Nivel Executivo
                 </p>
               </div>
             </div>
@@ -86,10 +84,10 @@ export function AdminLayout() {
                       asChild
                       isActive={isActive}
                       className={cn(
-                        'transition-all h-11 rounded-lg px-3 flex items-center',
+                        'flex h-11 items-center rounded-lg px-3 transition-all',
                         isActive
-                          ? 'bg-white/10 shadow-sm border border-white/10 text-white font-bold relative overflow-hidden'
-                          : 'text-slate-400 font-medium hover:bg-white/5 hover:text-white',
+                          ? 'relative overflow-hidden border border-white/10 bg-white/10 font-bold text-white shadow-sm'
+                          : 'font-medium text-slate-400 hover:bg-white/5 hover:text-white',
                       )}
                     >
                       <Link to={item.path}>
@@ -97,7 +95,7 @@ export function AdminLayout() {
                           <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#EAB308]" />
                         )}
                         <item.icon
-                          className={cn('h-4 w-4 mr-3', isActive ? 'text-[#EAB308]' : '')}
+                          className={cn('mr-3 h-4 w-4', isActive ? 'text-[#EAB308]' : '')}
                         />
                         <span className="text-sm">{item.title}</span>
                       </Link>
@@ -108,27 +106,27 @@ export function AdminLayout() {
             </SidebarMenu>
           </SidebarContent>
 
-          <SidebarFooter className="p-5 pb-6 space-y-4">
+          <SidebarFooter className="space-y-4 p-5 pb-6">
             <Button
               asChild
-              className="w-full bg-[#061B3B] hover:bg-[#0a2955] border border-white/10 text-white justify-start px-4 py-5 rounded-lg font-bold shadow-lg shadow-black/20"
+              className="w-full justify-start rounded-lg border border-white/10 bg-[#061B3B] px-4 py-5 font-bold text-white shadow-lg shadow-black/20 hover:bg-[#0a2955]"
             >
               <Link to="/">
                 <ArrowLeft className="mr-2 h-4 w-4 text-[#EAB308]" fill="currentColor" /> Voltar ao
                 App
               </Link>
             </Button>
-            <div className="space-y-0.5 pt-2 border-t border-white/5">
+            <div className="space-y-0.5 border-t border-white/5 pt-2">
               <Button
                 variant="ghost"
-                className="w-full justify-start text-slate-400 hover:text-white hover:bg-white/5 font-medium h-9 px-3 rounded-md text-sm"
+                className="h-9 w-full justify-start rounded-md px-3 text-sm font-medium text-slate-400 hover:bg-white/5 hover:text-white"
               >
-                <Settings className="mr-2 h-4 w-4" /> Configurações
+                <Settings className="mr-2 h-4 w-4" /> Configuracoes
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => signOut()}
-                className="w-full justify-start text-slate-400 hover:text-red-400 hover:bg-red-950/30 font-medium h-9 px-3 rounded-md text-sm"
+                className="h-9 w-full justify-start rounded-md px-3 text-sm font-medium text-slate-400 hover:bg-red-950/30 hover:text-red-400"
               >
                 <LogOut className="mr-2 h-4 w-4" /> Sair
               </Button>
@@ -136,34 +134,34 @@ export function AdminLayout() {
           </SidebarFooter>
         </Sidebar>
 
-        <main className="flex-1 flex flex-col min-w-0 bg-gradient-to-br from-[#061b3b] via-[#020b18] to-[#01060e] relative overflow-hidden">
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-gradient-to-br from-[#061b3b] via-[#020b18] to-[#01060e]">
+          <div className="pointer-events-none absolute top-[-10%] left-[-10%] h-[40%] w-[40%] rounded-full bg-blue-500/10 blur-[120px]"></div>
 
-          <header className="flex h-20 items-center justify-between px-6 lg:px-8 gap-6 sticky top-0 z-30 bg-[#020b18]/60 backdrop-blur-xl border-b border-white/5">
-            <div className="relative hidden md:block w-96">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <header className="sticky top-0 z-30 flex h-20 items-center justify-between gap-6 border-b border-white/5 bg-[#020b18]/60 px-6 backdrop-blur-xl lg:px-8">
+            <div className="relative hidden w-96 md:block">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <Input
-                placeholder="Buscar usuários, trilhas ou relatórios..."
+                placeholder="Buscar usuarios, trilhas ou relatorios..."
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-slate-400 shadow-inner rounded-full h-10 w-full text-sm focus-visible:ring-[#EAB308] focus-visible:border-[#EAB308]"
+                className="h-10 w-full rounded-full border-white/10 bg-white/5 pl-9 text-sm text-white placeholder:text-slate-400 shadow-inner focus-visible:border-[#EAB308] focus-visible:ring-[#EAB308]"
               />
             </div>
 
-            <div className="flex items-center gap-5 shrink-0 ml-auto md:ml-0">
-              <button className="text-slate-400 hover:text-white transition-colors relative">
+            <div className="ml-auto flex shrink-0 items-center gap-5 md:ml-0">
+              <button className="relative text-slate-400 transition-colors hover:text-white">
                 <Award className="h-5 w-5" />
               </button>
-              <button className="text-slate-400 hover:text-white transition-colors relative">
+              <button className="relative text-slate-400 transition-colors hover:text-white">
                 <Bell className="h-5 w-5" />
-                <span className="absolute top-0 right-0 h-2 w-2 bg-[#EAB308] rounded-full border-2 border-[#020b18]"></span>
+                <span className="absolute top-0 right-0 h-2 w-2 rounded-full border-2 border-[#020b18] bg-[#EAB308]"></span>
               </button>
-              <Link to="/perfil" className="shrink-0 transition-transform hover:scale-105 ml-2">
-                <Avatar className="h-9 w-9 border border-white/20 shadow-sm rounded-full">
+              <Link to="/perfil" className="ml-2 shrink-0 transition-transform hover:scale-105">
+                <Avatar className="h-9 w-9 rounded-full border border-white/20 shadow-sm">
                   <AvatarImage
                     src={`https://img.usecurling.com/ppl/thumbnail?seed=${profile?.id || 'admin'}`}
                   />
-                  <AvatarFallback className="bg-slate-800 text-white text-xs font-bold">
+                  <AvatarFallback className="bg-slate-800 text-xs font-bold text-white">
                     {profile?.full_name?.substring(0, 2).toUpperCase() || 'A'}
                   </AvatarFallback>
                 </Avatar>
@@ -171,7 +169,7 @@ export function AdminLayout() {
             </div>
           </header>
 
-          <div className="flex-1 p-6 lg:p-8 overflow-y-auto relative z-10">
+          <div className="relative z-10 flex-1 overflow-y-auto p-6 lg:p-8">
             <Outlet />
           </div>
         </main>

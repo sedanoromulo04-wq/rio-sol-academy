@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Award, Zap, Settings2, Leaf, BrainCircuit, Target } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import useAdminStore from '@/stores/useAdminStore'
 
 const CircularProgress = ({ value, label }: { value: number; label: string }) => {
   const radius = 20
@@ -38,7 +39,7 @@ const CircularProgress = ({ value, label }: { value: number; label: string }) =>
   )
 }
 
-const trails = [
+const fallbackTrails = [
   {
     title: 'Cultura',
     desc: 'Ethos Solar & Valores de Engenharia',
@@ -78,6 +79,35 @@ const achievements = [
 ]
 
 export default function LivreView() {
+  const { content } = useAdminStore()
+
+  const groupedTrails =
+    content.length > 0
+      ? Array.from(
+          content.reduce((map, item) => {
+            const key = item.category || 'Geral'
+            const current = map.get(key) || {
+              title: key,
+              desc: item.description || 'Explore os materiais desta trilha.',
+              modules: 0,
+              progress: 18,
+              tag: '',
+            }
+
+            current.modules += 1
+            if (!current.desc && item.description) current.desc = item.description
+            map.set(key, current)
+            return map
+          }, new Map<string, { title: string; desc: string; modules: number; progress: number; tag: string }>()),
+        )
+          .map(([, trail], index) => ({
+            ...trail,
+            modules: `${trail.modules} módulo${trail.modules > 1 ? 's' : ''}`,
+            progress: Math.min(96, 22 + index * 18),
+          }))
+          .slice(0, 4)
+      : fallbackTrails
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Hero */}
@@ -138,27 +168,30 @@ export default function LivreView() {
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {trails.map((trail, idx) => (
-            <Card
-              key={idx}
-              className="border-none shadow-sm rounded-2xl bg-white hover:shadow-md transition-shadow"
+          {groupedTrails.map((trail, idx) => (
+            <Link
+              key={`${trail.title}-${idx}`}
+              to={`/trilhas?category=${encodeURIComponent(trail.title)}`}
+              className="block"
             >
-              <CardContent className="p-5 flex items-center gap-5">
-                <CircularProgress value={trail.progress} label={trail.title} />
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-base text-[#061B3B]">{trail.title}</h4>
-                  <p className="text-xs text-slate-500 mb-2 truncate">{trail.desc}</p>
-                  <span
-                    className={cn(
-                      'text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-500 inline-block',
-                      trail.tag,
-                    )}
-                  >
-                    {trail.modules}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+              <Card className="border-none shadow-sm rounded-2xl bg-white hover:shadow-md hover:-translate-y-0.5 transition-all">
+                <CardContent className="p-5 flex items-center gap-5">
+                  <CircularProgress value={trail.progress} label={trail.title} />
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-base text-[#061B3B]">{trail.title}</h4>
+                    <p className="text-xs text-slate-500 mb-2 truncate">{trail.desc}</p>
+                    <span
+                      className={cn(
+                        'text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-500 inline-block',
+                        trail.tag,
+                      )}
+                    >
+                      {trail.modules}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       </div>

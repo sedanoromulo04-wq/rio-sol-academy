@@ -9,7 +9,7 @@ import uidPlugin from './vite-plugin-react-uid'
 export default defineConfig(({ mode }) => ({
   server: {
     host: '::',
-    port: 8080,
+    port: 5173,
   },
   build: {
     outDir: mode === 'development' ? 'dev-dist' : 'dist',
@@ -23,6 +23,10 @@ export default defineConfig(({ mode }) => ({
         warn(warning)
       },
     },
+  },
+  preview: {
+    host: '127.0.0.1',
+    port: 4173,
   },
   plugins: [mode === 'development' ? uidPlugin() : undefined, react()].filter(Boolean),
   define: {

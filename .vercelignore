@@ -1,0 +1,14 @@
+.git
+node_modules
+dist
+dev-dist
+backend
+NotebookLM
+supabase
+Agente Skills
+Andamento do projeto
+Lógica do sistema
+*.log
+*.err
+relatorio*
+nul

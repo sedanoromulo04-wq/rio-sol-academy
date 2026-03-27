@@ -21,6 +21,8 @@ type SystemState = {
   isStreakModeGlobal: boolean
   weeklyFocus: string
   notebookLM: NotebookLMSettings
+  loading: boolean
+  initialized: boolean
 }
 
 const defaultNotebookLM: NotebookLMSettings = {
@@ -61,6 +63,8 @@ let state: SystemState = {
   isStreakModeGlobal: true,
   weeklyFocus: 'Foco em resiliência e objeções financeiras. Apresentar o Payback corretamente.',
   notebookLM: defaultNotebookLM,
+  loading: false,
+  initialized: false,
 }
 
 const listeners = new Set<() => void>()
@@ -96,27 +100,36 @@ export const systemStore = {
     return () => listeners.delete(listener)
   },
   init: async () => {
+    if (state.initialized || state.loading) return
+
+    state = { ...state, loading: true }
+    emit()
+
     try {
       const { data } = await supabase.from('system_settings').select('*')
+      let nextState = { ...state, loading: false, initialized: true }
+
       if (data && data.length > 0) {
         const streak = data.find((item) => item.key === 'streak_enabled')
         const focus = data.find((item) => item.key === 'weekly_focus')
         const notebookLM = data.find((item) => item.key === 'notebooklm_config')
 
-        if (streak) state.isStreakModeGlobal = streak.value === 'true'
-        if (focus) state.weeklyFocus = focus.value
+        if (streak) nextState.isStreakModeGlobal = streak.value === 'true'
+        if (focus) nextState.weeklyFocus = focus.value
         if (notebookLM?.value) {
           try {
-            state.notebookLM = mergeNotebookLM(JSON.parse(notebookLM.value))
+            nextState.notebookLM = mergeNotebookLM(JSON.parse(notebookLM.value))
           } catch (error) {
             console.warn('Failed to parse NotebookLM settings, using defaults.', error)
-            state.notebookLM = defaultNotebookLM
           }
         }
-        emit()
       }
+      state = nextState
+      emit()
     } catch (error) {
       console.warn('Fallback to local system settings due to Supabase connection error.', error)
+      state = { ...state, loading: false }
+      emit()
     }
   },
   setStreakModeGlobal: async (value: boolean) => {

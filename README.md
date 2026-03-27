@@ -129,3 +129,24 @@ npm run build
 ```
 
 Os arquivos otimizados serão gerados na pasta `dist/` e estarão prontos para deploy.
+
+## Deploy no Vercel
+
+Para subir o frontend no Vercel com `BrowserRouter` funcionando corretamente:
+
+1. Importe o repositório no Vercel.
+2. Defina o comando de build como `npm run build`.
+3. Confirme o diretório de saída como `dist`.
+4. Configure a variável `VITE_NOTEBOOKLM_API_URL` apontando para o backend dos agentes em produção.
+
+Exemplo:
+
+```bash
+VITE_NOTEBOOKLM_API_URL=https://seu-backend-dos-agentes.exemplo.com
+```
+
+Observações:
+
+- O arquivo `vercel.json` já inclui o fallback de SPA para rotas do React Router.
+- Sem `VITE_NOTEBOOKLM_API_URL`, o frontend em produção tentará usar rotas relativas `/api/...`.
+- O backend local `backend/server.mjs` não é hospedado automaticamente pelo Vercel neste projeto atual.
