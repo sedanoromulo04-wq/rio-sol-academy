@@ -32,9 +32,11 @@ export default function Index() {
   const hasLoadedHistory = useRef(false)
 
   useEffect(() => {
-    if (!profile || hasLoadedHistory.current) return
+    if (!profile) return
+    if (hasLoadedHistory.current) return
+    hasLoadedHistory.current = true
+    
     const fetchHistory = async () => {
-      hasLoadedHistory.current = true
       try {
         const history = await loadChatHistory(profile.id, 'mentor-main')
         if (history.length > 0) {
@@ -51,6 +53,7 @@ export default function Index() {
         }
       } catch (err) {
         console.error('Failed to load chat history', err)
+        hasLoadedHistory.current = false
       }
     }
     fetchHistory()
