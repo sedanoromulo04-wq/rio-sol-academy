@@ -4,7 +4,7 @@ dist
 dev-dist
 backend
 NotebookLM
-supabase
+/supabase/
 Agente Skills
 Andamento do projeto
 Lógica do sistema

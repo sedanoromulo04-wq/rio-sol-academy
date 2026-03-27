@@ -83,8 +83,6 @@ export const loadChatHistory = async (userId: string, sessionId: string) => {
     .from('chats' as any)
     .select('*')
     .eq('user_id', userId)
-    .select('*')
-    .eq('user_id', userId)
     .eq('session_id', sessionId)
     .order('created_at', { ascending: true })
 
@@ -92,7 +90,7 @@ export const loadChatHistory = async (userId: string, sessionId: string) => {
     console.error('Error loading chat history:', error)
     return []
   }
-  return (data || []) as ChatRow[] as Message[]
+  return (data || []) as unknown as ChatRow[] as unknown as Message[]
 }
 
 export const loadSimulatorSessions = async (userId: string) => {
@@ -110,7 +108,7 @@ export const loadSimulatorSessions = async (userId: string) => {
 
   const grouped = new Map<string, ChatRow[]>()
 
-  for (const row of (data || []) as ChatRow[]) {
+  for (const row of (data || []) as unknown as ChatRow[]) {
     if (!row.session_id.startsWith('simulator')) continue
     const current = grouped.get(row.session_id) || []
     current.push(row)
@@ -165,7 +163,7 @@ export const saveChatMessage = async (userId: string, sessionId: string, message
     console.error('Failed to save chat message:', error)
     return message
   }
-  return data as Message
+  return data as unknown as Message
 }
 
 export const saveRoleplayEvaluationMessage = async (
