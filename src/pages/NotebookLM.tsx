@@ -12,6 +12,7 @@ import {
   type NotebookLMPodcastJob,
   type NotebookLMStatus,
 } from '@/lib/notebooklm-api'
+import { NOTEBOOKLM_ENABLED } from '@/lib/api-base'
 import useSystemStore from '@/stores/useSystemStore'
 import useUserStore from '@/stores/useUserStore'
 import {
@@ -35,6 +36,16 @@ type ChatTurn = {
 }
 
 export default function NotebookLM() {
+  useEffect(() => {
+    if (!NOTEBOOKLM_ENABLED) {
+      window.location.href = '/'
+    }
+  }, [])
+
+  if (!NOTEBOOKLM_ENABLED) {
+    return null
+  }
+
   const { notebookLM } = useSystemStore()
   const { profile, logActivity } = useUserStore()
   const { toast } = useToast()

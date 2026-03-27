@@ -1,7 +1,10 @@
-const API_BASE = (import.meta.env.VITE_NOTEBOOKLM_API_URL || 'http://127.0.0.1:3002').replace(
-  /\/$/,
-  '',
-)
+import { buildApiUrl, NOTEBOOKLM_ENABLED } from '@/lib/api-base'
+
+const ensureNotebooklmEnabled = () => {
+  if (!NOTEBOOKLM_ENABLED) {
+    throw new Error('NotebookLM não está disponível em produção. Use o backend local para testar.')
+  }
+}
 
 export type NotebookLMStatus = {
   authenticated: boolean
@@ -112,7 +115,7 @@ type ApiEnvelope<T> =
   | { ok: false; error: { message: string; type?: string } }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
+  const response = await fetch(buildApiUrl(path), {
     headers: {
       'Content-Type': 'application/json',
       ...(init?.headers || {}),
@@ -122,54 +125,69 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   const payload = (await response.json()) as ApiEnvelope<T>
   if (!response.ok || !payload.ok) {
-    throw new Error(
-      payload.ok ? 'NotebookLM backend unavailable.' : payload.error.message || 'NotebookLM error.',
-    )
+    const errorMsg = payload.ok ? 'NotebookLM backend unavailable.' : (payload as any).error?.message || 'NotebookLM error.'
+    throw new Error(errorMsg)
   }
 
   return payload.data
 }
 
 export const notebooklmApi = {
-  getStatus: () => request<NotebookLMStatus>('/api/notebooklm/status'),
+  getStatus: () => {
+    ensureNotebooklmEnabled()
+    return request<NotebookLMStatus>('/api/notebooklm/status')
+  },
   listNotebooks: async () => {
+    ensureNotebooklmEnabled()
     const data = await request<{ notebooks: NotebookLMLiveNotebook[] }>('/api/notebooklm/notebooks')
     return data.notebooks
   },
-  refreshSession: () =>
-    request<NotebookLMStatus>('/api/notebooklm/session/refresh', {
+  refreshSession: () => {
+    ensureNotebooklmEnabled()
+    return request<NotebookLMStatus>('/api/notebooklm/session/refresh', {
       method: 'POST',
       body: JSON.stringify({}),
-    }),
-  launchLoginSession: () =>
-    request<NotebookLMPodcastJob>('/api/notebooklm/session/login', {
+    })
+  },
+  launchLoginSession: () => {
+    ensureNotebooklmEnabled()
+    return request<NotebookLMPodcastJob>('/api/notebooklm/session/login', {
       method: 'POST',
       body: JSON.stringify({}),
-    }),
-  getNotebook: (notebookId: string) =>
-    request<NotebookLMNotebookDetail>(
+    })
+  },
+  getNotebook: (notebookId: string) => {
+    ensureNotebooklmEnabled()
+    return request<NotebookLMNotebookDetail>(
       `/api/notebooklm/notebooks/${encodeURIComponent(notebookId)}`,
-    ),
+    )
+  },
   createPodcastJob: (payload: {
     notebookId: string
     title: string
     brief: string
     language?: string
-  }) =>
-    request<NotebookLMPodcastJob>('/api/notebooklm/podcast', {
+  }) => {
+    ensureNotebooklmEnabled()
+    return request<NotebookLMPodcastJob>('/api/notebooklm/podcast', {
       method: 'POST',
       body: JSON.stringify(payload),
-    }),
-  getJob: (jobId: string) =>
-    request<NotebookLMPodcastJob>(`/api/notebooklm/jobs/${encodeURIComponent(jobId)}`),
+    })
+  },
+  getJob: (jobId: string) => {
+    ensureNotebooklmEnabled()
+    return request<NotebookLMPodcastJob>(`/api/notebooklm/jobs/${encodeURIComponent(jobId)}`)
+  },
   askNotebook: (payload: {
     notebookId: string
     question: string
     conversationId?: string
     sourceIds?: string[]
-  }) =>
-    request<NotebookLMAskResponse>('/api/notebooklm/ask', {
+  }) => {
+    ensureNotebooklmEnabled()
+    return request<NotebookLMAskResponse>('/api/notebooklm/ask', {
       method: 'POST',
       body: JSON.stringify(payload),
-    }),
+    })
+  },
 }

@@ -9,6 +9,7 @@ import {
   type NotebookLMLiveNotebook,
   type NotebookLMStatus,
 } from '@/lib/notebooklm-api'
+import { NOTEBOOKLM_ENABLED } from '@/lib/api-base'
 import useSystemStore from '@/stores/useSystemStore'
 import {
   AlertTriangle,
@@ -25,6 +26,16 @@ import {
 } from 'lucide-react'
 
 export default function AdminNotebookLM() {
+  useEffect(() => {
+    if (!NOTEBOOKLM_ENABLED) {
+      window.location.href = '/'
+    }
+  }, [])
+
+  if (!NOTEBOOKLM_ENABLED) {
+    return null
+  }
+
   const {
     notebookLM,
     setNotebookLMEnabled,
