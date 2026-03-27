@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { lazy, Suspense, useState, useRef, useEffect } from 'react'
 import { Switch } from '@/components/ui/switch'
 import { Progress } from '@/components/ui/progress'
 import { Input } from '@/components/ui/input'
@@ -6,9 +6,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Play, BrainCircuit, Bot, Target } from 'lucide-react'
 import { cn } from '@/lib/utils'
-
-import LivreView from '@/components/dashboard/LivreView'
-import StreakView from '@/components/dashboard/StreakView'
 import useSystemStore from '@/stores/useSystemStore'
 import useUserStore from '@/stores/useUserStore'
 import {
@@ -18,10 +15,13 @@ import {
   Message,
 } from '@/services/ai-mentor'
 
+const LivreView = lazy(() => import('@/components/dashboard/LivreView'))
+const StreakView = lazy(() => import('@/components/dashboard/StreakView'))
+
 export default function Index() {
   const { isStreakModeGlobal, weeklyFocus } = useSystemStore()
   const { profile } = useUserStore()
-  const [localStreakMode, setLocalStreakMode] = useState(true)
+  const [localStreakMode, setLocalStreakMode] = useState(false)
 
   const isStreakMode = isStreakModeGlobal && localStreakMode
 
@@ -191,7 +191,17 @@ export default function Index() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6">
-        <div className="space-y-6 min-w-0">{isStreakMode ? <StreakView /> : <LivreView />}</div>
+        <div className="space-y-6 min-w-0">
+          <Suspense
+            fallback={
+              <Card className="border-none shadow-sm rounded-3xl bg-white">
+                <CardContent className="p-8 text-sm text-slate-400">Carregando painel...</CardContent>
+              </Card>
+            }
+          >
+            {isStreakMode ? <StreakView /> : <LivreView />}
+          </Suspense>
+        </div>
 
         <div className="space-y-6">
           <Card className="border-none shadow-sm rounded-3xl bg-[#061B3B] overflow-hidden relative flex flex-col h-[400px]">
@@ -217,7 +227,7 @@ export default function Index() {
                   <div
                     key={i}
                     className={cn(
-                      'text-xs p-3 rounded-xl leading-relaxed backdrop-blur-sm',
+                      'text-xs p-3 rounded-xl leading-relaxed backdrop-blur-sm whitespace-pre-wrap break-words',
                       msg.role === 'assistant'
                         ? 'bg-white/10 text-slate-200 rounded-tl-sm border border-white/5 mr-6'
                         : 'bg-[#EAB308]/10 text-white rounded-tr-sm border border-[#EAB308]/20 ml-6 text-right',
