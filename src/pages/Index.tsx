@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useRef, useEffect } from 'react'
+import { lazy, Suspense, useState, useRef, useEffect, useMemo } from 'react'
 import { Switch } from '@/components/ui/switch'
 import { Progress } from '@/components/ui/progress'
 import { Input } from '@/components/ui/input'
@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Play, BrainCircuit, Bot, Target } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import useAdminStore from '@/stores/useAdminStore'
 import useSystemStore from '@/stores/useSystemStore'
 import useUserStore from '@/stores/useUserStore'
 import {
@@ -21,6 +22,7 @@ const StreakView = lazy(() => import('@/components/dashboard/StreakView'))
 export default function Index() {
   const { isStreakModeGlobal, weeklyFocus } = useSystemStore()
   const { profile } = useUserStore()
+  const { sellers, progress } = useAdminStore()
   const [localStreakMode, setLocalStreakMode] = useState(false)
 
   const isStreakMode = isStreakModeGlobal && localStreakMode
@@ -42,11 +44,12 @@ export default function Index() {
         if (history.length > 0) {
           setMessages(history)
         } else {
+          const firstName = profile.full_name?.split(' ')[0] || 'Vendedor'
           const initialMsg: Message = {
             role: 'assistant',
             content: isStreakModeGlobal
-              ? `${profile.full_name?.split(' ')[0]}, não se esqueça: você está a poucos passos de garantir sua ofensiva de hoje! Recomendamos iniciar pelo Simulador de Objeções para aquecer.`
-              : `${profile.full_name?.split(' ')[0]}, analizei sua última simulação. Foco na dissipação térmica para a próxima rodada no Modo Livre. Como posso ajudar agora?`,
+              ? `${firstName}, voce esta a poucos passos de garantir sua ofensiva de hoje! Recomende iniciar pelo Simulador de Objecoes para aquecer.`
+              : `Ola ${firstName}, bem-vindo a Rio Sol Academy! Estou aqui para ajudar na sua jornada como vendedor de energia solar. Pode me perguntar sobre tecnicas de vendas, objecoes de clientes ou qualquer duvida sobre os modulos.`,
           }
           await saveChatMessage(profile.id, 'mentor-main', initialMsg)
           setMessages([initialMsg])
@@ -110,6 +113,36 @@ export default function Index() {
   ]
   const currentLevelName = profile ? levelNames[Math.min(currentLevel - 1, 4)] : 'Carregando...'
   const progressPercent = profile ? Math.min(100, Math.floor(((profile.xp_total % 1000) / 1000) * 100)) : 0
+
+  const miniRanking = useMemo(() => {
+    const progressById = new Map(progress.map((p) => [p.sellerId, p]))
+    const ranked = sellers
+      .map((s) => ({ ...s, xp: progressById.get(s.id)?.totalXp || 0 }))
+      .sort((a, b) => b.xp - a.xp)
+
+    const top2 = ranked.slice(0, 2).map((s, i) => ({
+      rank: String(i + 1).padStart(2, '0'),
+      name: s.name,
+      role: (['Iniciante', 'Consultor Junior', 'Consultor Pleno', 'Consultor Senior', 'Arquiteto Solar'] as const)[Math.min(Math.floor(s.xp / 1000), 4)],
+      xp: `${(s.xp / 1000).toFixed(1)}k XP`,
+      active: profile?.id === s.id,
+    }))
+
+    const myIdx = profile ? ranked.findIndex((s) => s.id === profile.id) : -1
+    const alreadyInTop = myIdx >= 0 && myIdx < 2
+
+    if (!alreadyInTop && profile) {
+      top2.push({
+        rank: myIdx >= 0 ? String(myIdx + 1).padStart(2, '0') : '--',
+        name: 'Voce',
+        role: currentLevelName,
+        xp: `${((profile.xp_total || 0) / 1000).toFixed(1)}k XP`,
+        active: true,
+      })
+    }
+
+    return top2
+  }, [sellers, progress, profile, currentLevelName])
 
   return (
     <div className="max-w-[1400px] mx-auto animate-fade-in-up space-y-6">
@@ -282,29 +315,7 @@ export default function Index() {
                 </span>
               </div>
               <div className="space-y-2">
-                {[
-                  {
-                    rank: '01',
-                    name: 'Marcus Thorne',
-                    role: 'Arquiteto Principal',
-                    xp: '31.2k XP',
-                    active: false,
-                  },
-                  {
-                    rank: '02',
-                    name: 'Elena Vance',
-                    role: 'Especialista de Grid',
-                    xp: '24.8k XP',
-                    active: false,
-                  },
-                  {
-                    rank: '14',
-                    name: 'Você',
-                    role: currentLevelName,
-                    xp: `${((profile?.xp_total || 0) / 1000).toFixed(1)}k XP`,
-                    active: true,
-                  },
-                ].map((user, idx) => (
+                {miniRanking.map((user, idx) => (
                   <div
                     key={idx}
                     className={cn(

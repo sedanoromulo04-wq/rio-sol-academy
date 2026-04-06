@@ -1,12 +1,14 @@
-import { type ChangeEvent, useMemo, useRef, useState } from 'react'
+import { type ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { useAuth } from '@/hooks/use-auth'
 import { supabase } from '@/lib/supabase/client'
 import useUserStore from '@/stores/useUserStore'
+import { useToast } from '@/hooks/use-toast'
 import { Camera, Medal, Target, Trophy, Upload, Zap } from 'lucide-react'
 
 const achievements = [
@@ -57,8 +59,10 @@ const fileToDataUrl = (file: File) =>
 export default function Profile() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { user } = useAuth()
-  const { profile, activities } = useUserStore()
+  const { profile, activities, updateProfile } = useUserStore()
+  const { toast } = useToast()
   const [isSavingAvatar, setIsSavingAvatar] = useState(false)
+  const [specialtyInput, setSpecialtyInput] = useState('')
   const avatarUrl =
     `${user?.user_metadata?.avatar_url || ''}` ||
     profile?.avatar_url ||
@@ -88,14 +92,24 @@ export default function Profile() {
     [activities],
   )
 
+  useEffect(() => {
+    setSpecialtyInput(profile?.specialty || '')
+  }, [profile?.specialty])
+
   if (!profile) return null
 
   const handleAvatarChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
 
-    if (!file.type.startsWith('image/')) return
-    if (file.size > 2 * 1024 * 1024) return
+    if (!file.type.startsWith('image/')) {
+      toast({ variant: 'destructive', title: 'Formato invalido', description: 'Selecione uma imagem (JPG, PNG ou WEBP).' })
+      return
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ variant: 'destructive', title: 'Arquivo muito grande', description: 'A imagem deve ter no maximo 2 MB.' })
+      return
+    }
 
     setIsSavingAvatar(true)
     try {
@@ -165,6 +179,36 @@ export default function Profile() {
                 <Camera className="h-3.5 w-3.5" />
                 JPG, PNG ou WEBP com ate 2 MB
               </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  Especialidade na empresa
+                </p>
+                <p className="mt-1 text-sm text-slate-500">
+                  Isso define quais modulos especificos entram na sua jornada.
+                </p>
+              </div>
+              <Input
+                value={specialtyInput}
+                onChange={(event) => setSpecialtyInput(event.target.value)}
+                placeholder="Ex: logistica, aplicacao tecnica, vendas"
+                className="bg-white border-slate-200 text-[#061B3B]"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => updateProfile({ specialty: specialtyInput.trim() || null })}
+                className="w-full border-slate-200 text-[#061B3B] hover:bg-slate-100"
+              >
+                Salvar especialidade
+              </Button>
+              {profile.specialty && (
+                <Badge className="w-full justify-center border-0 bg-[#061B3B] text-white">
+                  Perfil atual: {profile.specialty}
+                </Badge>
+              )}
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -266,7 +310,7 @@ export default function Profile() {
                 >
                   <div>
                     <p className="text-sm font-black capitalize text-[#061B3B]">
-                      {activity.activity_type.replace(/_/g, ' ')}
+                      {activity.metadata?.title || activity.activity_type.replace(/_/g, ' ')}
                     </p>
                     <p className="mt-1 text-xs text-slate-500">
                       {activity.created_at ? new Date(activity.created_at).toLocaleString('pt-BR') : 'Sem data'}

@@ -255,7 +255,7 @@ export const agentsAdminApi = {
     return { deleted: 0 }
   },
   reindexMemories: async () => {
-    throw new Error('Reindexacao manual ainda nao foi migrada para o modo Supabase-only.')
+    return { message: 'No modo Supabase, os embeddings sao gerados automaticamente ao importar memorias. Reindexacao manual nao e necessaria.' }
   },
   importTextMemory: (payload: {
     title: string
