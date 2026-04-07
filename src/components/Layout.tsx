@@ -11,6 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
+  SidebarTrigger,
 } from '@/components/ui/sidebar'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -34,7 +35,6 @@ import {
 const baseNavItems = [
   { title: 'Minha Jornada', path: '/', icon: Map },
   { title: 'Painel de conteúdos', path: '/trilhas', icon: Brain },
-  { title: 'Laboratório de Roleplay', path: '/simulador', icon: MessageSquare },
   { title: 'Meu Desempenho', path: '/desempenho', icon: TrendingUp },
   { title: 'Ranking Global', path: '/ranking', icon: BarChart3 },
 ]
@@ -59,9 +59,7 @@ export default function Layout() {
             </h2>
             <div className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100">
               <Avatar className="h-9 w-9 rounded-lg">
-                <AvatarImage
-                  src={avatarUrl}
-                />
+                <AvatarImage src={avatarUrl} />
                 <AvatarFallback className="bg-[#061B3B] text-white rounded-lg text-xs">
                   {profile?.full_name?.substring(0, 2).toUpperCase() || 'U'}
                 </AvatarFallback>
@@ -154,7 +152,11 @@ export default function Layout() {
         </Sidebar>
 
         <main className="flex-1 flex flex-col min-w-0">
-          <header className="flex h-20 items-center justify-end px-6 lg:px-8 gap-6 sticky top-0 z-30 bg-[#F4F6F8]/80 backdrop-blur-md">
+          <header className="flex h-20 items-center justify-between md:justify-end px-6 lg:px-8 gap-6 sticky top-0 z-30 bg-[#F4F6F8]/80 backdrop-blur-md">
+            <div className="md:hidden flex items-center">
+              <SidebarTrigger className="h-9 w-9 text-slate-500 hover:text-[#061B3B] bg-white border border-slate-200 shadow-sm" />
+            </div>
+            
             {location.pathname !== '/' && (
               <div className="relative hidden md:block w-64 mr-auto">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -176,9 +178,7 @@ export default function Layout() {
               </button>
               <Link to="/perfil" className="shrink-0 transition-transform hover:scale-105">
                 <Avatar className="h-9 w-9 border-2 border-white shadow-sm rounded-lg">
-                  <AvatarImage
-                    src={avatarUrl}
-                  />
+                  <AvatarImage src={avatarUrl} />
                   <AvatarFallback className="bg-slate-200 text-[#061B3B] rounded-lg font-bold text-xs">
                     {profile?.full_name?.substring(0, 2).toUpperCase() || 'U'}
                   </AvatarFallback>
