@@ -2,9 +2,12 @@ import { Link } from 'react-router-dom'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Award, Zap, Settings2, Leaf, BrainCircuit, Target } from 'lucide-react'
+import { Target } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import useAdminStore from '@/stores/useAdminStore'
+import useUserStore from '@/stores/useUserStore'
+import { getUnlockedAchievements } from '@/lib/gamification'
+import { FALLBACK_TRAILS } from '@/lib/constants'
 
 const CircularProgress = ({ value, label }: { value: number; label: string }) => {
   const radius = 20
@@ -39,47 +42,13 @@ const CircularProgress = ({ value, label }: { value: number; label: string }) =>
   )
 }
 
-const fallbackTrails = [
-  {
-    title: 'Cultura',
-    desc: 'Ethos Solar & Valores de Engenharia',
-    modules: '8/10 Módulos',
-    progress: 75,
-    tag: '',
-  },
-  {
-    title: 'Técnico',
-    desc: 'Sistemas Fotovoltaicos Avançados',
-    modules: '15/36 Módulos',
-    progress: 42,
-    tag: '',
-  },
-  {
-    title: 'Psicologia',
-    desc: 'Protocolos de Liderança sob Alto Estresse',
-    modules: 'Nível Mestre',
-    progress: 90,
-    tag: 'bg-slate-100 text-slate-600',
-  },
-  {
-    title: 'Prática',
-    desc: 'Implementação de Campo On-site',
-    modules: 'Novo Desbloqueio',
-    progress: 12,
-    tag: 'bg-blue-50 text-blue-600',
-  },
-]
-
-const achievements = [
-  { icon: Award, label: 'ARQUITETO OURO', bg: 'bg-[#EAB308]', color: 'text-white' },
-  { icon: Zap, label: 'PRATA ECO', bg: 'bg-slate-700', color: 'text-white' },
-  { icon: Settings2, label: 'MESTRE BRONZE', bg: 'bg-slate-300', color: 'text-slate-500' },
-  { icon: Leaf, label: 'CORREDOR SOLAR', bg: 'bg-[#061B3B]', color: 'text-[#EAB308]' },
-  { icon: BrainCircuit, label: 'LINK NEURAL IA', bg: 'bg-[#061B3B]', color: 'text-cyan-400' },
-]
-
 export default function LivreView() {
   const { content } = useAdminStore()
+  const { profile, learningProgress } = useUserStore()
+
+  const evaluatedAchievements = getUnlockedAchievements(profile, learningProgress || [])
+  const unlockedCount = evaluatedAchievements.filter(a => a.unlocked).length
+  const totalAchievements = evaluatedAchievements.length
 
   const groupedTrails =
     content.length > 0
@@ -106,7 +75,7 @@ export default function LivreView() {
             progress: Math.min(96, 22 + index * 18),
           }))
           .slice(0, 4)
-      : fallbackTrails
+      : FALLBACK_TRAILS
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -204,12 +173,12 @@ export default function LivreView() {
               <Target className="w-4 h-4 text-[#EAB308]" /> Cofre de Conquistas
             </h3>
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-              24/50 Desbloqueadas
+              {unlockedCount}/{totalAchievements} Desbloqueadas
             </span>
           </div>
           <div className="flex flex-wrap gap-5">
-            {achievements.map((ach, idx) => (
-              <div key={idx} className="flex flex-col items-center gap-2 w-20">
+            {evaluatedAchievements.map((ach, idx) => (
+              <div key={idx} className={cn("flex flex-col items-center gap-2 w-20 transition-all", !ach.unlocked && "opacity-40 grayscale")}>
                 <div
                   className={cn(
                     'w-16 h-16 rounded-2xl flex items-center justify-center shadow-inner',

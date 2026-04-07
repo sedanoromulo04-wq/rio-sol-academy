@@ -9,6 +9,11 @@ import { fileURLToPath } from 'node:url'
 import { loadDotEnv } from './env.mjs'
 import { embedSingleText, embedTexts, generateText, getGeminiRuntimeConfig } from './gemini.mjs'
 import {
+  getAutomationWorkerStatus,
+  processContentById,
+  startAutomationWorker,
+} from './content-automation.mjs'
+import {
   assertAdminAccess,
   clearAgentMemories,
   defaultAgentPromptConfig,
@@ -1363,6 +1368,20 @@ const server = http.createServer(async (request, response) => {
       return
     }
 
+    // ---- Content Automation Worker Routes ----
+    if (request.method === 'GET' && url.pathname === '/api/content-automation/status') {
+      sendJson(response, 200, { ok: true, data: getAutomationWorkerStatus() }, origin)
+      return
+    }
+
+    const automationProcessMatch = url.pathname.match(/^\/api\/content-automation\/process\/([^/]+)$/)
+    if (request.method === 'POST' && automationProcessMatch) {
+      const contentId = decodeURIComponent(automationProcessMatch[1])
+      const job = createJob('content_automation', () => processContentById(contentId))
+      sendJson(response, 202, { ok: true, data: job }, origin)
+      return
+    }
+
     sendJson(response, 404, { ok: false, error: { message: 'Route not found.' } }, origin)
   } catch (error) {
     sendJson(
@@ -1386,4 +1405,7 @@ server.keepAliveTimeout = 60_000
 server.listen(port, '127.0.0.1', () => {
   const pkg = JSON.parse(readFileSync(path.join(repoRoot, 'package.json'), 'utf8'))
   console.log(`${pkg.name} NotebookLM backend listening on http://127.0.0.1:${port}`)
+
+  // Start the content automation worker
+  startAutomationWorker()
 })

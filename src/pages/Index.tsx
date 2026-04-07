@@ -15,6 +15,7 @@ import {
   saveChatMessage,
   Message,
 } from '@/services/ai-mentor'
+import { getLevelNameByXp } from '@/lib/constants'
 
 const LivreView = lazy(() => import('@/components/dashboard/LivreView'))
 const StreakView = lazy(() => import('@/components/dashboard/StreakView'))
@@ -31,12 +32,12 @@ export default function Index() {
   const [inputMsg, setInputMsg] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
-  const hasLoadedHistory = useRef(false)
+  const hasLoadedHistoryFor = useRef<string | null>(null)
 
   useEffect(() => {
     if (!profile) return
-    if (hasLoadedHistory.current) return
-    hasLoadedHistory.current = true
+    if (hasLoadedHistoryFor.current === profile.id) return
+    hasLoadedHistoryFor.current = profile.id
     
     const fetchHistory = async () => {
       try {
@@ -56,7 +57,7 @@ export default function Index() {
         }
       } catch (err) {
         console.error('Failed to load chat history', err)
-        hasLoadedHistory.current = false
+        hasLoadedHistoryFor.current = null
       }
     }
     fetchHistory()
@@ -103,15 +104,7 @@ export default function Index() {
     }
   }
 
-  const currentLevel = profile ? Math.floor(profile.xp_total / 1000) + 1 : 1
-  const levelNames = [
-    'Iniciante',
-    'Consultor Júnior',
-    'Consultor Pleno',
-    'Consultor Sênior',
-    'Arquiteto Solar',
-  ]
-  const currentLevelName = profile ? levelNames[Math.min(currentLevel - 1, 4)] : 'Carregando...'
+  const currentLevelName = profile ? getLevelNameByXp(profile.xp_total) : 'Carregando...'
   const progressPercent = profile ? Math.min(100, Math.floor(((profile.xp_total % 1000) / 1000) * 100)) : 0
 
   const miniRanking = useMemo(() => {
@@ -123,7 +116,7 @@ export default function Index() {
     const top2 = ranked.slice(0, 2).map((s, i) => ({
       rank: String(i + 1).padStart(2, '0'),
       name: s.name,
-      role: (['Iniciante', 'Consultor Junior', 'Consultor Pleno', 'Consultor Senior', 'Arquiteto Solar'] as const)[Math.min(Math.floor(s.xp / 1000), 4)],
+      role: getLevelNameByXp(s.xp) as string,
       xp: `${(s.xp / 1000).toFixed(1)}k XP`,
       active: profile?.id === s.id,
     }))

@@ -2,10 +2,36 @@ const { Client } = require('pg')
 const fs = require('fs')
 const path = require('path')
 
+const defaultConnectionString =
+  process.env.DATABASE_URL ||
+  process.env.SUPABASE_DB_URL ||
+  'postgresql://postgres:Romulobolado%401@db.ufzzvdvhijvlmnemygoj.supabase.co:5432/postgres'
+
+function getMigrationPath() {
+  const migrationsDir = path.join(__dirname, 'supabase', 'migrations')
+  const explicitArg = process.argv[2]
+
+  if (explicitArg) {
+    return path.isAbsolute(explicitArg) ? explicitArg : path.join(__dirname, explicitArg)
+  }
+
+  const migrationFiles = fs
+    .readdirSync(migrationsDir)
+    .filter((file) => file.endsWith('.sql'))
+    .sort()
+
+  if (!migrationFiles.length) {
+    throw new Error('Nenhuma migration SQL foi encontrada em supabase/migrations.')
+  }
+
+  return path.join(migrationsDir, migrationFiles[migrationFiles.length - 1])
+}
+
 async function runMigration() {
+  const migrationPath = getMigrationPath()
+  const sql = fs.readFileSync(migrationPath, 'utf8')
   const client = new Client({
-    connectionString:
-      'postgresql://postgres:Romulobolado%401@db.ufzzvdvhijvlmnemygoj.supabase.co:5432/postgres',
+    connectionString: defaultConnectionString,
     ssl: { rejectUnauthorized: false },
   })
 
@@ -13,58 +39,32 @@ async function runMigration() {
     console.log('Conectando ao Supabase PostgreSQL...')
     await client.connect()
     console.log('Conectado com sucesso!')
+    console.log(`Executando migration: ${path.basename(migrationPath)}`)
 
-    const sqlPath = path.join(
-      __dirname,
-      'supabase',
-      'migrations',
-      '20260323134043_initial_schema.sql',
-    )
-    const sql = fs.readFileSync(sqlPath, 'utf8')
-
-    console.log('Executando migração...')
     await client.query(sql)
-    console.log('Migração executada com sucesso!')
+    console.log('Migration executada com sucesso!')
 
-    // Verificar tabelas criadas
     const tablesResult = await client.query(
       "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name",
     )
-    console.log('\nTabelas criadas:')
+    console.log('\nTabelas publicas:')
     tablesResult.rows.forEach((row) => console.log('  + ' + row.table_name))
 
-    // Verificar contagem de dados seed
-    const contentCount = await client.query('SELECT count(*) FROM public.content')
-    const settingsCount = await client.query('SELECT count(*) FROM public.system_settings')
-    const profilesCount = await client.query('SELECT count(*) FROM public.profiles')
-    console.log('\nDados seed:')
-    console.log('  content: ' + contentCount.rows[0].count + ' registros')
-    console.log('  system_settings: ' + settingsCount.rows[0].count + ' registros')
-    console.log('  profiles: ' + profilesCount.rows[0].count + ' registros')
+    const learningProgressColumns = await client.query(`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_schema = 'public' AND table_name = 'learning_progress'
+      ORDER BY ordinal_position
+    `)
 
-    // Verificar políticas RLS
-    const policiesResult = await client.query(
-      "SELECT tablename, policyname FROM pg_policies WHERE schemaname = 'public' ORDER BY tablename, policyname",
-    )
-    console.log('\nPoliticas RLS (' + policiesResult.rows.length + '):')
-    policiesResult.rows.forEach((row) => console.log('  ' + row.tablename + ': ' + row.policyname))
-
-    // Verificar trigger
-    const triggerResult = await client.query(
-      "SELECT trigger_name FROM information_schema.triggers WHERE trigger_schema = 'public' OR event_object_schema = 'auth'",
-    )
-    console.log('\nTriggers:')
-    triggerResult.rows.forEach((row) => console.log('  ' + row.trigger_name))
-
-    // Verificar indices
-    const indexResult = await client.query(
-      "SELECT indexname FROM pg_indexes WHERE schemaname = 'public' AND indexname LIKE 'idx_%' ORDER BY indexname",
-    )
-    console.log('\nIndices:')
-    indexResult.rows.forEach((row) => console.log('  ' + row.indexname))
+    if (learningProgressColumns.rows.length) {
+      console.log('\nColunas learning_progress:')
+      learningProgressColumns.rows.forEach((row) => console.log('  - ' + row.column_name))
+    }
   } catch (error) {
     console.error('Erro:', error.message)
     if (error.detail) console.error('Detalhe:', error.detail)
+    process.exitCode = 1
   } finally {
     await client.end()
     console.log('\nConexao encerrada.')

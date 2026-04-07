@@ -146,33 +146,208 @@ export type Database = {
       }
       content: {
         Row: {
+          assessment_question_count: number | null
+          assessment_suggestions: string[]
+          automation_error: string | null
+          automation_processed_at: string | null
+          automation_requested_at: string | null
+          automation_status: string
+          audience_scope: string
           category: string | null
           created_at: string | null
           description: string | null
+          estimated_minutes_override: number | null
           id: string
+          material_count: number | null
+          mind_map_markdown: string
+          mind_map_status: string
+          passing_score: number | null
+          position: number | null
+          source_platform: string
+          summary_status: string
+          summary_text: string
+          target_specialties: string[]
           thumbnail_url: string | null
           title: string
+          transcript_status: string
+          transcript_text: string
+          video_count: number | null
           video_url: string | null
+          youtube_video_id: string | null
         }
         Insert: {
+          assessment_question_count?: number | null
+          assessment_suggestions?: string[]
+          automation_error?: string | null
+          automation_processed_at?: string | null
+          automation_requested_at?: string | null
+          automation_status?: string
+          audience_scope?: string
           category?: string | null
           created_at?: string | null
           description?: string | null
+          estimated_minutes_override?: number | null
           id?: string
+          material_count?: number | null
+          mind_map_markdown?: string
+          mind_map_status?: string
+          passing_score?: number | null
+          position?: number | null
+          source_platform?: string
+          summary_status?: string
+          summary_text?: string
+          target_specialties?: string[]
           thumbnail_url?: string | null
           title: string
+          transcript_status?: string
+          transcript_text?: string
+          video_count?: number | null
           video_url?: string | null
+          youtube_video_id?: string | null
         }
         Update: {
+          assessment_question_count?: number | null
+          assessment_suggestions?: string[]
+          automation_error?: string | null
+          automation_processed_at?: string | null
+          automation_requested_at?: string | null
+          automation_status?: string
+          audience_scope?: string
           category?: string | null
           created_at?: string | null
           description?: string | null
+          estimated_minutes_override?: number | null
           id?: string
+          material_count?: number | null
+          mind_map_markdown?: string
+          mind_map_status?: string
+          passing_score?: number | null
+          position?: number | null
+          source_platform?: string
+          summary_status?: string
+          summary_text?: string
+          target_specialties?: string[]
           thumbnail_url?: string | null
           title?: string
+          transcript_status?: string
+          transcript_text?: string
+          video_count?: number | null
           video_url?: string | null
+          youtube_video_id?: string | null
         }
         Relationships: []
+      }
+      backend_events: {
+        Row: {
+          action_type: string
+          actor_id: string | null
+          content_id: string | null
+          created_at: string
+          id: string
+          metadata: Json
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          actor_id?: string | null
+          content_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          actor_id?: string | null
+          content_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "backend_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "backend_events_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "content"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "backend_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      learning_progress: {
+        Row: {
+          assessment_score: number | null
+          assessment_status: "pending" | "passed" | "failed"
+          attempts_count: number
+          completed_at: string | null
+          content_id: string
+          created_at: string
+          due_at: string | null
+          id: string
+          started_at: string | null
+          updated_at: string
+          user_id: string
+          watched_at: string | null
+        }
+        Insert: {
+          assessment_score?: number | null
+          assessment_status?: "pending" | "passed" | "failed"
+          attempts_count?: number
+          completed_at?: string | null
+          content_id: string
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          started_at?: string | null
+          updated_at?: string
+          user_id: string
+          watched_at?: string | null
+        }
+        Update: {
+          assessment_score?: number | null
+          assessment_status?: "pending" | "passed" | "failed"
+          attempts_count?: number
+          completed_at?: string | null
+          content_id?: string
+          created_at?: string
+          due_at?: string | null
+          id?: string
+          started_at?: string | null
+          updated_at?: string
+          user_id?: string
+          watched_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "learning_progress_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "content"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "learning_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -184,6 +359,7 @@ export type Database = {
           id: string
           is_admin: boolean | null
           last_activity_date: string | null
+          specialty: string | null
           xp_total: number | null
         }
         Insert: {
@@ -195,6 +371,7 @@ export type Database = {
           id: string
           is_admin?: boolean | null
           last_activity_date?: string | null
+          specialty?: string | null
           xp_total?: number | null
         }
         Update: {
@@ -206,9 +383,52 @@ export type Database = {
           id?: string
           is_admin?: boolean | null
           last_activity_date?: string | null
+          specialty?: string | null
           xp_total?: number | null
         }
         Relationships: []
+      }
+      user_content_access: {
+        Row: {
+          content_id: string
+          created_at: string
+          id: string
+          is_allowed: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content_id: string
+          created_at?: string
+          id?: string
+          is_allowed?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content_id?: string
+          created_at?: string
+          id?: string
+          is_allowed?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_content_access_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "content"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_content_access_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       system_settings: {
         Row: {
