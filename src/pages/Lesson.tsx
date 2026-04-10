@@ -29,6 +29,7 @@ import {
   Play,
   Target,
 } from 'lucide-react'
+import { extractYouTubeVideoId } from '@/lib/youtube'
 
 export default function Lesson() {
   const { id } = useParams()
@@ -77,6 +78,11 @@ export default function Lesson() {
   const nextModule = currentIndex >= 0 ? trackModules[currentIndex + 1] : null
   const assessmentQuestionCount = module ? getAssessmentQuestionCount(module) : 0
   const estimatedMinutes = module ? getEstimatedMinutes(module) : 0
+
+  const activeYouTubeId = useMemo(
+    () => module?.youtube_video_id || (module?.video_url ? extractYouTubeVideoId(module.video_url) : null),
+    [module],
+  )
 
   useEffect(() => {
     if (!module || status === 'locked' || progressRecord?.started_at) return
@@ -215,9 +221,9 @@ export default function Lesson() {
         <div className="space-y-6">
           <div className="rounded-[2rem] overflow-hidden border border-slate-200 bg-white shadow-sm">
             <div className="relative aspect-video bg-black group rounded-t-[2rem]">
-              {isPlaying && module.youtube_video_id ? (
+              {isPlaying && activeYouTubeId ? (
                 <iframe
-                  src={`https://www.youtube.com/embed/${module.youtube_video_id}?autoplay=1`}
+                  src={`https://www.youtube.com/embed/${activeYouTubeId}?autoplay=1`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   className="absolute inset-0 w-full h-full border-0"
@@ -225,7 +231,7 @@ export default function Lesson() {
               ) : (
                 <>
                   <img
-                    src={module.thumbnail_url}
+                    src={module.thumbnail_url || (activeYouTubeId ? `https://img.youtube.com/vi/${activeYouTubeId}/hqdefault.jpg` : '')}
                     alt={module.title}
                     className="absolute inset-0 w-full h-full object-cover opacity-80"
                   />
@@ -233,7 +239,7 @@ export default function Lesson() {
                   
                   <div className="absolute inset-0 flex items-center justify-center">
                     <button
-                      onClick={() => setIsPlaying(true)}
+                      onClick={() => activeYouTubeId ? setIsPlaying(true) : window.open(module.video_url, '_blank')}
                       className="w-20 h-20 bg-[#EAB308]/90 hover:bg-[#EAB308] text-[#061B3B] rounded-full flex items-center justify-center transform transition-all shadow-xl hover:scale-105"
                     >
                       <Play className="w-8 h-8 ml-2" fill="currentColor" />
@@ -349,13 +355,13 @@ export default function Lesson() {
                     Assistir e registrar conclusao
                   </h2>
                 </div>
-                {module.youtube_video_id || module.video_url ? (
+                {activeYouTubeId || module.video_url ? (
                   !isPlaying ? (
                     <Button 
-                      onClick={() => module.youtube_video_id ? setIsPlaying(true) : window.open(module.video_url, '_blank')} 
+                      onClick={() => activeYouTubeId ? setIsPlaying(true) : window.open(module.video_url, '_blank')} 
                       className="bg-[#061B3B] hover:bg-[#0a2955] text-white rounded-xl"
                     >
-                      <Play className="w-4 h-4 mr-2" fill="currentColor" /> {module.youtube_video_id ? 'Iniciar Aula' : 'Abrir video externo'}
+                      <Play className="w-4 h-4 mr-2" fill="currentColor" /> {activeYouTubeId ? 'Iniciar Aula' : 'Abrir video externo'}
                     </Button>
                   ) : (
                     <Button disabled className="bg-emerald-600 text-white rounded-xl">
