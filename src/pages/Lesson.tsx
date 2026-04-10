@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { Badge } from '@/components/ui/badge'
+import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -268,7 +269,7 @@ export default function Lesson() {
           </div>
 
           <div className="rounded-[2rem] overflow-hidden border border-slate-200 bg-white shadow-sm">
-            <div className="relative aspect-video bg-[#061B3B]">
+            <AspectRatio ratio={16 / 9} className="relative bg-[#061B3B]">
               {isPlaying && activeYouTubeId ? (
                 <iframe
                   title={`Vídeo da aula ${module.title}`}
@@ -298,7 +299,7 @@ export default function Lesson() {
                   </button>
                 </>
               )}
-            </div>
+            </AspectRatio>
           </div>
 
           <Card className="rounded-[2rem] border border-slate-200 bg-white shadow-sm">
