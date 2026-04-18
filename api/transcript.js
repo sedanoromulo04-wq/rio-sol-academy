@@ -26,7 +26,28 @@ async function fetchTranscript(videoId) {
   if (!pageRes.ok) throw new Error(`YouTube retornou status ${pageRes.status}`)
 
   const html = await pageRes.text()
-  const captionMatch = html.match(/"captionTracks":(\[.*?\])/)
+  // Find captionTracks by position and extract the JSON array with bracket counting
+  const captionKey = '"captionTracks":'
+  const keyIndex = html.indexOf(captionKey)
+  let captionMatch = null
+
+  if (keyIndex !== -1) {
+    const startIndex = keyIndex + captionKey.length
+    if (html[startIndex] === '[') {
+      let depth = 0
+      let endIndex = startIndex
+      for (let i = startIndex; i < html.length; i++) {
+        if (html[i] === '[') depth++
+        else if (html[i] === ']') {
+          depth--
+          if (depth === 0) { endIndex = i; break }
+        }
+      }
+      try {
+        captionMatch = [null, html.slice(startIndex, endIndex + 1)]
+      } catch { /* ignore */ }
+    }
+  }
 
   if (!captionMatch) {
     throw new Error(
