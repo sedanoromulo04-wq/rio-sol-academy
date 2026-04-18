@@ -364,11 +364,16 @@ export default function Lesson() {
                     </Badge>
                   </div>
 
-                  <div className="space-y-3 text-slate-600 leading-relaxed">
+                  <div className="space-y-3">
                     {overviewText ? (
-                      <p>{overviewText}</p>
+                      <div className="prose prose-slate max-w-none
+                        prose-p:text-slate-600 prose-p:leading-relaxed prose-p:my-1
+                        prose-strong:text-[#061B3B] prose-strong:font-bold
+                        prose-ul:my-1 prose-li:text-slate-600 prose-li:my-0.5">
+                        <ReactMarkdown>{overviewText}</ReactMarkdown>
+                      </div>
                     ) : (
-                      <p>Nenhum resumo cadastrado para esta aula.</p>
+                      <p className="text-slate-500">Nenhum resumo cadastrado para esta aula.</p>
                     )}
                   </div>
 
