@@ -34,6 +34,7 @@ import {
   Target,
 } from 'lucide-react'
 import { buildYouTubeThumbnailUrl, extractYouTubeVideoId } from '@/lib/youtube'
+import ReactMarkdown from 'react-markdown'
 
 export default function Lesson() {
   const { id, lessonId } = useParams()
@@ -398,11 +399,16 @@ export default function Lesson() {
                       )}
 
                       {mindMapText && (
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           <h3 className="text-lg font-black text-[#061B3B]">Mapa mental</h3>
-                          <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed">
-                            {mindMapText}
-                          </p>
+                          <div className="prose prose-slate max-w-none
+                            prose-h1:text-xl prose-h1:font-black prose-h1:text-[#061B3B] prose-h1:mb-4
+                            prose-h2:text-base prose-h2:font-bold prose-h2:text-[#061B3B] prose-h2:mt-5 prose-h2:mb-2 prose-h2:border-l-4 prose-h2:border-[#F4C20D] prose-h2:pl-3
+                            prose-ul:my-1 prose-li:my-0.5 prose-li:text-slate-700
+                            prose-strong:text-[#061B3B] prose-strong:font-bold
+                            prose-p:text-slate-600 prose-p:leading-relaxed">
+                            <ReactMarkdown>{mindMapText}</ReactMarkdown>
+                          </div>
                         </div>
                       )}
                     </>
