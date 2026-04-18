@@ -21,7 +21,9 @@ const jsonError = (message: string, status = 400) => json({ error: message }, st
 const createServiceClient = () =>
   createClient(
     Deno.env.get('SUPABASE_URL') ?? '',
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+    // DB_SERVICE_KEY is the JWT service role key set via CLI
+    // (SUPABASE_SERVICE_ROLE_KEY may be overridden by a dashboard secret in wrong format)
+    Deno.env.get('DB_SERVICE_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '',
     { auth: { persistSession: false, autoRefreshToken: false } },
   )
 
@@ -104,105 +106,87 @@ function buildYouTubeVideoPart(videoId: string) {
   }
 }
 
-async function generateSummary(videoId: string): Promise<string> {
+async function generateSummary(transcript: string): Promise<string> {
   return geminiRequest({
     contents: [{
       role: 'user',
-      parts: [
-        buildYouTubeVideoPart(videoId),
-        {
-          text: [
-            'INSTRUCAO: Assista este video e crie um resumo executivo claro e direto do conteudo.',
-            '- Maximo 400 palavras',
-            '- Destaque os conceitos-chave uteis para vendedores de energia solar',
-            '- Use linguagem acessivel e pt-BR',
-            '- Formato: paragrafos curtos e objetivos',
-            '- Nao use markdown com headers (#), apenas texto corrido',
-            '- Comece direto com o conteudo, sem introducao',
-          ].join('\n'),
-        },
-      ],
+      parts: [{
+        text: [
+          'Transcricao da aula:',
+          transcript,
+          '',
+          'INSTRUCAO: Crie um resumo executivo claro e direto deste conteudo.',
+          '- Maximo 400 palavras',
+          '- Destaque os conceitos-chave uteis para vendedores de energia solar',
+          '- Use linguagem acessivel e pt-BR',
+          '- Formato: paragrafos curtos e objetivos',
+          '- Nao use markdown com headers (#), apenas texto corrido',
+          '- Comece direto com o conteudo, sem introducao',
+        ].join('\n'),
+      }],
     }],
     systemInstruction: {
-      parts: [{
-        text: 'Voce e um especialista em educacao corporativa de energia solar. Crie resumos executivos de alta qualidade para treinamento de vendedores.',
-      }],
+      parts: [{ text: 'Voce e um especialista em educacao corporativa de energia solar. Crie resumos executivos de alta qualidade para treinamento de vendedores.' }],
     },
-    generationConfig: {
-      temperature: 0.3,
-      maxOutputTokens: 800,
-      thinkingConfig: { thinkingBudget: 0 },
-    },
+    generationConfig: { temperature: 0.3, maxOutputTokens: 800, thinkingConfig: { thinkingBudget: 0 } },
   })
 }
 
-async function generateMindMap(videoId: string): Promise<string> {
+async function generateMindMap(transcript: string): Promise<string> {
   return geminiRequest({
     contents: [{
       role: 'user',
-      parts: [
-        buildYouTubeVideoPart(videoId),
-        {
-          text: [
-            'INSTRUCAO: Assista este video e crie um mapa mental hierarquico em Markdown.',
-            '- Use "# Titulo" para o tema central (apenas 1 header)',
-            '- Use "- " para ramos principais (de 4 a 8 ramos)',
-            '- Use "  - " para sub-ramos (indentacao 2 espacos)',
-            '- Maximo 4 niveis de profundidade',
-            '- Cada ramo deve ter uma frase curta e objetiva',
-            '- Foque nos conceitos mais importantes para vendedores solares',
-          ].join('\n'),
-        },
-      ],
+      parts: [{
+        text: [
+          'Transcricao da aula:',
+          transcript,
+          '',
+          'INSTRUCAO: Crie um mapa mental hierarquico em Markdown.',
+          '- Use "# Titulo" para o tema central (apenas 1 header)',
+          '- Use "- " para ramos principais (de 4 a 8 ramos)',
+          '- Use "  - " para sub-ramos (indentacao 2 espacos)',
+          '- Maximo 4 niveis de profundidade',
+          '- Cada ramo deve ter uma frase curta e objetiva',
+          '- Foque nos conceitos mais importantes para vendedores solares',
+        ].join('\n'),
+      }],
     }],
     systemInstruction: {
-      parts: [{
-        text: 'Voce e um especialista em organizacao de conteudo educacional para treinamento de vendas de energia solar.',
-      }],
+      parts: [{ text: 'Voce e um especialista em organizacao de conteudo educacional para treinamento de vendas de energia solar.' }],
     },
-    generationConfig: {
-      temperature: 0.25,
-      maxOutputTokens: 900,
-      thinkingConfig: { thinkingBudget: 0 },
-    },
+    generationConfig: { temperature: 0.25, maxOutputTokens: 900, thinkingConfig: { thinkingBudget: 0 } },
   })
 }
 
-async function generateAssessmentSuggestions(videoId: string, questionCount = 5): Promise<string[]> {
+async function generateAssessmentSuggestions(transcript: string, questionCount = 5): Promise<string[]> {
   const raw = await geminiRequest({
     contents: [{
       role: 'user',
-      parts: [
-        buildYouTubeVideoPart(videoId),
-        {
-          text: [
-            `INSTRUCAO: Assista este video e gere exatamente ${questionCount} questoes de avaliacao.`,
-            '- Cada questao: pergunta + 4 alternativas (A, B, C, D) + resposta correta',
-            '- Foque em aplicacao pratica para vendedores de energia solar',
-            '- Nivel intermediario',
-            '- Formato:',
-            '  Pergunta: [texto]',
-            '  A) [alternativa]',
-            '  B) [alternativa]',
-            '  C) [alternativa]',
-            '  D) [alternativa]',
-            '  Resposta: [letra]',
-            '- Separe questoes com linha em branco',
-            '- Nao numere as questoes',
-          ].join('\n'),
-        },
-      ],
+      parts: [{
+        text: [
+          'Transcricao da aula:',
+          transcript,
+          '',
+          `INSTRUCAO: Gere exatamente ${questionCount} questoes de avaliacao.`,
+          '- Cada questao: pergunta + 4 alternativas (A, B, C, D) + resposta correta',
+          '- Foque em aplicacao pratica para vendedores de energia solar',
+          '- Nivel intermediario',
+          '- Formato:',
+          '  Pergunta: [texto]',
+          '  A) [alternativa]',
+          '  B) [alternativa]',
+          '  C) [alternativa]',
+          '  D) [alternativa]',
+          '  Resposta: [letra]',
+          '- Separe questoes com linha em branco',
+          '- Nao numere as questoes',
+        ].join('\n'),
+      }],
     }],
     systemInstruction: {
-      parts: [{
-        text: 'Voce e um especialista em avaliacao educacional para treinamento de vendas de energia solar.',
-      }],
+      parts: [{ text: 'Voce e um especialista em avaliacao educacional para treinamento de vendas de energia solar.' }],
     },
-    generationConfig: {
-      temperature: 0.35,
-      maxOutputTokens: 1400,
-      thinkingConfig: { thinkingBudget: 0 },
-    },
+    generationConfig: { temperature: 0.35, maxOutputTokens: 1400, thinkingConfig: { thinkingBudget: 0 } },
   })
 
   const blocks = raw
@@ -233,13 +217,16 @@ async function updateContent(
 async function processContent(
   supabase: ReturnType<typeof createServiceClient>,
   item: any,
+  transcriptText: string,
 ) {
-  const { id, youtube_video_id, assessment_question_count, summary_status, mind_map_status } = item
+  const { id, assessment_question_count, summary_status, mind_map_status } = item
+
+  const trimmed = transcriptText.length > 60000 ? transcriptText.slice(0, 60000) + '...' : transcriptText
 
   await updateContent(supabase, id, {
     automation_status: 'processing',
     transcript_status: 'ready',
-    transcript_text: `Video YouTube: ${youtube_video_id}`,
+    transcript_text: trimmed,
     automation_error: null,
   })
 
@@ -253,11 +240,11 @@ async function processContent(
     await updateContent(supabase, id, processingUpdate)
   }
 
-  // Run summary, mind map and quiz in parallel — Gemini reads YouTube URL directly
+  // Run summary, mind map and quiz in parallel using transcript text
   const [summaryResult, mindMapResult, questionsResult] = await Promise.allSettled([
-    needsSummary ? generateSummary(youtube_video_id) : Promise.resolve(null),
-    needsMindMap ? generateMindMap(youtube_video_id) : Promise.resolve(null),
-    generateAssessmentSuggestions(youtube_video_id, assessment_question_count || 5),
+    needsSummary ? generateSummary(trimmed) : Promise.resolve(null),
+    needsMindMap ? generateMindMap(trimmed) : Promise.resolve(null),
+    generateAssessmentSuggestions(trimmed, assessment_question_count || 5),
   ])
 
   const errors: string[] = []
@@ -331,7 +318,31 @@ Deno.serve(async (req: Request) => {
     if (error || !item) return jsonError('Conteudo nao encontrado.', 404)
     if (!item.youtube_video_id) return jsonError('Conteudo sem youtube_video_id valido.', 400)
 
-    await processContent(supabase, item)
+    // Fetch transcript via Vercel API route (avoids YouTube IP blocking on Supabase)
+    const vercelUrl = Deno.env.get('VERCEL_URL') || 'https://rio-sol-academy.vercel.app'
+    const transcriptRes = await fetchWithTimeout(
+      `${vercelUrl}/api/transcript?videoId=${item.youtube_video_id}`,
+      {},
+      25000,
+    ).catch(() => null)
+
+    let transcriptText = item.transcript_text || ''
+
+    if (transcriptRes?.ok) {
+      const data = await transcriptRes.json().catch(() => null)
+      if (data?.text && data.text.length > 50) {
+        transcriptText = data.text
+      }
+    }
+
+    if (!transcriptText || transcriptText.length < 50) {
+      return jsonError(
+        'Transcricao nao disponivel. Verifique se o video esta como "Nao listado" no YouTube e se as legendas automaticas ja foram geradas (pode levar alguns minutos apos o upload).',
+        422,
+      )
+    }
+
+    await processContent(supabase, item, transcriptText)
 
     const { data: updated } = await supabase
       .from('content')
