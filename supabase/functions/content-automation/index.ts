@@ -106,86 +106,39 @@ function buildYouTubeVideoPart(videoId: string) {
   }
 }
 
-async function generateSummary(transcript: string): Promise<string> {
+function youtubePart(videoId: string) {
+  return { fileData: { mimeType: 'video/youtube', fileUri: `https://www.youtube.com/watch?v=${videoId}` } }
+}
+
+async function generateSummary(videoId: string): Promise<string> {
   return geminiRequest({
-    contents: [{
-      role: 'user',
-      parts: [{
-        text: [
-          'Transcricao da aula:',
-          transcript,
-          '',
-          'INSTRUCAO: Crie um resumo executivo claro e direto deste conteudo.',
-          '- Maximo 400 palavras',
-          '- Destaque os conceitos-chave uteis para vendedores de energia solar',
-          '- Use linguagem acessivel e pt-BR',
-          '- Formato: paragrafos curtos e objetivos',
-          '- Nao use markdown com headers (#), apenas texto corrido',
-          '- Comece direto com o conteudo, sem introducao',
-        ].join('\n'),
-      }],
-    }],
-    systemInstruction: {
-      parts: [{ text: 'Voce e um especialista em educacao corporativa de energia solar. Crie resumos executivos de alta qualidade para treinamento de vendedores.' }],
-    },
+    contents: [{ role: 'user', parts: [
+      youtubePart(videoId),
+      { text: 'INSTRUCAO: Assista este video e crie um resumo executivo claro e direto.\n- Maximo 400 palavras\n- Conceitos-chave para vendedores de energia solar\n- pt-BR, paragrafos curtos\n- Sem headers (#), sem introducao' },
+    ]}],
+    systemInstruction: { parts: [{ text: 'Especialista em educacao corporativa de energia solar. Crie resumos executivos para treinamento de vendedores.' }] },
     generationConfig: { temperature: 0.3, maxOutputTokens: 800, thinkingConfig: { thinkingBudget: 0 } },
   })
 }
 
-async function generateMindMap(transcript: string): Promise<string> {
+async function generateMindMap(videoId: string): Promise<string> {
   return geminiRequest({
-    contents: [{
-      role: 'user',
-      parts: [{
-        text: [
-          'Transcricao da aula:',
-          transcript,
-          '',
-          'INSTRUCAO: Crie um mapa mental hierarquico em Markdown.',
-          '- Use "# Titulo" para o tema central (apenas 1 header)',
-          '- Use "- " para ramos principais (de 4 a 8 ramos)',
-          '- Use "  - " para sub-ramos (indentacao 2 espacos)',
-          '- Maximo 4 niveis de profundidade',
-          '- Cada ramo deve ter uma frase curta e objetiva',
-          '- Foque nos conceitos mais importantes para vendedores solares',
-        ].join('\n'),
-      }],
-    }],
-    systemInstruction: {
-      parts: [{ text: 'Voce e um especialista em organizacao de conteudo educacional para treinamento de vendas de energia solar.' }],
-    },
+    contents: [{ role: 'user', parts: [
+      youtubePart(videoId),
+      { text: 'INSTRUCAO: Crie um mapa mental hierarquico em Markdown.\n- "# Titulo" para tema central\n- "- " ramos principais (4-8)\n- "  - " sub-ramos\n- Max 4 niveis\n- Frases curtas, foco em vendas solar' },
+    ]}],
+    systemInstruction: { parts: [{ text: 'Especialista em organizacao de conteudo para treinamento de vendas solar.' }] },
     generationConfig: { temperature: 0.25, maxOutputTokens: 900, thinkingConfig: { thinkingBudget: 0 } },
   })
 }
 
-async function generateAssessmentSuggestions(transcript: string, questionCount = 5): Promise<string[]> {
+async function generateAssessmentSuggestions(videoId: string, questionCount = 5): Promise<string[]> {
   const raw = await geminiRequest({
-    contents: [{
-      role: 'user',
-      parts: [{
-        text: [
-          'Transcricao da aula:',
-          transcript,
-          '',
-          `INSTRUCAO: Gere exatamente ${questionCount} questoes de avaliacao.`,
-          '- Cada questao: pergunta + 4 alternativas (A, B, C, D) + resposta correta',
-          '- Foque em aplicacao pratica para vendedores de energia solar',
-          '- Nivel intermediario',
-          '- Formato:',
-          '  Pergunta: [texto]',
-          '  A) [alternativa]',
-          '  B) [alternativa]',
-          '  C) [alternativa]',
-          '  D) [alternativa]',
-          '  Resposta: [letra]',
-          '- Separe questoes com linha em branco',
-          '- Nao numere as questoes',
-        ].join('\n'),
-      }],
-    }],
-    systemInstruction: {
-      parts: [{ text: 'Voce e um especialista em avaliacao educacional para treinamento de vendas de energia solar.' }],
-    },
+    contents: [{ role: 'user', parts: [
+      youtubePart(videoId),
+      { text: `INSTRUCAO: Gere exatamente ${questionCount} questoes de avaliacao.\nFormato: Pergunta: [texto]\nA) B) C) D)\nResposta: [letra]\nSepare com linha em branco. Nao numere.` },
+    ]}],
+    systemInstruction: { parts: [{ text: 'Especialista em avaliacao educacional para vendas de energia solar.' }] },
     generationConfig: { temperature: 0.35, maxOutputTokens: 1400, thinkingConfig: { thinkingBudget: 0 } },
   })
 
@@ -217,18 +170,17 @@ async function updateContent(
 async function processContent(
   supabase: ReturnType<typeof createServiceClient>,
   item: any,
-  transcriptText: string,
 ) {
-  const { id, assessment_question_count, summary_status, mind_map_status } = item
-
-  const trimmed = transcriptText.length > 60000 ? transcriptText.slice(0, 60000) + '...' : transcriptText
+  const { id, youtube_video_id, assessment_question_count, summary_status, mind_map_status } = item
 
   await updateContent(supabase, id, {
     automation_status: 'processing',
     transcript_status: 'ready',
-    transcript_text: trimmed,
+    transcript_text: `youtube:${youtube_video_id}`,
     automation_error: null,
   })
+
+  const trimmed = youtube_video_id
 
   const needsSummary = summary_status !== 'ready'
   const needsMindMap = mind_map_status !== 'ready'
@@ -318,31 +270,7 @@ Deno.serve(async (req: Request) => {
     if (error || !item) return jsonError('Conteudo nao encontrado.', 404)
     if (!item.youtube_video_id) return jsonError('Conteudo sem youtube_video_id valido.', 400)
 
-    // Fetch transcript via Vercel API route (avoids YouTube IP blocking on Supabase)
-    const vercelUrl = Deno.env.get('VERCEL_URL') || 'https://rio-sol-academy.vercel.app'
-    const transcriptRes = await fetchWithTimeout(
-      `${vercelUrl}/api/transcript?videoId=${item.youtube_video_id}`,
-      {},
-      25000,
-    ).catch(() => null)
-
-    let transcriptText = item.transcript_text || ''
-
-    if (transcriptRes?.ok) {
-      const data = await transcriptRes.json().catch(() => null)
-      if (data?.text && data.text.length > 50) {
-        transcriptText = data.text
-      }
-    }
-
-    if (!transcriptText || transcriptText.length < 50) {
-      return jsonError(
-        'Transcricao nao disponivel. Verifique se o video esta como "Nao listado" no YouTube e se as legendas automaticas ja foram geradas (pode levar alguns minutos apos o upload).',
-        422,
-      )
-    }
-
-    await processContent(supabase, item, transcriptText)
+    await processContent(supabase, item)
 
     const { data: updated } = await supabase
       .from('content')
