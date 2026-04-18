@@ -34,7 +34,8 @@ import {
   Target,
 } from 'lucide-react'
 import { buildYouTubeThumbnailUrl, extractYouTubeVideoId } from '@/lib/youtube'
-import ReactMarkdown from 'react-markdown'
+import MarkdownBlock from '@/components/MarkdownBlock'
+import QuizPlayer from '@/components/QuizPlayer'
 
 export default function Lesson() {
   const { id, lessonId } = useParams()
@@ -50,6 +51,11 @@ export default function Lesson() {
   const { toast } = useToast()
   const [correctAnswers, setCorrectAnswers] = useState('')
   const [isPlaying, setIsPlaying] = useState(false)
+
+  const handleSubmitAssessmentSilent = async (score: number, total: number) => {
+    if (!progressRecord?.watched_at) return
+    await submitAssessment(module!, Math.min(total, score))
+  }
 
   const accessMap = useMemo(
     () => buildContentAccessMap(userContentAccess),
@@ -366,12 +372,7 @@ export default function Lesson() {
 
                   <div className="space-y-3">
                     {overviewText ? (
-                      <div className="prose prose-slate max-w-none
-                        prose-p:text-slate-600 prose-p:leading-relaxed prose-p:my-1
-                        prose-strong:text-[#061B3B] prose-strong:font-bold
-                        prose-ul:my-1 prose-li:text-slate-600 prose-li:my-0.5">
-                        <ReactMarkdown>{overviewText}</ReactMarkdown>
-                      </div>
+                      <MarkdownBlock content={overviewText} />
                     ) : (
                       <p className="text-slate-500">Nenhum resumo cadastrado para esta aula.</p>
                     )}
@@ -406,14 +407,7 @@ export default function Lesson() {
                       {mindMapText && (
                         <div className="space-y-3">
                           <h3 className="text-lg font-black text-[#061B3B]">Mapa mental</h3>
-                          <div className="prose prose-slate max-w-none
-                            prose-h1:text-xl prose-h1:font-black prose-h1:text-[#061B3B] prose-h1:mb-4
-                            prose-h2:text-base prose-h2:font-bold prose-h2:text-[#061B3B] prose-h2:mt-5 prose-h2:mb-2 prose-h2:border-l-4 prose-h2:border-[#F4C20D] prose-h2:pl-3
-                            prose-ul:my-1 prose-li:my-0.5 prose-li:text-slate-700
-                            prose-strong:text-[#061B3B] prose-strong:font-bold
-                            prose-p:text-slate-600 prose-p:leading-relaxed">
-                            <ReactMarkdown>{mindMapText}</ReactMarkdown>
-                          </div>
+                          <MarkdownBlock content={mindMapText} />
                         </div>
                       )}
                     </>
@@ -437,52 +431,61 @@ export default function Lesson() {
             <TabsContent value="quiz" className="mt-6">
               <Card className="rounded-[2rem] border border-slate-200 bg-white shadow-sm">
                 <CardContent className="p-8 space-y-6">
-                  <div className="space-y-2">
-                    <h3 className="text-2xl font-black text-[#061B3B] font-display">
-                      Quiz de conclusão
-                    </h3>
-                    <p className="text-slate-600">
-                      Informe quantos acertos você teve para que o sistema registre sua aprovação.
+                  <div className="space-y-1">
+                    <h3 className="text-2xl font-black text-[#061B3B] font-display">Quiz da aula</h3>
+                    <p className="text-slate-500 text-sm">
+                      Responda as questões e registre sua nota para avançar.
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-end">
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-[#061B3B]">
-                        Acertos na prova ({assessmentQuestionCount} questões)
-                      </label>
-                      <Input
-                        type="number"
-                        min={0}
-                        max={assessmentQuestionCount}
-                        value={correctAnswers}
-                        onChange={(event) => setCorrectAnswers(event.target.value)}
-                        className="bg-slate-50 border-slate-200 text-[#061B3B]"
-                      />
+                  {hasAssessmentSuggestions ? (
+                    <QuizPlayer
+                      suggestions={module.assessment_suggestions}
+                      onFinish={(score, total) => {
+                        const pct = Math.round((score / total) * 100)
+                        setCorrectAnswers(String(score))
+                        handleSubmitAssessmentSilent(score, total)
+                      }}
+                    />
+                  ) : (
+                    <div className="space-y-4">
+                      <p className="text-slate-500 text-sm">
+                        As questões desta aula ainda estão sendo geradas pela IA.
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-end">
+                        <div className="space-y-2">
+                          <label className="text-sm font-semibold text-[#061B3B]">
+                            Acertos na prova ({assessmentQuestionCount} questões)
+                          </label>
+                          <Input
+                            type="number"
+                            min={0}
+                            max={assessmentQuestionCount}
+                            value={correctAnswers}
+                            onChange={(event) => setCorrectAnswers(event.target.value)}
+                            className="bg-slate-50 border-slate-200 text-[#061B3B]"
+                          />
+                        </div>
+                        <Button
+                          onClick={handleSubmitAssessment}
+                          className="bg-[#061B3B] hover:bg-[#0a2955] text-white rounded-xl h-11 px-6"
+                        >
+                          <Target className="w-4 h-4 mr-2" />
+                          Registrar
+                        </Button>
+                      </div>
                     </div>
-
-                    <Button
-                      onClick={handleSubmitAssessment}
-                      className="bg-[#061B3B] hover:bg-[#0a2955] text-white rounded-xl h-11 px-6"
-                    >
-                      <Target className="w-4 h-4 mr-2" />
-                      Registrar Quiz
-                    </Button>
-                  </div>
+                  )}
 
                   {progressRecord?.assessment_score !== null &&
                     progressRecord?.assessment_score !== undefined && (
                       <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 flex items-center justify-between gap-4">
                         <div>
-                          <p className="text-sm font-semibold text-[#061B3B]">Resultado atual</p>
-                          <p className="text-sm text-slate-500">
-                            Tentativas: {progressRecord.attempts_count}
-                          </p>
+                          <p className="text-sm font-semibold text-[#061B3B]">Último resultado</p>
+                          <p className="text-sm text-slate-500">Tentativas: {progressRecord.attempts_count}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-3xl font-black text-[#061B3B]">
-                            {progressRecord.assessment_score}%
-                          </p>
+                          <p className="text-3xl font-black text-[#061B3B]">{progressRecord.assessment_score}%</p>
                           <p className="text-xs font-black uppercase tracking-[0.24em] text-slate-500">
                             {progressRecord.assessment_status === 'passed' ? 'Aprovado' : 'Reprovado'}
                           </p>
@@ -505,23 +508,6 @@ export default function Lesson() {
                     </p>
                   </div>
 
-                  {hasAssessmentSuggestions && (
-                    <div className="space-y-3">
-                      <p className="text-sm font-semibold text-[#061B3B]">
-                        Sugestões geradas para revisão
-                      </p>
-                      <div className="space-y-2">
-                        {module.assessment_suggestions.map((suggestion, index) => (
-                          <div
-                            key={`${index}-${suggestion}`}
-                            className="rounded-xl bg-slate-50 border border-slate-200 p-3 text-sm text-slate-600"
-                          >
-                            {index + 1}. {suggestion}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
 
                   <Button asChild className="rounded-xl bg-[#061B3B] hover:bg-[#0a2955] text-white">
                     <Link to="/simulador">
