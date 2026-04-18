@@ -2,14 +2,11 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts'
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 import { corsHeaders } from '../_shared/cors.ts'
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta'
 
 const getGeminiApiKey = () =>
   Deno.env.get('GEMINI_API_KEY') || Deno.env.get('GOOGLE_AI_API_KEY') || ''
+
 const getGeminiAgentModel = () =>
   Deno.env.get('GEMINI_AGENT_MODEL') || 'gemini-2.5-flash'
 
@@ -34,16 +31,16 @@ const createAuthedClient = (req: Request) =>
   })
 
 // ---------------------------------------------------------------------------
-// Admin verification
+// Admin verification (supports internal key bypass)
 // ---------------------------------------------------------------------------
 
 async function requireAdmin(req: Request) {
-  const supabase = createAuthedClient(req)
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser()
+  const internalKey = Deno.env.get('INTERNAL_API_KEY') ?? ''
+  const internalHeader = req.headers.get('x-internal-key') || ''
+  if (internalKey && internalHeader === internalKey) return null
 
+  const supabase = createAuthedClient(req)
+  const { data: { user }, error } = await supabase.auth.getUser()
   if (error || !user) throw new Error('Sessao invalida ou expirada.')
 
   const { data: profile } = await supabase
@@ -57,238 +54,155 @@ async function requireAdmin(req: Request) {
 }
 
 // ---------------------------------------------------------------------------
-// Gemini API
+// Gemini — generate content directly from YouTube URL
+// Gemini 1.5+ supports YouTube video URLs natively as file parts
 // ---------------------------------------------------------------------------
 
-function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 45000) {
+function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 55000) {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
   return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer))
 }
 
-async function geminiRequest(endpoint: string, body: Record<string, unknown>) {
+async function geminiRequest(body: Record<string, unknown>) {
   const apiKey = getGeminiApiKey()
   if (!apiKey) throw new Error('GEMINI_API_KEY nao configurada nas secrets do Supabase.')
 
+  const model = getGeminiAgentModel()
   const response = await fetchWithTimeout(
-    `${GEMINI_API_BASE}/${endpoint}?key=${encodeURIComponent(apiKey)}`,
+    `${GEMINI_API_BASE}/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     },
-    45000,
+    55000,
   )
 
   const payload = await response.json().catch(() => null)
   if (!response.ok) {
-    throw new Error(
-      payload?.error?.message || `Gemini request failed with status ${response.status}.`,
-    )
+    throw new Error(payload?.error?.message || `Gemini request failed: ${response.status}`)
   }
-  return payload
-}
-
-async function generateText(options: {
-  prompt: string
-  systemInstruction?: string
-  temperature?: number
-  maxOutputTokens?: number
-}) {
-  const model = getGeminiAgentModel()
-  const payload: Record<string, unknown> = {
-    contents: [{ role: 'user', parts: [{ text: options.prompt }] }],
-    generationConfig: {
-      temperature: options.temperature ?? 0.3,
-      maxOutputTokens: options.maxOutputTokens ?? 900,
-      thinkingConfig: { thinkingBudget: 0 },
-    },
-  }
-
-  if (options.systemInstruction?.trim()) {
-    payload.systemInstruction = { parts: [{ text: options.systemInstruction.trim() }] }
-  }
-
-  const result = await geminiRequest(`models/${model}:generateContent`, payload)
 
   const text =
-    result?.candidates
+    payload?.candidates
       ?.flatMap((c: any) => c?.content?.parts || [])
       .map((p: any) => p?.text || '')
       .join('')
       .trim() || ''
 
-  if (!text) throw new Error('Gemini nao retornou texto para esta solicitacao.')
+  if (!text) throw new Error('Gemini nao retornou texto.')
   return text
 }
 
-// ---------------------------------------------------------------------------
-// YouTube transcript (Deno-compatible — no npm packages)
-// ---------------------------------------------------------------------------
-
-function decodeHtmlEntities(text: string) {
-  return text
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&apos;/g, "'")
-    .replace(/&#(\d+);/g, (_: string, dec: string) => String.fromCharCode(Number(dec)))
-}
-
-async function fetchYouTubeTranscript(videoId: string) {
-  const pageResponse = await fetchWithTimeout(`https://www.youtube.com/watch?v=${videoId}`, {
-    headers: {
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-    },
-  }, 20000)
-
-  if (!pageResponse.ok) {
-    throw new Error(`Falha ao acessar o video do YouTube (status ${pageResponse.status}).`)
-  }
-
-  const html = await pageResponse.text()
-
-  const captionMatch = html.match(/"captionTracks":(\[.*?\])/)
-  if (!captionMatch) {
-    throw new Error(
-      'Transcricao nao disponivel para este video. Verifique se as legendas foram geradas no YouTube.',
-    )
-  }
-
-  let tracks: any[]
-  try {
-    tracks = JSON.parse(captionMatch[1])
-  } catch {
-    throw new Error('Falha ao interpretar as faixas de legendas do YouTube.')
-  }
-
-  if (!tracks.length) {
-    throw new Error('Nenhuma faixa de legendas encontrada para este video.')
-  }
-
-  const ptTrack = tracks.find(
-    (t: any) => t.languageCode === 'pt' || t.languageCode === 'pt-BR',
-  )
-  const enTrack = tracks.find((t: any) => t.languageCode?.startsWith('en'))
-  const track = ptTrack || enTrack || tracks[0]
-
-  if (!track?.baseUrl) {
-    throw new Error('URL da transcricao nao encontrada.')
-  }
-
-  const transcriptResponse = await fetchWithTimeout(track.baseUrl, {}, 15000)
-  if (!transcriptResponse.ok) {
-    throw new Error('Falha ao baixar a transcricao do YouTube.')
-  }
-
-  const xml = await transcriptResponse.text()
-
-  const segments: string[] = []
-  const textRegex = /<text[^>]*>([\s\S]*?)<\/text>/g
-  let textMatch
-  while ((textMatch = textRegex.exec(xml)) !== null) {
-    const decoded = decodeHtmlEntities(textMatch[1]).trim()
-    if (decoded) segments.push(decoded)
-  }
-
-  if (!segments.length) {
-    throw new Error('Transcricao vazia retornada pelo YouTube.')
-  }
-
-  const fullText = segments
-    .join(' ')
-    .replace(/\[.*?\]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-
-  if (fullText.length < 50) {
-    throw new Error('Transcricao muito curta para gerar conteudo.')
-  }
-
+function buildYouTubeVideoPart(videoId: string) {
   return {
-    text: fullText,
-    language: track.languageCode || 'auto',
-    segmentCount: segments.length,
+    fileData: {
+      mimeType: 'video/youtube',
+      fileUri: `https://www.youtube.com/watch?v=${videoId}`,
+    },
   }
 }
 
-// ---------------------------------------------------------------------------
-// Gemini content-generation prompts
-// ---------------------------------------------------------------------------
-
-async function generateSummary(transcript: string) {
-  return generateText({
-    systemInstruction:
-      'Voce e um especialista em educacao corporativa de energia solar. Seu papel e criar resumos executivos de alta qualidade para treinamento de vendedores.',
-    prompt: [
-      'Transcricao do video-aula:',
-      transcript,
-      '',
-      'INSTRUCAO: Crie um resumo executivo claro e direto deste conteudo.',
-      '- Maximo 400 palavras',
-      '- Destaque os conceitos-chave uteis para vendedores de energia solar',
-      '- Use linguagem acessivel e pt-BR',
-      '- Formato: paragrafos curtos e objetivos',
-      '- Nao use markdown com headers (#), apenas texto corrido com paragrafos',
-      '- Comece direto com o conteudo, sem frases como "Neste video..." ou "O resumo..."',
-    ].join('\n'),
-    temperature: 0.3,
-    maxOutputTokens: 800,
+async function generateSummary(videoId: string): Promise<string> {
+  return geminiRequest({
+    contents: [{
+      role: 'user',
+      parts: [
+        buildYouTubeVideoPart(videoId),
+        {
+          text: [
+            'INSTRUCAO: Assista este video e crie um resumo executivo claro e direto do conteudo.',
+            '- Maximo 400 palavras',
+            '- Destaque os conceitos-chave uteis para vendedores de energia solar',
+            '- Use linguagem acessivel e pt-BR',
+            '- Formato: paragrafos curtos e objetivos',
+            '- Nao use markdown com headers (#), apenas texto corrido',
+            '- Comece direto com o conteudo, sem introducao',
+          ].join('\n'),
+        },
+      ],
+    }],
+    systemInstruction: {
+      parts: [{
+        text: 'Voce e um especialista em educacao corporativa de energia solar. Crie resumos executivos de alta qualidade para treinamento de vendedores.',
+      }],
+    },
+    generationConfig: {
+      temperature: 0.3,
+      maxOutputTokens: 800,
+      thinkingConfig: { thinkingBudget: 0 },
+    },
   })
 }
 
-async function generateMindMap(transcript: string) {
-  return generateText({
-    systemInstruction:
-      'Voce e um especialista em organizacao de conteudo educacional para treinamento de vendas de energia solar. Crie mapas mentais claros e uteis.',
-    prompt: [
-      'Transcricao do video-aula:',
-      transcript,
-      '',
-      'INSTRUCAO: Crie um mapa mental hierarquico em Markdown usando bullets aninhados.',
-      '- Use "# Titulo" para o tema central (apenas 1 header)',
-      '- Use "- " para ramos principais (de 4 a 8 ramos)',
-      '- Use "  - " para sub-ramos (indentacao 2 espacos)',
-      '- Maximo 4 niveis de profundidade',
-      '- Cada ramo deve ter uma frase curta e objetiva',
-      '- Foque nos conceitos mais importantes para vendedores solares',
-      '- Nao inclua explicacoes longas dentro dos bullets',
-    ].join('\n'),
-    temperature: 0.25,
-    maxOutputTokens: 900,
+async function generateMindMap(videoId: string): Promise<string> {
+  return geminiRequest({
+    contents: [{
+      role: 'user',
+      parts: [
+        buildYouTubeVideoPart(videoId),
+        {
+          text: [
+            'INSTRUCAO: Assista este video e crie um mapa mental hierarquico em Markdown.',
+            '- Use "# Titulo" para o tema central (apenas 1 header)',
+            '- Use "- " para ramos principais (de 4 a 8 ramos)',
+            '- Use "  - " para sub-ramos (indentacao 2 espacos)',
+            '- Maximo 4 niveis de profundidade',
+            '- Cada ramo deve ter uma frase curta e objetiva',
+            '- Foque nos conceitos mais importantes para vendedores solares',
+          ].join('\n'),
+        },
+      ],
+    }],
+    systemInstruction: {
+      parts: [{
+        text: 'Voce e um especialista em organizacao de conteudo educacional para treinamento de vendas de energia solar.',
+      }],
+    },
+    generationConfig: {
+      temperature: 0.25,
+      maxOutputTokens: 900,
+      thinkingConfig: { thinkingBudget: 0 },
+    },
   })
 }
 
-async function generateAssessmentSuggestions(transcript: string, questionCount = 5) {
-  const raw = await generateText({
-    systemInstruction:
-      'Voce e um especialista em avaliacao educacional para treinamento de vendas de energia solar. Crie questoes claras, praticas e relevantes.',
-    prompt: [
-      'Transcricao do video-aula:',
-      transcript,
-      '',
-      `INSTRUCAO: Gere exatamente ${questionCount} sugestoes de questoes de avaliacao.`,
-      '- Cada questao deve ser uma pergunta seguida de 4 alternativas (A, B, C, D) e a resposta correta',
-      '- Foque em aplicacao pratica, nao memorizacao pura',
-      '- Nivel de dificuldade: intermediario',
-      '- Contexto: treinamento de vendedores de energia solar',
-      '- Formato de cada questao:',
-      '  Pergunta: [texto da pergunta]',
-      '  A) [alternativa]',
-      '  B) [alternativa]',
-      '  C) [alternativa]',
-      '  D) [alternativa]',
-      '  Resposta: [letra]',
-      '',
-      '- Separe cada questao com uma linha em branco',
-      '- Nao numere as questoes',
-    ].join('\n'),
-    temperature: 0.35,
-    maxOutputTokens: 1400,
+async function generateAssessmentSuggestions(videoId: string, questionCount = 5): Promise<string[]> {
+  const raw = await geminiRequest({
+    contents: [{
+      role: 'user',
+      parts: [
+        buildYouTubeVideoPart(videoId),
+        {
+          text: [
+            `INSTRUCAO: Assista este video e gere exatamente ${questionCount} questoes de avaliacao.`,
+            '- Cada questao: pergunta + 4 alternativas (A, B, C, D) + resposta correta',
+            '- Foque em aplicacao pratica para vendedores de energia solar',
+            '- Nivel intermediario',
+            '- Formato:',
+            '  Pergunta: [texto]',
+            '  A) [alternativa]',
+            '  B) [alternativa]',
+            '  C) [alternativa]',
+            '  D) [alternativa]',
+            '  Resposta: [letra]',
+            '- Separe questoes com linha em branco',
+            '- Nao numere as questoes',
+          ].join('\n'),
+        },
+      ],
+    }],
+    systemInstruction: {
+      parts: [{
+        text: 'Voce e um especialista em avaliacao educacional para treinamento de vendas de energia solar.',
+      }],
+    },
+    generationConfig: {
+      temperature: 0.35,
+      maxOutputTokens: 1400,
+      thinkingConfig: { thinkingBudget: 0 },
+    },
   })
 
   const blocks = raw
@@ -313,119 +227,81 @@ async function updateContent(
 }
 
 // ---------------------------------------------------------------------------
-// Main pipeline
+// Main pipeline — uses Gemini with YouTube URL directly (no scraping needed)
 // ---------------------------------------------------------------------------
 
 async function processContent(
   supabase: ReturnType<typeof createServiceClient>,
   item: any,
 ) {
-  const {
-    id,
-    youtube_video_id,
-    assessment_question_count,
-    transcript_status,
-    summary_status,
-    mind_map_status,
-  } = item
+  const { id, youtube_video_id, assessment_question_count, summary_status, mind_map_status } = item
 
   await updateContent(supabase, id, {
     automation_status: 'processing',
+    transcript_status: 'ready',
+    transcript_text: `Video YouTube: ${youtube_video_id}`,
     automation_error: null,
   })
 
-  let transcript = item.transcript_text || ''
+  const needsSummary = summary_status !== 'ready'
+  const needsMindMap = mind_map_status !== 'ready'
 
-  // ---- Step 1: Transcript ----
-  if (transcript_status !== 'ready' || !transcript) {
-    try {
-      await updateContent(supabase, id, { transcript_status: 'processing' })
-      const result = await fetchYouTubeTranscript(youtube_video_id)
-      transcript = result.text
-      await updateContent(supabase, id, {
-        transcript_status: 'ready',
-        transcript_text: transcript,
-      })
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao buscar transcricao'
-      await updateContent(supabase, id, {
-        transcript_status: 'error',
-        automation_status: 'error',
-        automation_error: `Transcricao: ${msg}`,
-        automation_processed_at: new Date().toISOString(),
-      })
-      throw err
-    }
+  const processingUpdate: Record<string, unknown> = {}
+  if (needsSummary) processingUpdate.summary_status = 'processing'
+  if (needsMindMap) processingUpdate.mind_map_status = 'processing'
+  if (Object.keys(processingUpdate).length > 0) {
+    await updateContent(supabase, id, processingUpdate)
   }
 
-  if (!transcript || transcript.length < 50) {
-    await updateContent(supabase, id, {
-      automation_status: 'error',
-      automation_error: 'Transcricao muito curta ou vazia para gerar conteudo.',
-      automation_processed_at: new Date().toISOString(),
-    })
-    throw new Error('Transcricao muito curta.')
+  // Run summary, mind map and quiz in parallel — Gemini reads YouTube URL directly
+  const [summaryResult, mindMapResult, questionsResult] = await Promise.allSettled([
+    needsSummary ? generateSummary(youtube_video_id) : Promise.resolve(null),
+    needsMindMap ? generateMindMap(youtube_video_id) : Promise.resolve(null),
+    generateAssessmentSuggestions(youtube_video_id, assessment_question_count || 5),
+  ])
+
+  const errors: string[] = []
+  const finalUpdate: Record<string, unknown> = {}
+
+  if (summaryResult.status === 'fulfilled' && summaryResult.value !== null) {
+    finalUpdate.summary_status = 'ready'
+    finalUpdate.summary_text = summaryResult.value
+  } else if (summaryResult.status === 'rejected') {
+    const msg = summaryResult.reason instanceof Error ? summaryResult.reason.message : 'Erro ao gerar resumo'
+    finalUpdate.summary_status = 'error'
+    errors.push(`Resumo: ${msg}`)
   }
 
-  const trimmed =
-    transcript.length > 30000 ? transcript.slice(0, 30000) + '...' : transcript
-
-  // ---- Step 2: Summary ----
-  if (summary_status !== 'ready') {
-    try {
-      await updateContent(supabase, id, { summary_status: 'processing' })
-      const summary = await generateSummary(trimmed)
-      await updateContent(supabase, id, { summary_status: 'ready', summary_text: summary })
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao gerar resumo'
-      await updateContent(supabase, id, {
-        summary_status: 'error',
-        automation_status: 'error',
-        automation_error: `Resumo: ${msg}`,
-        automation_processed_at: new Date().toISOString(),
-      })
-      throw err
-    }
+  if (mindMapResult.status === 'fulfilled' && mindMapResult.value !== null) {
+    finalUpdate.mind_map_status = 'ready'
+    finalUpdate.mind_map_markdown = mindMapResult.value
+  } else if (mindMapResult.status === 'rejected') {
+    const msg = mindMapResult.reason instanceof Error ? mindMapResult.reason.message : 'Erro ao gerar mapa mental'
+    finalUpdate.mind_map_status = 'error'
+    errors.push(`Mapa mental: ${msg}`)
   }
 
-  // ---- Step 3: Mind Map ----
-  if (mind_map_status !== 'ready') {
-    try {
-      await updateContent(supabase, id, { mind_map_status: 'processing' })
-      const mindMap = await generateMindMap(trimmed)
-      await updateContent(supabase, id, { mind_map_status: 'ready', mind_map_markdown: mindMap })
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Erro ao gerar mapa mental'
-      await updateContent(supabase, id, {
-        mind_map_status: 'error',
-        automation_status: 'error',
-        automation_error: `Mapa mental: ${msg}`,
-        automation_processed_at: new Date().toISOString(),
-      })
-      throw err
-    }
+  if (questionsResult.status === 'fulfilled') {
+    finalUpdate.assessment_suggestions = questionsResult.value
+  } else {
+    const msg = questionsResult.reason instanceof Error ? questionsResult.reason.message : 'Erro ao gerar questoes'
+    errors.push(`Questoes: ${msg}`)
   }
 
-  // ---- Step 4: Assessment Suggestions ----
-  try {
-    const questions = await generateAssessmentSuggestions(
-      trimmed,
-      assessment_question_count || 5,
-    )
-    await updateContent(supabase, id, {
-      assessment_suggestions: questions,
-      automation_status: 'ready',
-      automation_processed_at: new Date().toISOString(),
-      automation_error: null,
-    })
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Erro ao gerar questoes de avaliacao'
-    await updateContent(supabase, id, {
-      automation_status: 'error',
-      automation_error: `Questoes: ${msg}`,
-      automation_processed_at: new Date().toISOString(),
-    })
-    throw err
+  if (errors.length > 0) {
+    finalUpdate.automation_status = 'error'
+    finalUpdate.automation_error = errors.join(' | ')
+    finalUpdate.automation_processed_at = new Date().toISOString()
+  } else {
+    finalUpdate.automation_status = 'ready'
+    finalUpdate.automation_error = null
+    finalUpdate.automation_processed_at = new Date().toISOString()
+  }
+
+  await updateContent(supabase, id, finalUpdate)
+
+  if (errors.length > 0) {
+    throw new Error(errors.join(' | '))
   }
 }
 
@@ -459,23 +335,20 @@ Deno.serve(async (req: Request) => {
 
     const { data: updated } = await supabase
       .from('content')
-      .select(
-        'automation_status, automation_error, automation_processed_at, transcript_status, summary_status, mind_map_status',
-      )
+      .select('automation_status, automation_error, automation_processed_at, summary_status, mind_map_status')
       .eq('id', contentId)
       .single()
 
     return json({
       contentId,
       status: updated?.automation_status || 'unknown',
-      transcript: updated?.transcript_status || 'unknown',
       summary: updated?.summary_status || 'unknown',
       mindMap: updated?.mind_map_status || 'unknown',
       error: updated?.automation_error || null,
       processedAt: updated?.automation_processed_at || null,
     })
   } catch (err) {
-    console.error('Content Automation Edge Function Error:', err)
+    console.error('Content Automation Error:', err)
     return jsonError(
       err instanceof Error ? err.message : 'Erro no pipeline de automacao.',
       500,

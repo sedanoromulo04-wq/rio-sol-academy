@@ -334,6 +334,54 @@ export const adminStore = {
     } catch (error) {
       console.warn('Failed to save content', error)
     }
+
+    // Auto-trigger AI pipeline whenever a YouTube video is present and not yet processed
+    const shouldAutoProcess =
+      normalizedItem.youtube_video_id &&
+      (normalizedItem.automation_status === 'idle' ||
+        normalizedItem.automation_status === 'not_configured' ||
+        normalizedItem.automation_status === 'error')
+
+    if (shouldAutoProcess) {
+      const updatedItem: ContentItem = {
+        ...normalizedItem,
+        automation_status: 'queued',
+        transcript_status: normalizedItem.transcript_status === 'ready' ? 'ready' : 'queued',
+        summary_status: normalizedItem.summary_status === 'ready' ? 'ready' : 'queued',
+        mind_map_status: normalizedItem.mind_map_status === 'ready' ? 'ready' : 'queued',
+        automation_requested_at: new Date().toISOString(),
+        automation_error: null,
+      }
+
+      state = buildAdminState({
+        content: state.content.map((contentItem) =>
+          contentItem.id === normalizedItem.id ? updatedItem : contentItem,
+        ),
+      })
+      emit()
+
+      try {
+        await supabase.from('content').update({
+          automation_status: 'queued',
+          transcript_status: updatedItem.transcript_status,
+          summary_status: updatedItem.summary_status,
+          mind_map_status: updatedItem.mind_map_status,
+          automation_requested_at: updatedItem.automation_requested_at,
+          automation_error: null,
+        }).eq('id', normalizedItem.id)
+      } catch (error) {
+        console.warn('Failed to queue automation', error)
+      }
+
+      supabase.functions
+        .invoke('content-automation', { body: { contentId: normalizedItem.id } })
+        .then(({ error }) => {
+          if (error) console.warn('Auto content automation error:', error)
+        })
+        .catch((error) => {
+          console.warn('Auto content automation trigger failed:', error)
+        })
+    }
   },
   deleteContent: async (id: string) => {
     state = buildAdminState({
