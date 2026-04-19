@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useToast } from '@/hooks/use-toast'
 import { formatMinutes, getEstimatedMinutes } from '@/lib/learning'
 import useAdminStore from '@/stores/useAdminStore'
-import { Edit, Plus, RefreshCw, Search, Trash2 } from 'lucide-react'
+import { Edit, Eye, EyeOff, Plus, RefreshCw, Search, Trash2 } from 'lucide-react'
 
 const pipelineStatusLabel: Record<string, string> = {
   not_configured: 'Nao configurado',
@@ -28,7 +28,7 @@ const assetStatusLabel: Record<string, string> = {
 }
 
 export default function AdminTracks() {
-  const { content, deleteContent, requestContentAutomation } = useAdminStore()
+  const { content, deleteContent, requestContentAutomation, togglePublished } = useAdminStore()
   const { toast } = useToast()
   const [search, setSearch] = useState('')
   const [deleteId, setDeleteId] = useState<string | null>(null)
@@ -89,6 +89,7 @@ export default function AdminTracks() {
             <TableHeader className="bg-[#1F2937]">
               <TableRow className="border-white/5 hover:bg-transparent">
                 <TableHead className="text-slate-400 font-bold h-12">Modulo</TableHead>
+                <TableHead className="text-slate-400 font-bold">Visivel</TableHead>
                 <TableHead className="text-slate-400 font-bold">Publico</TableHead>
                 <TableHead className="text-slate-400 font-bold">Prova</TableHead>
                 <TableHead className="text-slate-400 font-bold">Carga</TableHead>
@@ -99,7 +100,7 @@ export default function AdminTracks() {
             <TableBody>
               {filteredContent.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-slate-500">
+                  <TableCell colSpan={7} className="text-center py-8 text-slate-500">
                     Nenhum conteudo encontrado.
                   </TableCell>
                 </TableRow>
@@ -116,6 +117,17 @@ export default function AdminTracks() {
                           </p>
                         </div>
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <button
+                        onClick={() => togglePublished(item.id)}
+                        className="flex items-center gap-1.5 text-xs font-bold transition-colors"
+                        title={item.is_published ? 'Clique para ocultar' : 'Clique para publicar'}
+                      >
+                        {item.is_published
+                          ? <><Eye className="h-4 w-4 text-emerald-400" /><span className="text-emerald-400">Publicado</span></>
+                          : <><EyeOff className="h-4 w-4 text-slate-500" /><span className="text-slate-500">Rascunho</span></>}
+                      </button>
                     </TableCell>
                     <TableCell>
                       <div className="text-slate-300 text-sm">

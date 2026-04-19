@@ -19,6 +19,7 @@ export type ContentItem = {
   estimated_minutes_override?: number | null
   audience_scope: 'all' | 'specialty'
   target_specialties: string[]
+  is_published: boolean
   automation_status: 'not_configured' | 'idle' | 'queued' | 'processing' | 'ready' | 'error'
   transcript_status: 'idle' | 'queued' | 'processing' | 'ready' | 'error'
   transcript_text: string
@@ -137,6 +138,7 @@ const normalizeContentItem = (item: Partial<ContentItem> & { id: string; title: 
   estimated_minutes_override: item.estimated_minutes_override || null,
   audience_scope: (item.audience_scope === 'specialty' ? 'specialty' : 'all') as 'all' | 'specialty',
   target_specialties: item.target_specialties || [],
+  is_published: item.is_published === true,
   automation_status:
     item.automation_status === 'idle' ||
     item.automation_status === 'queued' ||
@@ -482,6 +484,22 @@ export const adminStore = {
       })
     } catch (error) {
       console.warn('Failed to update user content access', error)
+    }
+  },
+  togglePublished: async (contentId: string) => {
+    const existing = state.content.find((item) => item.id === contentId)
+    if (!existing) return
+    const nextPublished = !existing.is_published
+    state = buildAdminState({
+      content: state.content.map((item) =>
+        item.id === contentId ? { ...item, is_published: nextPublished } : item,
+      ),
+    })
+    emit()
+    try {
+      await supabase.from('content').update({ is_published: nextPublished }).eq('id', contentId)
+    } catch (error) {
+      console.warn('Failed to toggle published', error)
     }
   },
   requestContentAutomation: async (contentId: string) => {

@@ -9,7 +9,8 @@ import { useToast } from '@/hooks/use-toast'
 import { formatDeadline, formatMinutes, getDeadlineDays, getEstimatedMinutes } from '@/lib/learning'
 import { buildYouTubeThumbnailUrl, extractYouTubeVideoId } from '@/lib/youtube'
 import useAdminStore from '@/stores/useAdminStore'
-import { ArrowLeft, Image as ImageIcon, Loader2, RefreshCw, Save, Video } from 'lucide-react'
+import { Switch } from '@/components/ui/switch'
+import { ArrowLeft, Eye, EyeOff, Image as ImageIcon, Loader2, RefreshCw, Save, Video } from 'lucide-react'
 
 const pipelineStatusLabel: Record<string, string> = {
   not_configured: 'Nao configurado',
@@ -65,6 +66,7 @@ export default function AdminTrackEdit() {
 
   const isNew = !id || id === 'new'
   const item = isNew ? null : content.find((contentItem) => contentItem.id === id)
+  const { togglePublished } = useAdminStore()
   const [formData, setFormData] = useState(initialFormData)
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -628,6 +630,32 @@ export default function AdminTrackEdit() {
             )}
           </div>
         </div>
+
+        {/* Visibility control — only for saved items */}
+        {!isNew && item && (
+          <div className="rounded-2xl border border-white/10 bg-[#0f172a] p-4 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              {item.is_published
+                ? <Eye className="w-5 h-5 text-emerald-400" />
+                : <EyeOff className="w-5 h-5 text-slate-500" />}
+              <div>
+                <p className="text-sm font-bold text-white">
+                  {item.is_published ? 'Conteudo visivel para alunos' : 'Conteudo oculto (rascunho)'}
+                </p>
+                <p className="text-xs text-slate-500">
+                  {item.is_published
+                    ? 'Alunos com acesso podem ver e assistir este modulo.'
+                    : 'Nenhum aluno ve este conteudo. Publique quando estiver pronto.'}
+                </p>
+              </div>
+            </div>
+            <Switch
+              checked={item.is_published}
+              onCheckedChange={() => togglePublished(item.id)}
+              className="data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-slate-700 shrink-0"
+            />
+          </div>
+        )}
 
         <div className="pt-6 border-t border-white/10 flex justify-end">
           <Button

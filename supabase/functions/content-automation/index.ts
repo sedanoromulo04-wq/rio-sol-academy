@@ -60,7 +60,7 @@ async function requireAdmin(req: Request) {
 // Gemini 1.5+ supports YouTube video URLs natively as file parts
 // ---------------------------------------------------------------------------
 
-function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 55000) {
+function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 40000) {
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
   return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer))
@@ -78,7 +78,7 @@ async function geminiRequest(body: Record<string, unknown>) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     },
-    55000,
+    40000,
   )
 
   const payload = await response.json().catch(() => null)
@@ -298,13 +298,17 @@ Deno.serve(async (req: Request) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  let contentId: string | null = null
+  let supabase: ReturnType<typeof createServiceClient> | null = null
+
   try {
     await requireAdmin(req)
 
-    const { contentId } = await req.json()
+    const body = await req.json()
+    contentId = body?.contentId || null
     if (!contentId) return jsonError('contentId obrigatorio.', 400)
 
-    const supabase = createServiceClient()
+    supabase = createServiceClient()
 
     const { data: item, error } = await supabase
       .from('content')
@@ -333,6 +337,14 @@ Deno.serve(async (req: Request) => {
     })
   } catch (err) {
     console.error('Content Automation Error:', err)
+    // Safety net: if anything throws unexpectedly, mark content as error in DB
+    if (contentId && supabase) {
+      await supabase.from('content').update({
+        automation_status: 'error',
+        automation_error: err instanceof Error ? err.message : 'Erro inesperado no pipeline.',
+        automation_processed_at: new Date().toISOString(),
+      }).eq('id', contentId).catch(() => {})
+    }
     return jsonError(
       err instanceof Error ? err.message : 'Erro no pipeline de automacao.',
       500,

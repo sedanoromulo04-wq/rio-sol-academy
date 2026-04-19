@@ -114,7 +114,7 @@ export const filterContentForUser = (
   items: ContentItem[],
   specialty?: string | null,
   accessMap?: Map<string, boolean>,
-) => items.filter((item) => canUserAccessContent(item, specialty, accessMap))
+) => items.filter((item) => item.is_published && canUserAccessContent(item, specialty, accessMap))
 
 export const getTrackModules = (items: ContentItem[], category: string) =>
   sortModules(items.filter((item) => item.category === category))
